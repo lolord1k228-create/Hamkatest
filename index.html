@@ -1387,25 +1387,26 @@
         }
 
         // ============================================================
-        //  🏅 ТИТУЛИ
+        //  🏅 ТИТУЛИ (СТАРІ ДЕШЕВШІ ЦІНИ)
         // ============================================================
         const TITLES = {
             'none': { name: 'Без титулу', color: '#888', class: '' },
-            'noob': { name: '🌱 Новачок', color: '#aaa', class: '', price: 5000000 },
-            'player': { name: '🎮 Геймер', color: '#3b82f6', class: '', price: 15000000 },
-            'pro': { name: '⚡ Кіберспортсмен', color: '#a855f7', class: 'title-cyber', price: 50000000 },
-            'veteran': { name: '🎖️ Ветеран', color: '#f97316', class: '', price: 100000000 },
-            'elite': { name: '💎 Елітний', color: '#06b6d4', class: 'title-ice', price: 250000000 },
-            'legend': { name: '🏆 Легендарний', color: '#ffd700', class: 'title-legendary', price: 500000000 },
-            'mythic': { name: '✨ Міфічний', color: '#ec4899', class: 'title-cosmic', price: 1000000000 },
-            'god': { name: '👑 Бог', color: '#00ff88', class: 'title-gold', price: 2500000000 },
-            'cyber': { name: '🖥️ Кіберпанк', color: '#0f0', class: 'title-cyber', price: 1500000000 },
-            'neon': { name: '💜 Неоновий', color: '#ff00cc', class: 'title-neon', price: 2000000000 },
-            'glitch': { name: '📺 Глітч', color: '#f0f', class: 'title-glitch', price: 3000000000 },
-            'cosmic': { name: '🌌 Космічний', color: '#ff66cc', class: 'title-cosmic', price: 4000000000 },
-            'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 5000000000 },
-            'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 3500000000 },
-            'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 3500000000 },
+            'noob': { name: '🌱 Новачок', color: '#aaa', class: '', price: 5000 },
+            'player': { name: '🎮 Геймер', color: '#3b82f6', class: '', price: 15000 },
+            'pro': { name: '⚡ Кіберспортсмен', color: '#a855f7', class: 'title-cyber', price: 50000 },
+            'veteran': { name: '🎖️ Ветеран', color: '#f97316', class: '', price: 100000 },
+            'elite': { name: '💎 Елітний', color: '#06b6d4', class: 'title-ice', price: 250000 },
+            'legend': { name: '🏆 Легендарний', color: '#ffd700', class: 'title-legendary', price: 500000 },
+            'mythic': { name: '✨ Міфічний', color: '#ec4899', class: 'title-cosmic', price: 1000000 },
+            'god': { name: '👑 Бог', color: '#00ff88', class: 'title-gold', price: 2500000 },
+            'cyber': { name: '🖥️ Кіберпанк', color: '#0f0', class: 'title-cyber', price: 1500000 },
+            'neon': { name: '💜 Неоновий', color: '#ff00cc', class: 'title-neon', price: 2000000 },
+            'glitch': { name: '📺 Глітч', color: '#f0f', class: 'title-glitch', price: 3000000 },
+            'cosmic': { name: '🌌 Космічний', color: '#ff66cc', class: 'title-cosmic', price: 4000000 },
+            'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 5000000 },
+            'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 3500000 },
+            'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 3500000 },
+            // Вибивні титули
             'king': { name: '👑 Король', color: '#ffd700', class: 'title-gold' },
             'lord': { name: '🗡️ Лорд', color: '#c0c0c0', class: 'title-royal' },
             'knight': { name: '🛡️ Лицар', color: '#3b82f6', class: '' },
@@ -1940,7 +1941,6 @@
             G.chests[type]--;
             if (G.chests[type] === 0) delete G.chests[type];
 
-            // Випадковий дроп з ящика - НЕ ТІЛЬКИ ХОМИ
             const reward = rand(box.homyMin, box.homyMax);
             const bonus = Math.floor(reward * (1 + G.luck * 0.1));
             const finalReward = bonus;
@@ -1958,17 +1958,15 @@
                 icon.style.animation = 'chestShake 0.5s ease';
             }, 10);
 
-            // Додаткові дропи з ящиків (не тільки хоми)
+            // Додаткові дропи з ящиків
             const extraDrop = Math.random();
             if (extraDrop < 0.20) {
-                // Гіфка
                 const g = GIFS[rand(0, GIFS.length - 1)];
                 addGif(g.id);
                 setTimeout(() => {
                     toast(`🎨 +${g.id} (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.35) {
-                // Титул
                 const titles = ['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto'];
                 const nt = titles[rand(0, titles.length - 1)];
                 addTitle(nt);
@@ -1976,35 +1974,30 @@
                     toast(`🏅 Титул ${TITLES[nt]?.name || nt} (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.45) {
-                // Монети
                 const coinsBonus = rand(1000, 5000);
                 G.coins += coinsBonus;
                 setTimeout(() => {
                     toast(`💰 +${coinsBonus} монет (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.52) {
-                // Крипта
                 const cryptoBonus = rand(1, 5) / 100;
                 G.crypto += cryptoBonus;
                 setTimeout(() => {
                     toast(`₿ +${cryptoBonus.toFixed(2)} B HAM (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.58) {
-                // T HAM
                 const crypto2Bonus = rand(1, 5);
                 G.crypto2 += crypto2Bonus;
                 setTimeout(() => {
                     toast(`🪙 +${crypto2Bonus} T HAM (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.63) {
-                // Івенхоми
                 const eventBonus = rand(1, 3);
                 G.eventHoma += eventBonus;
                 setTimeout(() => {
                     toast(`🌸 +${eventBonus} Івенхомів (додатковий дроп!)`);
                 }, 400);
             } else if (extraDrop < 0.68) {
-                // Енергія
                 const energyBonus = rand(10, 30);
                 G.maxEnergy += energyBonus;
                 G.energy += energyBonus;
@@ -2270,16 +2263,13 @@
             if (!offerId) { toast('Виберіть гіфку яку віддаєте'); return; }
             if (!wantId) { toast('Виберіть гіфку яку хочете отримати'); return; }
 
-            // Перевіряємо чи є гіфка у гравця
             if (!hasGif(offerId) || getGifCount(offerId) < offerAmount) {
                 toast(`❌ У вас немає ${offerAmount} гіфок ${offerId}`);
                 return;
             }
 
-            // Знімаємо гіфку з гравця
             removeGif(offerId, offerAmount);
 
-            // Створюємо пропозицію
             const offer = {
                 id: Date.now() + '_' + G.uid,
                 sellerId: G.uid,
@@ -2294,7 +2284,6 @@
                 status: 'active'
             };
 
-            // Зберігаємо в Firebase
             db.ref('trade_offers/' + offer.id).set(offer).then(() => {
                 toast('✅ Пропозицію обміну гіфок створено!');
                 renderTradersTab();
@@ -2302,7 +2291,6 @@
             }).catch(e => {
                 toast('❌ Помилка створення пропозиції');
                 console.error(e);
-                // Повертаємо гіфку при помилці
                 addGif(offerId, offerAmount);
                 saveGame();
             });
@@ -2320,25 +2308,19 @@
                     return;
                 }
 
-                // Перевіряємо чи є у покупця бажана гіфка
                 if (!hasGif(offer.wantId) || getGifCount(offer.wantId) < offer.wantAmount) {
                     toast(`❌ У вас немає ${offer.wantAmount} гіфок ${offer.wantId}`);
                     return;
                 }
 
-                // Знімаємо гіфку з покупця
                 removeGif(offer.wantId, offer.wantAmount);
-
-                // Даємо покупцю гіфку продавця
                 addGif(offer.offerId, offer.offerAmount);
 
-                // Оновлюємо статус пропозиції
                 offer.status = 'completed';
                 offer.buyerId = G.uid;
                 offer.buyerName = G.name;
                 db.ref('trade_offers/' + offerId).update({ status: 'completed', buyerId: G.uid, buyerName: G.name });
 
-                // Даємо продавцю гіфку покупця
                 db.ref('users/' + offer.sellerId + '/myGifs/' + offer.wantId).set(firebase.database.ServerValue.increment(offer.wantAmount));
 
                 toast('✅ Обмін гіфок виконано!');
@@ -2363,7 +2345,6 @@
                     return;
                 }
 
-                // Повертаємо гіфку продавцю
                 addGif(offer.offerId, offer.offerAmount);
 
                 db.ref('trade_offers/' + offerId).update({ status: 'cancelled' });
@@ -2417,15 +2398,11 @@
 
             el.innerHTML = html;
 
-            // Оновлюємо списки гіфок для вибору
             updateTradeSelects();
-
-            // Завантажуємо активні пропозиції
             loadTradeOffers();
         }
 
         function updateTradeSelects() {
-            // Для віддачі
             const offerSelect = document.getElementById('tradeOfferId');
             if (offerSelect) {
                 offerSelect.innerHTML = '<option value="">Виберіть гіфку...</option>';
@@ -2434,7 +2411,6 @@
                 });
             }
 
-            // Для бажаного
             const wantSelect = document.getElementById('tradeWantId');
             if (wantSelect) {
                 wantSelect.innerHTML = '<option value="">Виберіть гіфку...</option>';
@@ -2573,6 +2549,7 @@
                     </div>`;
                 }).join('');
 
+                // ТИТУЛИ З СТАРИМИ ДЕШЕВШИМИ ЦІНАМИ
                 let titles = Object.entries(TITLES).filter(([id, t]) => t.price && !['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto', 'top1', 'top2', 'top3'].includes(id)).map(([id, t]) => {
                     let owned = hasTitle(id);
                     return `<div class="card"><div class="flex"><b style="color:${t.color};text-shadow:0 0 15px ${t.color};">${t.name}</b> <span style="color:var(--gold);font-size:6px;">${t.price}🟣</span> <button class="btn btn-g btn-sm" onclick="buyTitleHoma('${id}')" ${owned?'disabled':''}>${owned?'✅':'Купити'}</button></div></div>`;
@@ -2605,7 +2582,9 @@
                     <div class="card"><div class="card-title">🎨 Гіфки (🟣) - НОВІ ЦІНИ!</div>
                     <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">common:50 | rare:150 | superrare:400 | epic:2500 | mythic:7500 | legendary:25000</div>
                     <div class="gif-row">${gifs}</div></div>
-                    <div class="card"><div class="card-title">🏅 Титули (🟣) — Неонові</div>${titles}</div>
+                    <div class="card"><div class="card-title">🏅 Титули (🟣) — Неонові (СТАРІ ДЕШЕВШІ ЦІНИ)</div>
+                    <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">Ціни зменшено до старих значень!</div>
+                    ${titles}</div>
                     <div class="card" style="border-color:var(--gold);"><div class="card-title">🎯 ВИБИВНІ ПРЕДМЕТИ (тільки з босів/ящиків)</div>
                     <div style="font-size:6px;color:var(--text-secondary);margin-bottom:4px;">Гіфки:</div>
                     <div class="gif-row">${exclusiveGifs}</div>
@@ -3009,7 +2988,7 @@
                 ${skinsHtml ? `<div class="card"><div class="card-title">🎨 Скіни</div>${skinsHtml}</div>` : ''}
                 ${chests ? `<div class="card"><div class="card-title">📦 Ящики (натисніть щоб відкрити)</div><div class="inventory-grid">${chests}</div></div>` : ''}
                 ${gifs ? `<div class="card"><div class="card-title">🎨 Гіфки</div><div class="inventory-grid">${gifs}</div></div>` : ''}
-                ${titles ? `<div class="card"><div class="card-title">🏅 Титули (Неонові)</div><div class="inventory-grid">${titles}</div></div>` : ''}
+                ${titles ? `<div class="card"><div class="card-title">🏅 Титули (Неонові) - СТАРІ ЦІНИ</div><div class="inventory-grid">${titles}</div></div>` : ''}
                 ${upItems ? `<div class="card"><div class="card-title">🔧 Предмети</div><div class="inventory-grid">${upItems}</div></div>` : ''}
                 <div class="card" style="text-align:center;color:var(--text-muted);font-size:7px;">Всього: ${Object.values(G.ownedGifs).reduce((a,b)=>a+b,0) + Object.values(G.ownedTitles).reduce((a,b)=>a+b,0)}</div>
             `;
@@ -4050,6 +4029,7 @@
         }
 
         console.log('🐹 Hamka — Сезон 2');
+        console.log('✅ СТАРІ ДЕШЕВШІ ЦІНИ НА ТИТУЛИ ПОВЕРНУТО!');
         console.log('✅ Апгрейдер без гіфок та титулів (тільки предмети)');
         console.log('✅ З ящиків дропаються різні речі, не тільки хоми');
         console.log('✅ Трейдери працюють тільки на гіфки');
