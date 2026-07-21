@@ -1387,25 +1387,25 @@
         }
 
         // ============================================================
-        //  🏅 ТИТУЛИ (СТАРІ ДЕШЕВШІ ЦІНИ)
+        //  🏅 ТИТУЛИ (НОВІ ЦІНИ)
         // ============================================================
         const TITLES = {
             'none': { name: 'Без титулу', color: '#888', class: '' },
-            'noob': { name: '🌱 Новачок', color: '#aaa', class: '', price: 5000 },
-            'player': { name: '🎮 Геймер', color: '#3b82f6', class: '', price: 15000 },
-            'pro': { name: '⚡ Кіберспортсмен', color: '#a855f7', class: 'title-cyber', price: 50000 },
-            'veteran': { name: '🎖️ Ветеран', color: '#f97316', class: '', price: 100000 },
-            'elite': { name: '💎 Елітний', color: '#06b6d4', class: 'title-ice', price: 250000 },
-            'legend': { name: '🏆 Легендарний', color: '#ffd700', class: 'title-legendary', price: 500000 },
-            'mythic': { name: '✨ Міфічний', color: '#ec4899', class: 'title-cosmic', price: 1000000 },
-            'god': { name: '👑 Бог', color: '#00ff88', class: 'title-gold', price: 2500000 },
-            'cyber': { name: '🖥️ Кіберпанк', color: '#0f0', class: 'title-cyber', price: 1500000 },
-            'neon': { name: '💜 Неоновий', color: '#ff00cc', class: 'title-neon', price: 2000000 },
-            'glitch': { name: '📺 Глітч', color: '#f0f', class: 'title-glitch', price: 3000000 },
-            'cosmic': { name: '🌌 Космічний', color: '#ff66cc', class: 'title-cosmic', price: 4000000 },
-            'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 5000000 },
-            'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 3500000 },
-            'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 3500000 },
+            'noob': { name: '🌱 Новачок', color: '#aaa', class: '', price: 500 },
+            'player': { name: '🎮 Геймер', color: '#3b82f6', class: '', price: 750 },
+            'pro': { name: '⚡ Кіберспортсмен', color: '#a855f7', class: 'title-cyber', price: 1000 },
+            'veteran': { name: '🎖️ Ветеран', color: '#f97316', class: '', price: 2500 },
+            'elite': { name: '💎 Елітний', color: '#06b6d4', class: 'title-ice', price: 4000 },
+            'legend': { name: '🏆 Легендарний', color: '#ffd700', class: 'title-legendary', price: 5000 },
+            'mythic': { name: '✨ Міфічний', color: '#ec4899', class: 'title-cosmic', price: 7500 },
+            'god': { name: '👑 Бог', color: '#00ff88', class: 'title-gold', price: 10000 },
+            'cyber': { name: '🖥️ Кіберпанк', color: '#0f0', class: 'title-cyber', price: 8000 },
+            'neon': { name: '💜 Неоновий', color: '#ff00cc', class: 'title-neon', price: 8500 },
+            'glitch': { name: '📺 Глітч', color: '#f0f', class: 'title-glitch', price: 12000 },
+            'cosmic': { name: '🌌 Космічний', color: '#ff66cc', class: 'title-cosmic', price: 13500 },
+            'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 15000 },
+            'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 13000 },
+            'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 13000 },
             // Вибивні титули
             'king': { name: '👑 Король', color: '#ffd700', class: 'title-gold' },
             'lord': { name: '🗡️ Лорд', color: '#c0c0c0', class: 'title-royal' },
@@ -2549,7 +2549,7 @@
                     </div>`;
                 }).join('');
 
-                // ТИТУЛИ З СТАРИМИ ДЕШЕВШИМИ ЦІНАМИ
+                // ТИТУЛИ З НОВИМИ ЦІНАМИ
                 let titles = Object.entries(TITLES).filter(([id, t]) => t.price && !['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto', 'top1', 'top2', 'top3'].includes(id)).map(([id, t]) => {
                     let owned = hasTitle(id);
                     return `<div class="card"><div class="flex"><b style="color:${t.color};text-shadow:0 0 15px ${t.color};">${t.name}</b> <span style="color:var(--gold);font-size:6px;">${t.price}🟣</span> <button class="btn btn-g btn-sm" onclick="buyTitleHoma('${id}')" ${owned?'disabled':''}>${owned?'✅':'Купити'}</button></div></div>`;
@@ -2582,8 +2582,8 @@
                     <div class="card"><div class="card-title">🎨 Гіфки (🟣) - НОВІ ЦІНИ!</div>
                     <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">common:50 | rare:150 | superrare:400 | epic:2500 | mythic:7500 | legendary:25000</div>
                     <div class="gif-row">${gifs}</div></div>
-                    <div class="card"><div class="card-title">🏅 Титули (🟣) — Неонові (СТАРІ ДЕШЕВШІ ЦІНИ)</div>
-                    <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">Ціни зменшено до старих значень!</div>
+                    <div class="card"><div class="card-title">🏅 Титули (🟣) — Неонові</div>
+                    <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">Новачок:500 | Геймер:750 | Кіберспортсмен:1000 | Ветеран:2500 | Елітний:4000 | Легендарний:5000 | Міфічний:7500 | Бог:10000 | Кіберпанк:8000 | Неоновий:8500 | Глітч:12000 | Космічний:13500 | Порожнеча:15000 | Вогняний:13000 | Крижаний:13000</div>
                     ${titles}</div>
                     <div class="card" style="border-color:var(--gold);"><div class="card-title">🎯 ВИБИВНІ ПРЕДМЕТИ (тільки з босів/ящиків)</div>
                     <div style="font-size:6px;color:var(--text-secondary);margin-bottom:4px;">Гіфки:</div>
@@ -2988,7 +2988,7 @@
                 ${skinsHtml ? `<div class="card"><div class="card-title">🎨 Скіни</div>${skinsHtml}</div>` : ''}
                 ${chests ? `<div class="card"><div class="card-title">📦 Ящики (натисніть щоб відкрити)</div><div class="inventory-grid">${chests}</div></div>` : ''}
                 ${gifs ? `<div class="card"><div class="card-title">🎨 Гіфки</div><div class="inventory-grid">${gifs}</div></div>` : ''}
-                ${titles ? `<div class="card"><div class="card-title">🏅 Титули (Неонові) - СТАРІ ЦІНИ</div><div class="inventory-grid">${titles}</div></div>` : ''}
+                ${titles ? `<div class="card"><div class="card-title">🏅 Титули (Неонові)</div><div class="inventory-grid">${titles}</div></div>` : ''}
                 ${upItems ? `<div class="card"><div class="card-title">🔧 Предмети</div><div class="inventory-grid">${upItems}</div></div>` : ''}
                 <div class="card" style="text-align:center;color:var(--text-muted);font-size:7px;">Всього: ${Object.values(G.ownedGifs).reduce((a,b)=>a+b,0) + Object.values(G.ownedTitles).reduce((a,b)=>a+b,0)}</div>
             `;
@@ -4029,11 +4029,14 @@
         }
 
         console.log('🐹 Hamka — Сезон 2');
-        console.log('✅ СТАРІ ДЕШЕВШІ ЦІНИ НА ТИТУЛИ ПОВЕРНУТО!');
+        console.log('✅ НОВІ ЦІНИ НА ТИТУЛИ:');
+        console.log('   Новачок:500 | Геймер:750 | Кіберспортсмен:1000 | Ветеран:2500');
+        console.log('   Елітний:4000 | Легендарний:5000 | Міфічний:7500 | Бог:10000');
+        console.log('   Кіберпанк:8000 | Неоновий:8500 | Глітч:12000 | Космічний:13500');
+        console.log('   Порожнеча:15000 | Вогняний:13000 | Крижаний:13000');
         console.log('✅ Апгрейдер без гіфок та титулів (тільки предмети)');
         console.log('✅ З ящиків дропаються різні речі, не тільки хоми');
         console.log('✅ Трейдери працюють тільки на гіфки');
-        console.log('✅ Гіфки: common:50, rare:150, superrare:400, epic:2500, mythic:7500, legendary:25000 🟣');
         console.log('✅ Топ-3: Король, Паладин, Хомяк');
         console.log('✅ Анти-автоклікер: 1200 тапів/хв');
     </script>
