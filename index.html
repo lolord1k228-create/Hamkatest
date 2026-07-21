@@ -1341,12 +1341,11 @@
             { id: '👑', r: 'superrare' }, { id: '💎', r: 'superrare' },
             { id: '🌟', r: 'epic' }, { id: '🔥', r: 'epic' }, { id: '🚀', r: 'mythic' },
             { id: '🦄', r: 'legendary' }, { id: '🐲', r: 'legendary' },
-            // Вибивні гіфки
             { id: '⚔️', r: 'exclusive' }, { id: '☀️', r: 'summer' }, { id: '🏖️', r: 'summer' },
             { id: '🍉', r: 'summer' }, { id: '🍦', r: 'summer' }, { id: '🏝️', r: 'summer' }
         ];
-        const RARITY_PRICES = { common: 50000, rare: 150000, superrare: 400000, epic: 2500000, mythic: 7500000,
-            legendary: 25000000 };
+        const RARITY_PRICES = { common: 50, rare: 150, superrare: 400, epic: 2500, mythic: 7500,
+            legendary: 25000 };
 
         // ============================================================
         //  🏆 РІВНІ
@@ -1407,7 +1406,6 @@
             'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 5000000000 },
             'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 3500000000 },
             'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 3500000000 },
-            // Вибивні титули
             'king': { name: '👑 Король', color: '#ffd700', class: 'title-gold' },
             'lord': { name: '🗡️ Лорд', color: '#c0c0c0', class: 'title-royal' },
             'knight': { name: '🛡️ Лицар', color: '#3b82f6', class: '' },
@@ -1449,20 +1447,15 @@
         //  📦 ЯЩИКИ
         // ============================================================
         const BOXES = [
-            { id: 'common', emoji: '📦', name: 'Простий', price: 30000, homyMin: 5, homyMax: 50, color: '#888' },
-            { id: 'rare', emoji: '📦', name: 'Рідкісний', price: 100000, homyMin: 10, homyMax: 100, color: '#3b82f6' },
-            { id: 'epic', emoji: '📦', name: 'Епічний', price: 500000, homyMin: 20, homyMax: 200, color: '#a855f7' },
-            { id: 'legendary', emoji: '📦', name: 'Легендарний', price: 2000000, homyMin: 50, homyMax: 500,
-                color: '#fbbf24' },
-            { id: 'mythic', emoji: '📦', name: 'Міфічний', price: 10000000, homyMin: 100, homyMax: 1000,
-                color: '#ec4899' },
-            { id: 'homa_chest', emoji: '🟣', name: 'Хома-ящик', price: 500, homyMin: 5, homyMax: 50, color: '#aa66ff' },
-            { id: 'homa10_chest', emoji: '🟣🟣', name: 'Хома x10', price: 4500, homyMin: 10, homyMax: 100,
-                color: '#aa66ff' },
-            { id: 'event_box', emoji: '🎁', name: 'Івент-бокс', price: 50, homyMin: 5, homyMax: 30, color: '#ec4899',
-                currency: 'eventHoma' },
-            { id: 'summer_box', emoji: '🎁', name: 'Літній бокс', price: 200, homyMin: 10, homyMax: 60, color: '#fbbf24',
-                currency: 'eventHoma' }
+            { id: 'common', emoji: '📦', name: 'Простий', price: 30000, currency: 'coins', homyMin: 5, homyMax: 50, color: '#888' },
+            { id: 'rare', emoji: '📦', name: 'Рідкісний', price: 100000, currency: 'coins', homyMin: 10, homyMax: 100, color: '#3b82f6' },
+            { id: 'epic', emoji: '📦', name: 'Епічний', price: 500000, currency: 'coins', homyMin: 20, homyMax: 200, color: '#a855f7' },
+            { id: 'legendary', emoji: '📦', name: 'Легендарний', price: 2000000, currency: 'coins', homyMin: 50, homyMax: 500, color: '#fbbf24' },
+            { id: 'mythic', emoji: '📦', name: 'Міфічний', price: 10000000, currency: 'coins', homyMin: 100, homyMax: 1000, color: '#ec4899' },
+            { id: 'homa_chest', emoji: '🟣', name: 'Хома-ящик', price: 500, currency: 'homa', homyMin: 5, homyMax: 50, color: '#aa66ff' },
+            { id: 'homa10_chest', emoji: '🟣🟣', name: 'Хома x10', price: 4500, currency: 'homa', homyMin: 10, homyMax: 100, color: '#aa66ff' },
+            { id: 'event_box', emoji: '🎁', name: 'Івент-бокс', price: 50, currency: 'eventHoma', homyMin: 5, homyMax: 30, color: '#ec4899' },
+            { id: 'summer_box', emoji: '🎁', name: 'Літній бокс', price: 200, currency: 'eventHoma', homyMin: 10, homyMax: 60, color: '#fbbf24' }
         ];
 
         // ============================================================
@@ -1556,7 +1549,8 @@
                 ronaldo: { has: false, use: false, file: 'Ronaldo.jpg' }
             },
             tapHistory: [],
-            isGuest: false
+            isGuest: false,
+            tradeOffers: []
         };
 
         // ============================================================
@@ -2155,7 +2149,7 @@
         function buyGifHoma(id) {
             const g = GIFS.find(x => x.id === id);
             if (!g || hasGif(id)) return;
-            const price = RARITY_PRICES[g.r] || 50000;
+            const price = RARITY_PRICES[g.r] || 50;
             if (G.homa >= price) { G.homa -= price;
                 addGif(id);
                 toast('🎨 +' + id);
@@ -2181,19 +2175,24 @@
             const box = BOXES.find(b => b.id === type);
             if (!box) return;
             
-            // Перевіряємо валюту
             if (box.currency === 'eventHoma') {
                 if (G.eventHoma < box.price) {
                     toast(`❌ Потрібно ${box.price}🌸 Івенхомів`);
                     return;
                 }
                 G.eventHoma -= box.price;
-            } else {
+            } else if (box.currency === 'homa') {
                 if (G.homa < box.price) {
                     toast(`❌ Потрібно ${box.price}🟣`);
                     return;
                 }
                 G.homa -= box.price;
+            } else {
+                if (G.coins < box.price) {
+                    toast(`❌ Потрібно ${box.price}💰`);
+                    return;
+                }
+                G.coins -= box.price;
             }
             
             G.chests[type] = (G.chests[type] || 0) + 1;
@@ -2220,7 +2219,465 @@
         }
 
         // ============================================================
-        //  🏪 МАГАЗИН (відображення) - БЕЗ РИНКУ
+        //  🤝 ТРЕЙДИ МІЖ ГРАВЦЯМИ
+        // ============================================================
+        function createTradeOffer() {
+            const offerType = document.getElementById('tradeOfferType').value;
+            const offerId = document.getElementById('tradeOfferId').value;
+            const offerAmount = parseInt(document.getElementById('tradeOfferAmount').value) || 1;
+            const wantType = document.getElementById('tradeWantType').value;
+            const wantId = document.getElementById('tradeWantId').value;
+            const wantAmount = parseInt(document.getElementById('tradeWantAmount').value) || 1;
+
+            if (!offerId) { toast('Виберіть що віддаєте'); return; }
+            if (!wantId) { toast('Виберіть що хочете отримати'); return; }
+
+            // Перевіряємо чи є предмет у гравця
+            if (offerType === 'gif') {
+                if (!hasGif(offerId) || getGifCount(offerId) < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} гіфок ${offerId}`);
+                    return;
+                }
+            } else if (offerType === 'title') {
+                if (!hasTitle(offerId) || G.ownedTitles[offerId] < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} титулів ${offerId}`);
+                    return;
+                }
+            } else if (offerType === 'chest') {
+                if (!G.chests[offerId] || G.chests[offerId] < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} ящиків ${offerId}`);
+                    return;
+                }
+            } else if (offerType === 'coins') {
+                if (G.coins < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} монет`);
+                    return;
+                }
+            } else if (offerType === 'homa') {
+                if (G.homa < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} Хом`);
+                    return;
+                }
+            } else if (offerType === 'crypto') {
+                if (G.crypto < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} B HAM`);
+                    return;
+                }
+            } else if (offerType === 'crypto2') {
+                if (G.crypto2 < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} T HAM`);
+                    return;
+                }
+            } else if (offerType === 'eventHoma') {
+                if (G.eventHoma < offerAmount) {
+                    toast(`❌ У вас немає ${offerAmount} Івенхомів`);
+                    return;
+                }
+            }
+
+            // Знімаємо предмети з гравця
+            if (offerType === 'gif') {
+                removeGif(offerId, offerAmount);
+            } else if (offerType === 'title') {
+                removeTitle(offerId, offerAmount);
+            } else if (offerType === 'chest') {
+                G.chests[offerId] -= offerAmount;
+                if (G.chests[offerId] <= 0) delete G.chests[offerId];
+            } else if (offerType === 'coins') {
+                G.coins -= offerAmount;
+            } else if (offerType === 'homa') {
+                G.homa -= offerAmount;
+            } else if (offerType === 'crypto') {
+                G.crypto -= offerAmount;
+            } else if (offerType === 'crypto2') {
+                G.crypto2 -= offerAmount;
+            } else if (offerType === 'eventHoma') {
+                G.eventHoma -= offerAmount;
+            }
+
+            // Створюємо пропозицію
+            const offer = {
+                id: Date.now() + '_' + G.uid,
+                sellerId: G.uid,
+                sellerName: G.name,
+                offerType: offerType,
+                offerId: offerId,
+                offerAmount: offerAmount,
+                wantType: wantType,
+                wantId: wantId,
+                wantAmount: wantAmount,
+                timestamp: Date.now(),
+                status: 'active'
+            };
+
+            // Зберігаємо в Firebase
+            db.ref('trade_offers/' + offer.id).set(offer).then(() => {
+                toast('✅ Пропозицію створено!');
+                renderTradersTab();
+                saveGame();
+            }).catch(e => {
+                toast('❌ Помилка створення пропозиції');
+                console.error(e);
+                // Повертаємо предмети при помилці
+                if (offerType === 'gif') addGif(offerId, offerAmount);
+                else if (offerType === 'title') addTitle(offerId, offerAmount);
+                else if (offerType === 'chest') G.chests[offerId] = (G.chests[offerId] || 0) + offerAmount;
+                else if (offerType === 'coins') G.coins += offerAmount;
+                else if (offerType === 'homa') G.homa += offerAmount;
+                else if (offerType === 'crypto') G.crypto += offerAmount;
+                else if (offerType === 'crypto2') G.crypto2 += offerAmount;
+                else if (offerType === 'eventHoma') G.eventHoma += offerAmount;
+                saveGame();
+            });
+        }
+
+        function acceptTradeOffer(offerId) {
+            db.ref('trade_offers/' + offerId).once('value').then(snap => {
+                const offer = snap.val();
+                if (!offer || offer.status !== 'active') {
+                    toast('❌ Пропозиція вже неактивна');
+                    return;
+                }
+                if (offer.sellerId === G.uid) {
+                    toast('❌ Ви не можете прийняти власну пропозицію');
+                    return;
+                }
+
+                // Перевіряємо чи є у покупця бажані предмети
+                if (offer.wantType === 'gif') {
+                    if (!hasGif(offer.wantId) || getGifCount(offer.wantId) < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} гіфок ${offer.wantId}`);
+                        return;
+                    }
+                } else if (offer.wantType === 'title') {
+                    if (!hasTitle(offer.wantId) || G.ownedTitles[offer.wantId] < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} титулів ${offer.wantId}`);
+                        return;
+                    }
+                } else if (offer.wantType === 'chest') {
+                    if (!G.chests[offer.wantId] || G.chests[offer.wantId] < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} ящиків ${offer.wantId}`);
+                        return;
+                    }
+                } else if (offer.wantType === 'coins') {
+                    if (G.coins < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} монет`);
+                        return;
+                    }
+                } else if (offer.wantType === 'homa') {
+                    if (G.homa < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} Хом`);
+                        return;
+                    }
+                } else if (offer.wantType === 'crypto') {
+                    if (G.crypto < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} B HAM`);
+                        return;
+                    }
+                } else if (offer.wantType === 'crypto2') {
+                    if (G.crypto2 < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} T HAM`);
+                        return;
+                    }
+                } else if (offer.wantType === 'eventHoma') {
+                    if (G.eventHoma < offer.wantAmount) {
+                        toast(`❌ У вас немає ${offer.wantAmount} Івенхомів`);
+                        return;
+                    }
+                }
+
+                // Знімаємо предмети з покупця
+                if (offer.wantType === 'gif') removeGif(offer.wantId, offer.wantAmount);
+                else if (offer.wantType === 'title') removeTitle(offer.wantId, offer.wantAmount);
+                else if (offer.wantType === 'chest') {
+                    G.chests[offer.wantId] -= offer.wantAmount;
+                    if (G.chests[offer.wantId] <= 0) delete G.chests[offer.wantId];
+                } else if (offer.wantType === 'coins') G.coins -= offer.wantAmount;
+                else if (offer.wantType === 'homa') G.homa -= offer.wantAmount;
+                else if (offer.wantType === 'crypto') G.crypto -= offer.wantAmount;
+                else if (offer.wantType === 'crypto2') G.crypto2 -= offer.wantAmount;
+                else if (offer.wantType === 'eventHoma') G.eventHoma -= offer.wantAmount;
+
+                // Даємо покупцю предмети продавця
+                if (offer.offerType === 'gif') addGif(offer.offerId, offer.offerAmount);
+                else if (offer.offerType === 'title') addTitle(offer.offerId, offer.offerAmount);
+                else if (offer.offerType === 'chest') G.chests[offer.offerId] = (G.chests[offer.offerId] || 0) + offer.offerAmount;
+                else if (offer.offerType === 'coins') G.coins += offer.offerAmount;
+                else if (offer.offerType === 'homa') G.homa += offer.offerAmount;
+                else if (offer.offerType === 'crypto') G.crypto += offer.offerAmount;
+                else if (offer.offerType === 'crypto2') G.crypto2 += offer.offerAmount;
+                else if (offer.offerType === 'eventHoma') G.eventHoma += offer.offerAmount;
+
+                // Оновлюємо статус пропозиції
+                offer.status = 'completed';
+                offer.buyerId = G.uid;
+                offer.buyerName = G.name;
+                db.ref('trade_offers/' + offerId).update({ status: 'completed', buyerId: G.uid, buyerName: G.name });
+
+                // Даємо продавцю предмети покупця
+                const sellerUpdates = {};
+                if (offer.wantType === 'gif') sellerUpdates['myGifs/' + offer.wantId] = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'title') sellerUpdates['myTitles/' + offer.wantId] = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'chest') sellerUpdates['chests/' + offer.wantId] = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'coins') sellerUpdates.coins = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'homa') sellerUpdates.homa = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'crypto') sellerUpdates.crypto = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'crypto2') sellerUpdates.crypto2 = firebase.database.ServerValue.increment(offer.wantAmount);
+                else if (offer.wantType === 'eventHoma') sellerUpdates.eventHoma = firebase.database.ServerValue.increment(offer.wantAmount);
+
+                // Знімаємо предмети продавця (вже зняли при створенні)
+                // Але якщо продавець вже зняв - пропускаємо
+
+                db.ref('users/' + offer.sellerId).update(sellerUpdates);
+
+                toast('✅ Обмін виконано!');
+                saveGame();
+                renderTradersTab();
+                updateUI();
+            }).catch(e => {
+                console.error(e);
+                toast('❌ Помилка прийняття пропозиції');
+            });
+        }
+
+        function cancelTradeOffer(offerId) {
+            db.ref('trade_offers/' + offerId).once('value').then(snap => {
+                const offer = snap.val();
+                if (!offer || offer.status !== 'active') {
+                    toast('❌ Пропозиція вже неактивна');
+                    return;
+                }
+                if (offer.sellerId !== G.uid) {
+                    toast('❌ Це не ваша пропозиція');
+                    return;
+                }
+
+                // Повертаємо предмети продавцю
+                if (offer.offerType === 'gif') addGif(offer.offerId, offer.offerAmount);
+                else if (offer.offerType === 'title') addTitle(offer.offerId, offer.offerAmount);
+                else if (offer.offerType === 'chest') G.chests[offer.offerId] = (G.chests[offer.offerId] || 0) + offer.offerAmount;
+                else if (offer.offerType === 'coins') G.coins += offer.offerAmount;
+                else if (offer.offerType === 'homa') G.homa += offer.offerAmount;
+                else if (offer.offerType === 'crypto') G.crypto += offer.offerAmount;
+                else if (offer.offerType === 'crypto2') G.crypto2 += offer.offerAmount;
+                else if (offer.offerType === 'eventHoma') G.eventHoma += offer.offerAmount;
+
+                db.ref('trade_offers/' + offerId).update({ status: 'cancelled' });
+                toast('✅ Пропозицію скасовано');
+                saveGame();
+                renderTradersTab();
+                updateUI();
+            });
+        }
+
+        // ============================================================
+        //  🏪 ТРЕЙДЕРИ (вкладка)
+        // ============================================================
+        function renderTradersTab() {
+            const el = document.getElementById('shop-inner');
+            if (!el) return;
+
+            let html = `
+                <div class="card"><div class="card-title">🤝 ТРЕЙДИ МІЖ ГРАВЦЯМИ</div>
+                <div style="font-size:6px;color:var(--text-secondary);margin-bottom:6px;">Створюйте пропозиції обміну речами з іншими гравцями!</div>
+                </div>
+
+                <div class="card"><div class="card-title">📤 Створити пропозицію</div>
+                <div style="font-size:6px;color:var(--text-secondary);margin-bottom:4px;">Я віддаю:</div>
+                <div class="flex" style="margin-bottom:4px;">
+                    <select id="tradeOfferType" style="flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;outline:none;">
+                        <option value="gif">🎨 Гіфка</option>
+                        <option value="title">🏅 Титул</option>
+                        <option value="chest">📦 Ящик</option>
+                        <option value="coins">💰 Монети</option>
+                        <option value="homa">🟣 Хоми</option>
+                        <option value="crypto">₿ B HAM</option>
+                        <option value="crypto2">🪙 T HAM</option>
+                        <option value="eventHoma">🌸 Івенхоми</option>
+                    </select>
+                    <select id="tradeOfferId" style="flex:2;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;outline:none;margin-left:2px;">
+                        <option value="">Виберіть предмет...</option>
+                    </select>
+                </div>
+                <div class="flex" style="margin-bottom:4px;">
+                    <span style="font-size:6px;">Кількість:</span>
+                    <input type="number" id="tradeOfferAmount" value="1" style="width:40px;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:2px;border-radius:var(--radius);font-size:6px;text-align:center;outline:none;">
+                </div>
+                <div style="font-size:6px;color:var(--text-secondary);margin-bottom:4px;">Я хочу отримати:</div>
+                <div class="flex" style="margin-bottom:4px;">
+                    <select id="tradeWantType" style="flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;outline:none;">
+                        <option value="gif">🎨 Гіфка</option>
+                        <option value="title">🏅 Титул</option>
+                        <option value="chest">📦 Ящик</option>
+                        <option value="coins">💰 Монети</option>
+                        <option value="homa">🟣 Хоми</option>
+                        <option value="crypto">₿ B HAM</option>
+                        <option value="crypto2">🪙 T HAM</option>
+                        <option value="eventHoma">🌸 Івенхоми</option>
+                    </select>
+                    <select id="tradeWantId" style="flex:2;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;outline:none;margin-left:2px;">
+                        <option value="">Виберіть предмет...</option>
+                    </select>
+                </div>
+                <div class="flex" style="margin-bottom:4px;">
+                    <span style="font-size:6px;">Кількість:</span>
+                    <input type="number" id="tradeWantAmount" value="1" style="width:40px;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:2px;border-radius:var(--radius);font-size:6px;text-align:center;outline:none;">
+                </div>
+                <button class="btn btn-g btn-block" onclick="createTradeOffer()">📤 Створити пропозицію</button>
+                </div>
+
+                <div class="card"><div class="card-title">📋 Активні пропозиції</div>
+                <div id="tradeOffersList"><p style="color:var(--text-secondary);font-size:7px;padding:4px;">Завантаження...</p></div>
+                </div>
+            `;
+
+            el.innerHTML = html;
+
+            // Оновлюємо списки предметів для вибору
+            updateTradeSelects();
+
+            // Завантажуємо активні пропозиції
+            loadTradeOffers();
+        }
+
+        function updateTradeSelects() {
+            // Для віддачі
+            const offerSelect = document.getElementById('tradeOfferId');
+            const offerType = document.getElementById('tradeOfferType').value;
+            if (offerSelect) {
+                offerSelect.innerHTML = '<option value="">Виберіть предмет...</option>';
+                if (offerType === 'gif') {
+                    Object.entries(G.ownedGifs).forEach(([id, count]) => {
+                        if (count > 0) offerSelect.innerHTML += `<option value="${id}">${id} (x${count})</option>`;
+                    });
+                } else if (offerType === 'title') {
+                    Object.entries(G.ownedTitles).forEach(([id, count]) => {
+                        if (count > 0 && id !== 'none') {
+                            const t = TITLES[id] || { name: id };
+                            offerSelect.innerHTML += `<option value="${id}">${t.name} (x${count})</option>`;
+                        }
+                    });
+                } else if (offerType === 'chest') {
+                    Object.entries(G.chests).forEach(([id, count]) => {
+                        if (count > 0) {
+                            const box = BOXES.find(b => b.id === id);
+                            offerSelect.innerHTML += `<option value="${id}">${box?.name || id} (x${count})</option>`;
+                        }
+                    });
+                } else if (offerType === 'coins') {
+                    offerSelect.innerHTML = `<option value="coins">Монети (${formatNum(G.coins)})</option>`;
+                } else if (offerType === 'homa') {
+                    offerSelect.innerHTML = `<option value="homa">Хоми (${formatNum(G.homa)})</option>`;
+                } else if (offerType === 'crypto') {
+                    offerSelect.innerHTML = `<option value="crypto">B HAM (${G.crypto.toFixed(2)})</option>`;
+                } else if (offerType === 'crypto2') {
+                    offerSelect.innerHTML = `<option value="crypto2">T HAM (${G.crypto2.toFixed(2)})</option>`;
+                } else if (offerType === 'eventHoma') {
+                    offerSelect.innerHTML = `<option value="eventHoma">Івенхоми (${G.eventHoma.toFixed(2)})</option>`;
+                }
+            }
+
+            // Для бажаного
+            const wantSelect = document.getElementById('tradeWantId');
+            const wantType = document.getElementById('tradeWantType').value;
+            if (wantSelect) {
+                wantSelect.innerHTML = '<option value="">Виберіть предмет...</option>';
+                if (wantType === 'gif') {
+                    GIFS.forEach(g => {
+                        wantSelect.innerHTML += `<option value="${g.id}">${g.id}</option>`;
+                    });
+                } else if (wantType === 'title') {
+                    Object.keys(TITLES).forEach(id => {
+                        if (id !== 'none') {
+                            const t = TITLES[id];
+                            wantSelect.innerHTML += `<option value="${id}">${t.name}</option>`;
+                        }
+                    });
+                } else if (wantType === 'chest') {
+                    BOXES.forEach(b => {
+                        wantSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                    });
+                } else if (wantType === 'coins') {
+                    wantSelect.innerHTML = `<option value="coins">Монети</option>`;
+                } else if (wantType === 'homa') {
+                    wantSelect.innerHTML = `<option value="homa">Хоми</option>`;
+                } else if (wantType === 'crypto') {
+                    wantSelect.innerHTML = `<option value="crypto">B HAM</option>`;
+                } else if (wantType === 'crypto2') {
+                    wantSelect.innerHTML = `<option value="crypto2">T HAM</option>`;
+                } else if (wantType === 'eventHoma') {
+                    wantSelect.innerHTML = `<option value="eventHoma">Івенхоми</option>`;
+                }
+            }
+        }
+
+        function loadTradeOffers() {
+            db.ref('trade_offers').orderByChild('status').equalTo('active').once('value').then(snap => {
+                const container = document.getElementById('tradeOffersList');
+                if (!container) return;
+
+                const offers = [];
+                snap.forEach(child => {
+                    const data = child.val();
+                    if (data && data.status === 'active') {
+                        offers.push({ id: child.key, ...data });
+                    }
+                });
+
+                if (offers.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text-secondary);font-size:7px;padding:4px;">Немає активних пропозицій</p>';
+                    return;
+                }
+
+                let html = '';
+                offers.forEach(offer => {
+                    const isOwn = offer.sellerId === G.uid;
+                    const offerTypeNames = {
+                        'gif': '🎨 Гіфка',
+                        'title': '🏅 Титул',
+                        'chest': '📦 Ящик',
+                        'coins': '💰 Монети',
+                        'homa': '🟣 Хоми',
+                        'crypto': '₿ B HAM',
+                        'crypto2': '🪙 T HAM',
+                        'eventHoma': '🌸 Івенхоми'
+                    };
+                    const offerDisplay = offer.offerType === 'gif' ? offer.offerId :
+                        offer.offerType === 'title' ? (TITLES[offer.offerId]?.name || offer.offerId) :
+                        offer.offerType === 'chest' ? (BOXES.find(b => b.id === offer.offerId)?.name || offer.offerId) :
+                        offer.offerId;
+                    const wantDisplay = offer.wantType === 'gif' ? offer.wantId :
+                        offer.wantType === 'title' ? (TITLES[offer.wantId]?.name || offer.wantId) :
+                        offer.wantType === 'chest' ? (BOXES.find(b => b.id === offer.wantId)?.name || offer.wantId) :
+                        offer.wantId;
+
+                    html += `
+                        <div class="market-item" style="${isOwn ? 'border-color:var(--gold);' : ''}">
+                            <div class="info">
+                                <div class="name">${offer.sellerName}</div>
+                                <div style="font-size:5px;color:var(--text-secondary);">
+                                    Віддає: ${offerTypeNames[offer.offerType]} ${offerDisplay} x${offer.offerAmount} → 
+                                    Отримує: ${offerTypeNames[offer.wantType]} ${wantDisplay} x${offer.wantAmount}
+                                </div>
+                            </div>
+                            <div>
+                                ${!isOwn ? `<button class="btn btn-g btn-sm" onclick="acceptTradeOffer('${offer.id}')">🤝 Обмін</button>` : 
+                                `<button class="btn btn-r btn-sm" onclick="cancelTradeOffer('${offer.id}')">❌ Скасувати</button>`}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }).catch(e => {
+                console.error(e);
+                const container = document.getElementById('tradeOffersList');
+                if (container) container.innerHTML = '<p style="color:#f88;font-size:7px;padding:4px;">❌ Помилка завантаження</p>';
+            });
+        }
+
+        // ============================================================
+        //  🏪 МАГАЗИН (основна функція)
         // ============================================================
         function renderShop() {
             const el = document.getElementById('shop-content');
@@ -2231,6 +2688,7 @@
                     <button class="shop-tab" onclick="renderShopTab('upg')">⭐ Прокачка</button>
                     <button class="shop-tab" onclick="renderShopTab('visual')">🎨 Візуальне</button>
                     <button class="shop-tab" onclick="renderShopTab('box')">📦 Ящики</button>
+                    <button class="shop-tab" onclick="renderShopTab('traders')">🤝 Трейдери</button>
                 </div>
                 <div id="shop-inner"></div>
             `;
@@ -2240,9 +2698,15 @@
         function renderShopTab(tab) {
             document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
             const btns = document.querySelectorAll('.shop-tab');
-            const tabs = ['res', 'upg', 'visual', 'box'];
+            const tabs = ['res', 'upg', 'visual', 'box', 'traders'];
             const idx = tabs.indexOf(tab);
             if (btns[idx]) btns[idx].classList.add('active');
+
+            if (tab === 'traders') {
+                renderTradersTab();
+                return;
+            }
+
             const el = document.getElementById('shop-inner');
             if (!el) return;
 
@@ -2267,7 +2731,6 @@
                     <div class="card"><div class="flex"><b>👑 VIP</b> <span style="color:var(--gold);">20000💰</span> <button class="btn btn-g btn-sm" onclick="buyVip()">Купити</button></div></div>
                 `;
             } else if (tab === 'visual') {
-                // Скіни
                 let skinsHtml = SHOP_SKINS.map(skin => {
                     const owned = G.ownedShopSkins.includes(skin.id);
                     const active = G.activeShopSkin === skin.id;
@@ -2286,23 +2749,20 @@
                     `;
                 }).join('');
 
-                // Гіфки (дорогі ціни)
                 let gifs = GIFS.filter(g => g.r !== 'exclusive' && g.r !== 'summer').map(g => {
                     let owned = hasGif(g.id);
-                    let price = RARITY_PRICES[g.r] || 50000;
+                    let price = RARITY_PRICES[g.r] || 50;
                     return `<div class="gif-cell" style="width:32px;height:32px;flex-direction:column;gap:1px;padding:1px;background:${owned?'rgba(0,255,136,0.08)':'rgba(255,255,255,0.02)'}">
                         <div style="font-size:14px;">${g.id}</div>
                         ${!owned ? `<button class="btn btn-g btn-sm" style="padding:1px 3px;font-size:4px;" onclick="buyGifHoma('${g.id}')">${price}🟣</button>` : `<span style="font-size:4px;color:var(--primary);">x${getGifCount(g.id)}</span>`}
                     </div>`;
                 }).join('');
 
-                // Титули
                 let titles = Object.entries(TITLES).filter(([id, t]) => t.price && !['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto', 'top1', 'top2', 'top3'].includes(id)).map(([id, t]) => {
                     let owned = hasTitle(id);
                     return `<div class="card"><div class="flex"><b style="color:${t.color};text-shadow:0 0 15px ${t.color};">${t.name}</b> <span style="color:var(--gold);font-size:6px;">${t.price}🟣</span> <button class="btn btn-g btn-sm" onclick="buyTitleHoma('${id}')" ${owned?'disabled':''}>${owned?'✅':'Купити'}</button></div></div>`;
                 }).join('');
 
-                // Вибивні гіфки та титули
                 let exclusiveGifs = GIFS.filter(g => g.r === 'exclusive' || g.r === 'summer').map(g => {
                     let owned = hasGif(g.id);
                     return `<div class="gif-cell" style="width:32px;height:32px;flex-direction:column;gap:1px;padding:1px;background:${owned?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.02)'}">
@@ -2327,7 +2787,9 @@
                     ${skinsHtml}
                     <div style="font-size:6px;color:var(--text-secondary);margin-top:6px;text-align:center;">💡 Купіть скін за Хоми (🟣)</div>
                     </div>
-                    <div class="card"><div class="card-title">🎨 Гіфки (🟣)</div><div class="gif-row">${gifs}</div></div>
+                    <div class="card"><div class="card-title">🎨 Гіфки (🟣) - НОВІ ЦІНИ!</div>
+                    <div style="font-size:5px;color:var(--text-secondary);margin-bottom:4px;">common:50 | rare:150 | superrare:400 | epic:2500 | mythic:7500 | legendary:25000</div>
+                    <div class="gif-row">${gifs}</div></div>
                     <div class="card"><div class="card-title">🏅 Титули (🟣) — Неонові</div>${titles}</div>
                     <div class="card" style="border-color:var(--gold);"><div class="card-title">🎯 ВИБИВНІ ПРЕДМЕТИ (тільки з босів/ящиків)</div>
                     <div style="font-size:6px;color:var(--text-secondary);margin-bottom:4px;">Гіфки:</div>
@@ -2337,11 +2799,10 @@
                     </div>
                 `;
             } else if (tab === 'box') {
-                // Тільки потрібні ящики: всі крім homa_chest та homa10_chest (вони залишаються)
                 let boxes = BOXES.map(b => {
                     let owned = G.chests[b.id] || 0;
-                    let currencyIcon = b.currency === 'eventHoma' ? '🌸' : '🟣';
-                    let priceDisplay = b.currency === 'eventHoma' ? b.price + '🌸' : b.price + '🟣';
+                    let currencyIcon = b.currency === 'eventHoma' ? '🌸' : (b.currency === 'homa' ? '🟣' : '💰');
+                    let priceDisplay = b.currency === 'eventHoma' ? b.price + '🌸' : (b.currency === 'homa' ? b.price + '🟣' : b.price + '💰');
                     return `<div class="card"><div class="flex">
                         <b>${b.emoji} ${b.name}</b>
                         <span style="color:${b.color};font-size:6px;">${priceDisplay}</span>
@@ -2416,6 +2877,10 @@
             html += `</div></div>
                 <div class="card"><div class="card-title">🎨 Гіфки</div><div class="gif-row">${gifDisplay}</div>
                 <div style="font-size:7px;color:var(--text-secondary);margin-top:3px;">Активний: ${activeSkin}</div>
+            </div>
+            <div class="card"><div class="card-title">🏅 Ваші титули</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;margin:4px 0;">
+                ${Object.keys(G.ownedTitles).map(id => `<button class="btn ${G.activeTitle===id?'btn-g':'btn-sm'}" style="font-size:6px;padding:3px 8px;" onclick="G.activeTitle='${id}';updateUI();saveGame();renderUpgrader();">${TITLES[id]?.name||id}</button>`).join('')}</div>
             </div>`;
             document.getElementById('game-area').innerHTML = html;
         }
@@ -2657,7 +3122,7 @@
                     <div class="profile-stat"><div class="value">${G.ownedShopSkins.length}</div>🎨</div>
                 </div>
                 <div style="font-size:7px;color:var(--text-secondary);text-align:center;padding:4px;background:rgba(255,255,255,0.02);border-radius:var(--radius);margin-bottom:4px;">
-                    📊 Для входу в топ потрібен рівень <b style="color:var(--gold);">Рубін 1 (8 рівень) або вище</b>
+                    📊 Топ-титули: 1-Король, 2-Паладин, 3-Хомяк
                 </div>
                 ${G.isGuest ? `<button class="btn btn-o btn-block" onclick="convertGuestToAccount()" style="width:100%;margin-top:6px;padding:10px;font-size:10px;">
                     📝 Гість → Акаунт (зберегти прогрес)
@@ -2797,6 +3262,21 @@
                 const topUsers = users.slice(0, 50);
 
                 const isInTop = topUsers.some(u => u.uid === G.uid);
+                
+                const userIndex = topUsers.findIndex(u => u.uid === G.uid);
+                if (userIndex === 0 && !hasTitle('top1')) {
+                    addTitle('top1');
+                    toast('👑 Ви отримали титул КОРОЛЬ за 1 місце в топі!');
+                    saveGame();
+                } else if (userIndex === 1 && !hasTitle('top2')) {
+                    addTitle('top2');
+                    toast('⚔️ Ви отримали титул ПАЛАДИН за 2 місце в топі!');
+                    saveGame();
+                } else if (userIndex === 2 && !hasTitle('top3')) {
+                    addTitle('top3');
+                    toast('🐹 Ви отримали титул ХОМЯК за 3 місце в топі!');
+                    saveGame();
+                }
 
                 if (topUsers.length === 0) {
                     el.innerHTML = `
@@ -2825,6 +3305,7 @@
                     </div>
                     <div class="card"><div class="flex"><b style="color:var(--gold);">🏆 ТОП ГРАВЦІВ</b><button class="btn btn-g btn-sm" onclick="renderTop()">🔄</button></div></div>
                     ${!isInTop ? `<div class="card" style="border-color:var(--gold);background:rgba(251,191,36,0.05);"><div style="text-align:center;font-size:7px;color:var(--gold);">👑 Потрапте в топ, набравши більше XP!</div></div>` : ''}
+                    <div style="font-size:6px;color:var(--text-secondary);padding:4px;text-align:center;">🏆 Топ-3 отримують титули: Король, Паладин, Хомяк</div>
                 `;
 
                 topUsers.forEach((user, index) => {
@@ -2832,23 +3313,19 @@
                     let medal = '';
                     let rc = '';
                     let titleText = '';
-                    let topTitleId = '';
 
                     if (index === 0) {
                         medal = '👑';
                         rc = 'rank-1';
                         titleText = 'КОРОЛЬ';
-                        topTitleId = 'top1';
                     } else if (index === 1) {
-                        medal = '🥈';
+                        medal = '⚔️';
                         rc = 'rank-2';
                         titleText = 'ПАЛАДИН';
-                        topTitleId = 'top2';
                     } else if (index === 2) {
-                        medal = '🥉';
+                        medal = '🐹';
                         rc = 'rank-3';
                         titleText = 'ХОМЯК';
-                        topTitleId = 'top3';
                     } else {
                         medal = `${index + 1}`;
                     }
@@ -3772,13 +4249,12 @@
         }
 
         console.log('🐹 Hamka — Сезон 2');
-        console.log('✅ Гіфки подорожчали');
-        console.log('✅ Ринок видалено');
-        console.log('✅ Залишено: Хома-ящик та Хома x10');
-        console.log('✅ Івент-бокс (50🌸) та Літній бокс (200🌸)');
-        console.log('✅ Топ: 1-Король, 2-Паладин, 3-Хомяк');
-        console.log('✅ Гість → Акаунт зі збереженням прогресу');
+        console.log('✅ Трейдери між гравцями - обмін речами!');
+        console.log('✅ Гіфки: common:50, rare:150, superrare:400, epic:2500, mythic:7500, legendary:25000 🟣');
+        console.log('✅ Ящики: common-legendary за 💰, homa за 🟣, event/summer за 🌸');
+        console.log('✅ Топ-3: Король, Паладин, Хомяк (видаються автоматично)');
         console.log('✅ Анти-автоклікер: 1200 тапів/хв');
+        console.log('✅ Гість → Акаунт зі збереженням прогресу');
     </script>
 </body>
-    </html>
+                </html>
