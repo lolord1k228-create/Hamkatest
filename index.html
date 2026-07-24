@@ -1826,10 +1826,7 @@
                 document.getElementById('promoInp').value = '';
                 return;
             }
-            if (code === 'JGFJJV') { G.eventHoma += 10000;
-                toast('🌸 +10000 івенхомів!');
-                updateUI();
-                saveGame(); } else if (code === 'LETO') { G.eventHoma += 50;
+            if (code === 'LETO') { G.eventHoma += 50;
                 toast('🌸 +50');
                 updateUI();
                 saveGame(); } else if (code === 'START') { G.coins += 1000;
@@ -2002,14 +1999,73 @@
             if (G.chests[type] === 0) delete G.chests[type];
 
             const luckBonus = getLuckBonus();
-            const reward = rand(box.homyMin, box.homyMax);
-            const bonus = Math.floor(reward * (1 + luckBonus));
-            const finalReward = bonus;
+            
+            // Випадковий вибір нагороди з різними шансами
+            const rewardRoll = Math.random();
+            let rewardMsg = '';
+            let rewardIcon = '';
 
-            G.homa += finalReward;
+            if (rewardRoll < 0.35) {
+                // Хоми
+                const amount = rand(box.homyMin, box.homyMax);
+                const bonus = Math.floor(amount * (1 + luckBonus));
+                G.homa += bonus;
+                rewardMsg = `+${bonus} 🟣 Хом!`;
+                rewardIcon = '🟣';
+            } else if (rewardRoll < 0.55) {
+                // Гіфка
+                const gifPool = GIFS.filter(g => g.r !== 'exclusive' && g.r !== 'summer');
+                const g = gifPool[rand(0, gifPool.length - 1)];
+                addGif(g.id);
+                rewardMsg = `🎨 ${g.id} (Гіфка)`;
+                rewardIcon = g.id;
+            } else if (rewardRoll < 0.70) {
+                // Титул
+                const titlePool = ['noob', 'player', 'pro', 'veteran', 'elite', 'legend', 'mythic', 'cyber', 'neon', 'glitch', 'cosmic', 'void', 'fire', 'ice', 'god'];
+                const nt = titlePool[rand(0, titlePool.length - 1)];
+                addTitle(nt);
+                const t = TITLES[nt] || { name: nt };
+                rewardMsg = `🏅 ${t.name} (Титул)`;
+                rewardIcon = '🏅';
+            } else if (rewardRoll < 0.85) {
+                // Скін з магазину
+                const skinPool = SHOP_SKINS.filter(s => !G.ownedShopSkins.includes(s.id));
+                if (skinPool.length > 0) {
+                    const s = skinPool[rand(0, skinPool.length - 1)];
+                    G.ownedShopSkins.push(s.id);
+                    if (!G.activeShopSkin) G.activeShopSkin = s.id;
+                    rewardMsg = `🎨 ${s.name} (Скін)`;
+                    rewardIcon = s.emoji;
+                } else {
+                    // Якщо всі скіни вже є - даємо Хоми
+                    const amount = rand(box.homyMin, box.homyMax) * 2;
+                    G.homa += amount;
+                    rewardMsg = `+${amount} 🟣 Хом! (всі скіни вже є)`;
+                    rewardIcon = '🟣';
+                }
+            } else if (rewardRoll < 0.92) {
+                // Криптовалюта
+                const cryptoAmount = rand(1, 5) / 100;
+                G.crypto += cryptoAmount;
+                rewardMsg = `₿ +${cryptoAmount.toFixed(2)} B HAM`;
+                rewardIcon = '₿';
+            } else if (rewardRoll < 0.97) {
+                // Івенхоми
+                const eventAmount = rand(1, 5);
+                G.eventHoma += eventAmount;
+                rewardMsg = `🌸 +${eventAmount} Івенхомів`;
+                rewardIcon = '🌸';
+            } else {
+                // Енергія
+                const energyAmount = rand(10, 30);
+                G.maxEnergy += energyAmount;
+                G.energy += energyAmount;
+                rewardMsg = `⚡ +${energyAmount} макс. енергії`;
+                rewardIcon = '⚡';
+            }
 
             icon.textContent = box.emoji;
-            rewardText.textContent = `🎉 +${finalReward} 🟣 Хом!`;
+            rewardText.textContent = `🎉 ${rewardMsg}`;
             rewardDesc.textContent = `Ящик «${box.name}» відкрито! Удача: +${(luckBonus*100).toFixed(0)}%`;
 
             modal.classList.add('show');
@@ -2018,53 +2074,6 @@
             setTimeout(() => {
                 icon.style.animation = 'chestShake 0.5s ease';
             }, 10);
-
-            const extraDrop = Math.random() - luckBonus * 0.1;
-            if (extraDrop < 0.20) {
-                const g = GIFS[rand(0, GIFS.length - 1)];
-                addGif(g.id);
-                setTimeout(() => {
-                    toast(`🎨 +${g.id} (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.35) {
-                const titles = ['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto'];
-                const nt = titles[rand(0, titles.length - 1)];
-                addTitle(nt);
-                setTimeout(() => {
-                    toast(`🏅 Титул ${TITLES[nt]?.name || nt} (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.45) {
-                const coinsBonus = rand(1000, 5000);
-                G.coins += coinsBonus;
-                setTimeout(() => {
-                    toast(`💰 +${coinsBonus} монет (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.52) {
-                const cryptoBonus = rand(1, 5) / 100;
-                G.crypto += cryptoBonus;
-                setTimeout(() => {
-                    toast(`₿ +${cryptoBonus.toFixed(2)} B HAM (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.58) {
-                const crypto2Bonus = rand(1, 5);
-                G.crypto2 += crypto2Bonus;
-                setTimeout(() => {
-                    toast(`🪙 +${crypto2Bonus} T HAM (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.63) {
-                const eventBonus = rand(1, 3);
-                G.eventHoma += eventBonus;
-                setTimeout(() => {
-                    toast(`🌸 +${eventBonus} Івенхомів (додатковий дроп!)`);
-                }, 400);
-            } else if (extraDrop < 0.68) {
-                const energyBonus = rand(10, 30);
-                G.maxEnergy += energyBonus;
-                G.energy += energyBonus;
-                setTimeout(() => {
-                    toast(`⚡ +${energyBonus} макс. енергії (додатковий дроп!)`);
-                }, 400);
-            }
 
             saveGame();
             updateUI();
@@ -2396,6 +2405,18 @@
                     if (G.upgradeInventory[id] === 0) delete G.upgradeInventory[id];
                 }
             }
+            else if (type.startsWith('skin_')) {
+                const id = type.replace('skin_', '');
+                if (G.ownedShopSkins.includes(id)) {
+                    found = true;
+                    itemType = 'skin';
+                    itemId = id;
+                    const skin = SHOP_SKINS.find(s => s.id === id);
+                    itemDisplay = `🎨 ${skin?.name || id}`;
+                    G.ownedShopSkins = G.ownedShopSkins.filter(s => s !== id);
+                    if (G.activeShopSkin === id) G.activeShopSkin = null;
+                }
+            }
 
             if (!found) {
                 toast('❌ У вас немає цього предмета');
@@ -2422,6 +2443,10 @@
                 else if (itemType === 'title') addTitle(itemId, 1);
                 else if (itemType === 'chest') G.chests[itemId] = (G.chests[itemId] || 0) + 1;
                 else if (itemType === 'upgrade') G.upgradeInventory[itemId] = (G.upgradeInventory[itemId] || 0) + 1;
+                else if (itemType === 'skin') {
+                    G.ownedShopSkins.push(itemId);
+                    if (!G.activeShopSkin) G.activeShopSkin = itemId;
+                }
             });
         }
 
@@ -2445,11 +2470,22 @@
                     G.chests[item.itemId] = (G.chests[item.itemId] || 0) + 1;
                 } else if (item.itemType === 'upgrade') {
                     G.upgradeInventory[item.itemId] = (G.upgradeInventory[item.itemId] || 0) + 1;
+                } else if (item.itemType === 'skin') {
+                    if (!G.ownedShopSkins.includes(item.itemId)) {
+                        G.ownedShopSkins.push(item.itemId);
+                        if (!G.activeShopSkin) G.activeShopSkin = item.itemId;
+                    }
                 }
 
-                // Видаляємо лот (продавець НЕ отримує Хоми)
+                // Даємо Хоми продавцю (з комісією 10%)
+                const sellerGain = Math.floor(item.price * 0.9);
+                if (item.sellerId) {
+                    db.ref('users/' + item.sellerId + '/homa').set(firebase.database.ServerValue.increment(sellerGain));
+                }
+
+                // Видаляємо лот
                 db.ref('global/market/' + itemId).remove().then(() => {
-                    toast(`✅ Куплено за ${item.price}🟣`);
+                    toast(`✅ Куплено за ${item.price}🟣 (комісія 10%)`);
                     saveGame();
                     renderMarketTab();
                     updateUI();
@@ -2460,6 +2496,10 @@
                     else if (item.itemType === 'title') removeTitle(item.itemId, 1);
                     else if (item.itemType === 'chest') G.chests[item.itemId] = (G.chests[item.itemId] || 0) - 1;
                     else if (item.itemType === 'upgrade') G.upgradeInventory[item.itemId] = (G.upgradeInventory[item.itemId] || 0) - 1;
+                    else if (item.itemType === 'skin') {
+                        G.ownedShopSkins = G.ownedShopSkins.filter(s => s !== item.itemId);
+                        if (G.activeShopSkin === item.itemId) G.activeShopSkin = null;
+                    }
                 });
             }).catch(e => {
                 toast('❌ Помилка: ' + e.message);
@@ -2482,6 +2522,10 @@
                     G.chests[item.itemId] = (G.chests[item.itemId] || 0) + 1;
                 } else if (item.itemType === 'upgrade') {
                     G.upgradeInventory[item.itemId] = (G.upgradeInventory[item.itemId] || 0) + 1;
+                } else if (item.itemType === 'skin') {
+                    if (!G.ownedShopSkins.includes(item.itemId)) {
+                        G.ownedShopSkins.push(item.itemId);
+                    }
                 }
 
                 db.ref('global/market/' + itemId).remove().then(() => {
@@ -2529,10 +2573,17 @@
                 }
             });
 
+            G.ownedShopSkins.forEach(id => {
+                const skin = SHOP_SKINS.find(s => s.id === id);
+                if (skin) {
+                    itemsHtml += `<option value="skin_${id}">🎨 ${skin.name} (Скін)</option>`;
+                }
+            });
+
             el.innerHTML = `
                 <div class="card"><div class="card-title">🏪 ГЛОБАЛЬНИЙ РИНОК</div>
-                <div style="font-size:6px;color:var(--text-secondary);margin-bottom:6px;">🎨 Гіфки · 🏅 Титули · 📦 Ящики · 🔧 Предмети — всі лоти видно всім гравцям!</div>
-                <div style="font-size:5px;color:var(--gold);margin-bottom:6px;">⚠️ Продавець НЕ отримує Хоми! Тільки покупець платить.</div>
+                <div style="font-size:6px;color:var(--text-secondary);margin-bottom:6px;">🎨 Гіфки · 🏅 Титули · 📦 Ящики · 🔧 Предмети · 🎨 Скіни</div>
+                <div style="font-size:5px;color:var(--gold);margin-bottom:6px;">💡 Комісія 10% при продажу</div>
                 </div>
 
                 <div class="card"><div class="card-title">📤 Виставити предмет на продаж</div>
@@ -2546,7 +2597,7 @@
                     <input type="number" id="marketPriceInput" placeholder="Ціна" style="flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;text-align:center;outline:none;">
                     <button class="btn btn-g btn-sm" onclick="listMarketItem()">📤 Продати</button>
                 </div>
-                <div style="font-size:5px;color:var(--text-secondary);">💡 Продавець НЕ отримує Хоми за продаж</div>
+                <div style="font-size:5px;color:var(--text-secondary);">💡 Комісія 10% при продажу</div>
                 </div>
 
                 <div class="card"><div class="card-title">📋 Активні лоти</div>
@@ -2880,8 +2931,8 @@
                         G.homa += reward;
                         toast(`🎉 Перемога! +${reward}🟣`);
                     } else {
-                        let rew = ['gif', 'homa', 'title', 'chest', 'crypto', 'crypto2', 'eventHoma', 'upgrade_item'][rand(
-                            0, 7)];
+                        let rew = ['gif', 'homa', 'title', 'chest', 'crypto', 'crypto2', 'eventHoma', 'upgrade_item', 'skin'][rand(
+                            0, 8)];
                         if (rew === 'gif') {
                             let av = GIFS.filter(g => !g.id.includes('⚔️'));
                             let g = av[rand(0, av.length - 1)];
@@ -2906,6 +2957,18 @@
                             let nt = titles[rand(0, titles.length - 1)];
                             addTitle(nt);
                             toast('🏅 ' + (TITLES[nt]?.name || nt));
+                        } else if (rew === 'skin') {
+                            const skinPool = SHOP_SKINS.filter(s => !G.ownedShopSkins.includes(s.id));
+                            if (skinPool.length > 0) {
+                                const s = skinPool[rand(0, skinPool.length - 1)];
+                                G.ownedShopSkins.push(s.id);
+                                if (!G.activeShopSkin) G.activeShopSkin = s.id;
+                                toast(`🎨 +${s.name} (Скін)`);
+                            } else {
+                                const a = rand(50, 200);
+                                G.homa += a;
+                                toast(`🟣 +${a} (всі скіни вже є)`);
+                            }
                         } else {
                             let ct = ['common', 'rare', 'epic', 'mythic'][rand(0, 3)];
                             G.chests[ct] = (G.chests[ct] || 0) + 1;
@@ -4083,18 +4146,15 @@
             setInterval(() => { checkAFK(); }, 60000);
 
             setInterval(() => {
-                // Перевіряємо AFK перед авто-діями
                 checkAFK();
                 
                 let regen = G.energyRegen + G.upgrades.energyRegen;
                 G.energy = Math.min(G.maxEnergy, G.energy + regen);
                 
-                // Авто-тап працює тільки якщо не в AFK
                 if (!afkAutoTapDisabled && G.autoTap > 0) {
                     G.coins += G.autoTap;
                 }
                 
-                // Авто-XP працює тільки якщо не в AFK
                 if (!afkAutoXPDisabled && G.autoXP > 0) {
                     addXP(G.autoXP);
                 }
@@ -4214,11 +4274,11 @@
         }
 
         console.log('🐹 Hamka — Сезон 2');
-        console.log('✅ ГЛОБАЛЬНИЙ РИНОК — всі лоти видно всім гравцям! 🎨🏅📦🔧');
-        console.log('✅ Продавець НЕ отримує Хоми за продаж на ринку');
+        console.log('✅ ГЛОБАЛЬНИЙ РИНОК — всі лоти видно всім гравцям! 🎨🏅📦🔧🎨');
+        console.log('✅ Продавець отримує Хоми з комісією 10%');
+        console.log('✅ Ящики дають: Хоми, Гіфки, Титули, Скіни, Крипту, Івенхоми, Енергію з різними шансами');
         console.log('✅ Продаж предметів апгрейдера за Хоми в самому апгрейдері');
         console.log('✅ Кнопка сховати/показати в топі в профілі');
-        console.log('✅ Промокод JGFJJV — +10000 івенхомів');
         console.log('✅ AFK захист: 30 хв без активності → авто-тап та авто-XP вимикаються');
         console.log('✅ МАКСИМАЛЬНА УДАЧА +30%');
         console.log('✅ Топ-3: Король, Паладин, Хомяк');
