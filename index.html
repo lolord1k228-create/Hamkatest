@@ -2000,35 +2000,35 @@
 
             const luckBonus = getLuckBonus();
             
-            // Випадковий вибір нагороди з різними шансами
+            // 🎰 Шанци на всю гачу
             const rewardRoll = Math.random();
             let rewardMsg = '';
             let rewardIcon = '';
 
-            if (rewardRoll < 0.35) {
-                // Хоми
+            if (rewardRoll < 0.30) {
+                // 30% - Хоми
                 const amount = rand(box.homyMin, box.homyMax);
                 const bonus = Math.floor(amount * (1 + luckBonus));
                 G.homa += bonus;
                 rewardMsg = `+${bonus} 🟣 Хом!`;
                 rewardIcon = '🟣';
-            } else if (rewardRoll < 0.55) {
-                // Гіфка
+            } else if (rewardRoll < 0.50) {
+                // 20% - Гіфка
                 const gifPool = GIFS.filter(g => g.r !== 'exclusive' && g.r !== 'summer');
                 const g = gifPool[rand(0, gifPool.length - 1)];
                 addGif(g.id);
                 rewardMsg = `🎨 ${g.id} (Гіфка)`;
                 rewardIcon = g.id;
-            } else if (rewardRoll < 0.70) {
-                // Титул
+            } else if (rewardRoll < 0.65) {
+                // 15% - Титул
                 const titlePool = ['noob', 'player', 'pro', 'veteran', 'elite', 'legend', 'mythic', 'cyber', 'neon', 'glitch', 'cosmic', 'void', 'fire', 'ice', 'god'];
                 const nt = titlePool[rand(0, titlePool.length - 1)];
                 addTitle(nt);
                 const t = TITLES[nt] || { name: nt };
                 rewardMsg = `🏅 ${t.name} (Титул)`;
                 rewardIcon = '🏅';
-            } else if (rewardRoll < 0.85) {
-                // Скін з магазину
+            } else if (rewardRoll < 0.78) {
+                // 13% - Скін
                 const skinPool = SHOP_SKINS.filter(s => !G.ownedShopSkins.includes(s.id));
                 if (skinPool.length > 0) {
                     const s = skinPool[rand(0, skinPool.length - 1)];
@@ -2037,26 +2037,25 @@
                     rewardMsg = `🎨 ${s.name} (Скін)`;
                     rewardIcon = s.emoji;
                 } else {
-                    // Якщо всі скіни вже є - даємо Хоми
                     const amount = rand(box.homyMin, box.homyMax) * 2;
                     G.homa += amount;
                     rewardMsg = `+${amount} 🟣 Хом! (всі скіни вже є)`;
                     rewardIcon = '🟣';
                 }
-            } else if (rewardRoll < 0.92) {
-                // Криптовалюта
+            } else if (rewardRoll < 0.88) {
+                // 10% - Криптовалюта
                 const cryptoAmount = rand(1, 5) / 100;
                 G.crypto += cryptoAmount;
                 rewardMsg = `₿ +${cryptoAmount.toFixed(2)} B HAM`;
                 rewardIcon = '₿';
-            } else if (rewardRoll < 0.97) {
-                // Івенхоми
+            } else if (rewardRoll < 0.95) {
+                // 7% - Івенхоми
                 const eventAmount = rand(1, 5);
                 G.eventHoma += eventAmount;
                 rewardMsg = `🌸 +${eventAmount} Івенхомів`;
                 rewardIcon = '🌸';
             } else {
-                // Енергія
+                // 5% - Енергія
                 const energyAmount = rand(10, 30);
                 G.maxEnergy += energyAmount;
                 G.energy += energyAmount;
@@ -2477,15 +2476,25 @@
                     }
                 }
 
-                // Даємо Хоми продавцю (з комісією 10%)
+                // ✅ Даємо Хоми продавцю (з комісією 10%) 
                 const sellerGain = Math.floor(item.price * 0.9);
-                if (item.sellerId) {
-                    db.ref('users/' + item.sellerId + '/homa').set(firebase.database.ServerValue.increment(sellerGain));
+                if (item.sellerId && item.sellerId !== G.uid) {
+                    db.ref('users/' + item.sellerId + '/homa').set(firebase.database.ServerValue.increment(sellerGain))
+                        .then(() => {
+                            console.log('💰 Продавцю нараховано:', sellerGain, '🟣');
+                        })
+                        .catch(e => {
+                            console.warn('Помилка нарахування продавцю:', e);
+                            // Спробуємо ще раз через транзакцію
+                            db.ref('users/' + item.sellerId + '/homa').transaction((current) => {
+                                return (current || 0) + sellerGain;
+                            });
+                        });
                 }
 
                 // Видаляємо лот
                 db.ref('global/market/' + itemId).remove().then(() => {
-                    toast(`✅ Куплено за ${item.price}🟣 (комісія 10%)`);
+                    toast(`✅ Куплено за ${item.price}🟣 (комісія 10%, продавцю +${sellerGain}🟣)`);
                     saveGame();
                     renderMarketTab();
                     updateUI();
@@ -2583,7 +2592,7 @@
             el.innerHTML = `
                 <div class="card"><div class="card-title">🏪 ГЛОБАЛЬНИЙ РИНОК</div>
                 <div style="font-size:6px;color:var(--text-secondary);margin-bottom:6px;">🎨 Гіфки · 🏅 Титули · 📦 Ящики · 🔧 Предмети · 🎨 Скіни</div>
-                <div style="font-size:5px;color:var(--gold);margin-bottom:6px;">💡 Комісія 10% при продажу</div>
+                <div style="font-size:5px;color:var(--gold);margin-bottom:6px;">💡 Комісія 10% при продажу — продавець отримує 90%</div>
                 </div>
 
                 <div class="card"><div class="card-title">📤 Виставити предмет на продаж</div>
@@ -2597,7 +2606,7 @@
                     <input type="number" id="marketPriceInput" placeholder="Ціна" style="flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:3px;border-radius:var(--radius);font-size:6px;text-align:center;outline:none;">
                     <button class="btn btn-g btn-sm" onclick="listMarketItem()">📤 Продати</button>
                 </div>
-                <div style="font-size:5px;color:var(--text-secondary);">💡 Комісія 10% при продажу</div>
+                <div style="font-size:5px;color:var(--text-secondary);">💡 Продавець отримує 90% від ціни</div>
                 </div>
 
                 <div class="card"><div class="card-title">📋 Активні лоти</div>
@@ -4275,8 +4284,8 @@
 
         console.log('🐹 Hamka — Сезон 2');
         console.log('✅ ГЛОБАЛЬНИЙ РИНОК — всі лоти видно всім гравцям! 🎨🏅📦🔧🎨');
-        console.log('✅ Продавець отримує Хоми з комісією 10%');
-        console.log('✅ Ящики дають: Хоми, Гіфки, Титули, Скіни, Крипту, Івенхоми, Енергію з різними шансами');
+        console.log('✅ Продавець отримує Хоми з комісією 10% — ВИПРАВЛЕНО!');
+        console.log('✅ Шанци на всю гачу: 30% Хоми, 20% Гіфки, 15% Титули, 13% Скіни, 10% Крипта, 7% Івенхоми, 5% Енергія');
         console.log('✅ Продаж предметів апгрейдера за Хоми в самому апгрейдері');
         console.log('✅ Кнопка сховати/показати в топі в профілі');
         console.log('✅ AFK захист: 30 хв без активності → авто-тап та авто-XP вимикаються');
