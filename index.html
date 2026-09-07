@@ -1688,7 +1688,8 @@
         function checkAFK() {
             const now = Date.now();
             const inactiveTime = now - lastActivityTime;
-            const afkThreshold = 30 * 60 * 1000; // 30 хвилин            if (inactiveTime > afkThreshold && !afkDetected) {
+            const afkThreshold = 30 * 60 * 1000; // 30 хвилин
+            if (inactiveTime > afkThreshold && !afkDetected) {
                 afkDetected = true;
                 afkAutoTapDisabled = true;
                 afkAutoXPDisabled = true;
