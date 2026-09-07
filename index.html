@@ -10,8 +10,6 @@
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js">
     </script>
-    <script src="https://telegram.org/js/telegram-web-app.js">
-    </script>
     <style>
         :root {
             --primary: #00ff88;
@@ -886,42 +884,6 @@
             font-size: 7px;
         }
 
-        .trader-card {
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(18, 18, 26, 0.9));
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 4px 6px;
-            margin-bottom: 3px;
-        }
-        .trader-card .name {
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--crypto);
-        }
-        .trader-card .items {
-            display: flex;
-            gap: 2px;
-            flex-wrap: wrap;
-            margin: 2px 0;
-        }
-        .trader-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 2px 4px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-        }
-        .trader-item .icon {
-            font-size: 12px;
-        }
-        .trader-item .price {
-            font-size: 4px;
-            color: var(--crypto);
-        }
-
         .upgrader-container {
             display: flex;
             gap: 4px;
@@ -1190,7 +1152,6 @@
             outline: none;
         }
 
-        /* Неонові титули */
         .title-cyber { color: #0f0; text-shadow: 0 0 5px #0f0; font-weight: 800; }
         .title-neon { background: linear-gradient(45deg, #ff00cc, #3333ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .title-glitch { animation: glitch 0.3s infinite; }
@@ -1232,13 +1193,11 @@
             <div id="authStatus" style="color:var(--text-secondary);font-size:11px;margin-bottom:10px;text-align:center;">🔐 Виберіть спосіб входу</div>
             <div id="authFields">
                 <input type="text" id="authNick" placeholder="👤 Нікнейм">
-                <input type="password" id="authPass" placeholder="🔑 Пароль (мін. 4)">
+                <input type="password" id="authPass" placeholder="🔑 Пароль (мін. 6)">
             </div>
             <div class="error" id="authError"></div>
             <div class="success" id="authSuccess"></div>
             <button class="btn btn-g" id="authMainBtn" onclick="handleLogin()">🔐 Увійти</button>
-            <div class="divider">або</div>
-            <button class="btn btn-tg" onclick="handleTelegramGuest()">📱 Увійти через Telegram</button>
             <div class="divider">або</div>
             <button class="btn btn-p" onclick="handleGuest()">🎮 Гість</button>
             <div class="divider">або</div>
@@ -1308,7 +1267,7 @@
 
     <script>
         // ============================================================
-        //  🔥 FIREBASE CONFIG
+        //  🔥 FIREBASE CONFIG (справжня)
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
@@ -1323,8 +1282,6 @@
         let auth = null,
             db = null,
             gameStarted = false;
-        let tg = window.Telegram?.WebApp;
-        let tgUserId = null;
         let authMode = 'login';
         let authListenerSet = false;
 
@@ -1339,22 +1296,13 @@
             auth = firebase.auth();
             db = firebase.database();
             console.log('🔥 Firebase готовий');
-            if (tg) {
-                tg.ready();
-                tg.expand();
-                console.log('📱 Telegram WebApp готовий');
-                if (tg.initDataUnsafe?.user) {
-                    tgUserId = tg.initDataUnsafe.user.id;
-                    console.log('👤 Telegram ID:', tgUserId);
-                }
-            }
         } catch (e) {
             console.error('❌ Помилка Firebase:', e);
             document.getElementById('authError').textContent = '❌ Помилка підключення до сервера';
         }
 
         // ============================================================
-        //  📦 КОНФІГУРАЦІЯ
+        //  📦 КОНФІГУРАЦІЯ ГРИ
         // ============================================================
         const GIFS = [
             { id: '🐹', r: 'common' }, { id: '🐱', r: 'common' }, { id: '🐶', r: 'common' },
@@ -1369,9 +1317,7 @@
         const RARITY_PRICES = { common: 50, rare: 150, superrare: 400, epic: 2500, mythic: 7500,
             legendary: 25000 };
 
-        // ============================================================
-        //  🏆 РІВНІ
-        // ============================================================
+        // Рівні
         const LEVEL_NAMES = {
             1: '🌱 Новачок',
             2: '🚀 Початок',
@@ -1408,9 +1354,7 @@
             LEVELS.push({ l: l, x: xp, rw: Math.floor(xp * 0.05) + 100 });
         }
 
-        // ============================================================
-        //  🏅 ТИТУЛИ
-        // ============================================================
+        // Титули
         const TITLES = {
             'none': { name: 'Без титулу', color: '#888', class: '' },
             'noob': { name: '🌱 Новачок', color: '#aaa', class: '', price: 500 },
@@ -1428,7 +1372,6 @@
             'void': { name: '🕳️ Порожнеча', color: '#8a2be2', class: 'title-void', price: 15000 },
             'fire': { name: '🔥 Вогняний', color: '#ff3300', class: 'title-fire', price: 13000 },
             'ice': { name: '❄️ Крижаний', color: '#00ffff', class: 'title-ice', price: 13000 },
-            // Вибивні титули
             'king': { name: '👑 Король', color: '#ffd700', class: 'title-gold' },
             'lord': { name: '🗡️ Лорд', color: '#c0c0c0', class: 'title-royal' },
             'knight': { name: '🛡️ Лицар', color: '#3b82f6', class: '' },
@@ -1469,24 +1412,27 @@
             { id: 6, name: '👾 Бос 6', cost: 50000, chance: 0.40, rewardMin: 50, rewardMax: 150 }
         ];
 
-        // ============================================================
-        //  📦 ЯЩИКИ
-        // ============================================================
         const BOXES = [
-            { id: 'common', emoji: '📦', name: 'Простий', price: 30000, currency: 'coins', homyMin: 5, homyMax: 50, color: '#888' },
-            { id: 'rare', emoji: '📦', name: 'Рідкісний', price: 100000, currency: 'coins', homyMin: 10, homyMax: 100, color: '#3b82f6' },
-            { id: 'epic', emoji: '📦', name: 'Епічний', price: 500000, currency: 'coins', homyMin: 20, homyMax: 200, color: '#a855f7' },
-            { id: 'legendary', emoji: '📦', name: 'Легендарний', price: 2000000, currency: 'coins', homyMin: 50, homyMax: 500, color: '#fbbf24' },
-            { id: 'mythic', emoji: '📦', name: 'Міфічний', price: 10000000, currency: 'coins', homyMin: 100, homyMax: 1000, color: '#ec4899' },
-            { id: 'homa_chest', emoji: '🟣', name: 'Хома-ящик', price: 500, currency: 'homa', homyMin: 5, homyMax: 50, color: '#aa66ff' },
-            { id: 'homa10_chest', emoji: '🟣🟣', name: 'Хома x10', price: 4500, currency: 'homa', homyMin: 10, homyMax: 100, color: '#aa66ff' },
-            { id: 'event_box', emoji: '🎁', name: 'Івент-бокс', price: 50, currency: 'eventHoma', homyMin: 5, homyMax: 30, color: '#ec4899' },
-            { id: 'summer_box', emoji: '🎁', name: 'Літній бокс', price: 200, currency: 'eventHoma', homyMin: 10, homyMax: 60, color: '#fbbf24' }
+            { id: 'common', emoji: '📦', name: 'Простий', price: 30000, currency: 'coins', homyMin: 5, homyMax: 50,
+            color: '#888' },
+            { id: 'rare', emoji: '📦', name: 'Рідкісний', price: 100000, currency: 'coins', homyMin: 10, homyMax: 100,
+                color: '#3b82f6' },
+            { id: 'epic', emoji: '📦', name: 'Епічний', price: 500000, currency: 'coins', homyMin: 20, homyMax: 200,
+                color: '#a855f7' },
+            { id: 'legendary', emoji: '📦', name: 'Легендарний', price: 2000000, currency: 'coins', homyMin: 50,
+                homyMax: 500, color: '#fbbf24' },
+            { id: 'mythic', emoji: '📦', name: 'Міфічний', price: 10000000, currency: 'coins', homyMin: 100, homyMax: 1000,
+                color: '#ec4899' },
+            { id: 'homa_chest', emoji: '🟣', name: 'Хома-ящик', price: 500, currency: 'homa', homyMin: 5, homyMax: 50,
+                color: '#aa66ff' },
+            { id: 'homa10_chest', emoji: '🟣🟣', name: 'Хома x10', price: 4500, currency: 'homa', homyMin: 10,
+                homyMax: 100, color: '#aa66ff' },
+            { id: 'event_box', emoji: '🎁', name: 'Івент-бокс', price: 50, currency: 'eventHoma', homyMin: 5,
+                homyMax: 30, color: '#ec4899' },
+            { id: 'summer_box', emoji: '🎁', name: 'Літній бокс', price: 200, currency: 'eventHoma', homyMin: 10,
+                homyMax: 60, color: '#fbbf24' }
         ];
 
-        // ============================================================
-        //  🎨 СКІНИ
-        // ============================================================
         const SHOP_SKINS = [
             { id: 'skin_potuzhnolit', name: 'Потужноліт', file: '01790a98-cfd2-4abb-8e1b-04450faefe1b.png', price: 1500,
                 emoji: '💪' },
@@ -1551,21 +1497,12 @@
             selectedItemOut: null,
             lastSave: Date.now(),
             marketListings: [],
-            traders: [
-                { id: 'trader1', name: '🤖 Крипто-магнат', items: ['figurine_durov', 'astral_shard'],
-                    multiplier: 1.2 },
-                { id: 'trader2', name: '💎 Діамантовий трейдер', items: ['pepe_gucci', 'golden_coin'],
-                    multiplier: 1.5 },
-                { id: 'trader3', name: '🔥 Вогняний трейдер', items: ['diamond_ring', 'hamka_crown'],
-                    multiplier: 1.8 }
-            ],
             season: 2,
             seasonPoints: 0,
             seasonRewardClaimed: false,
             eventTapCooldown: 0,
             tapCountMinute: 0,
             isBanned: false,
-            penaltyLevel: 0,
             currentGame: 'tap',
             isTelegramUser: false,
             ownedShopSkins: [],
@@ -1576,7 +1513,6 @@
             },
             tapHistory: [],
             isGuest: false,
-            tradeOffers: [],
             lastUserActivity: Date.now(),
             pendingWithdraw: 0
         };
@@ -1672,7 +1608,6 @@
             }
         }
 
-        // AFK detection
         function updateActivity() {
             lastActivityTime = Date.now();
             G.lastUserActivity = Date.now();
@@ -1688,7 +1623,7 @@
         function checkAFK() {
             const now = Date.now();
             const inactiveTime = now - lastActivityTime;
-            const afkThreshold = 30 * 60 * 1000; // 30 хвилин
+            const afkThreshold = 30 * 60 * 1000;
             if (inactiveTime > afkThreshold && !afkDetected) {
                 afkDetected = true;
                 afkAutoTapDisabled = true;
@@ -1755,7 +1690,7 @@
         }
 
         // ============================================================
-        //  🛒 ПОКУПКА СКІНІВ (за Хоми 🟣)
+        //  🛒 ПОКУПКА СКІНІВ
         // ============================================================
         function buyShopSkin(skinId) {
             const skin = SHOP_SKINS.find(s => s.id === skinId);
@@ -1999,36 +1934,33 @@
             if (G.chests[type] === 0) delete G.chests[type];
 
             const luckBonus = getLuckBonus();
-            
-            // 🎰 НОВІ ШАНЦИ НА ГАЧУ (з нуля)
+
             const rewardRoll = Math.random();
             let rewardMsg = '';
             let rewardIcon = '';
 
             if (rewardRoll < 0.25) {
-                // 25% - Хоми
                 const amount = rand(box.homyMin, box.homyMax);
                 const bonus = Math.floor(amount * (1 + luckBonus));
                 G.homa += bonus;
                 rewardMsg = `+${bonus} 🟣 Хом!`;
                 rewardIcon = '🟣';
             } else if (rewardRoll < 0.45) {
-                // 20% - Гіфка
                 const gifPool = GIFS.filter(g => g.r !== 'exclusive' && g.r !== 'summer');
                 const g = gifPool[rand(0, gifPool.length - 1)];
                 addGif(g.id);
                 rewardMsg = `🎨 ${g.id} (Гіфка)`;
                 rewardIcon = g.id;
             } else if (rewardRoll < 0.60) {
-                // 15% - Титул
-                const titlePool = ['noob', 'player', 'pro', 'veteran', 'elite', 'legend', 'mythic', 'cyber', 'neon', 'glitch', 'cosmic', 'void', 'fire', 'ice', 'god'];
+                const titlePool = ['noob', 'player', 'pro', 'veteran', 'elite', 'legend', 'mythic', 'cyber', 'neon',
+                    'glitch', 'cosmic', 'void', 'fire', 'ice', 'god'
+                ];
                 const nt = titlePool[rand(0, titlePool.length - 1)];
                 addTitle(nt);
                 const t = TITLES[nt] || { name: nt };
                 rewardMsg = `🏅 ${t.name} (Титул)`;
                 rewardIcon = '🏅';
             } else if (rewardRoll < 0.72) {
-                // 12% - Скін
                 const skinPool = SHOP_SKINS.filter(s => !G.ownedShopSkins.includes(s.id));
                 if (skinPool.length > 0) {
                     const s = skinPool[rand(0, skinPool.length - 1)];
@@ -2043,26 +1975,22 @@
                     rewardIcon = '🟣';
                 }
             } else if (rewardRoll < 0.82) {
-                // 10% - Криптовалюта
                 const cryptoAmount = rand(1, 5) / 100;
                 G.crypto += cryptoAmount;
                 rewardMsg = `₿ +${cryptoAmount.toFixed(2)} B HAM`;
                 rewardIcon = '₿';
             } else if (rewardRoll < 0.90) {
-                // 8% - Івенхоми
                 const eventAmount = rand(1, 5);
                 G.eventHoma += eventAmount;
                 rewardMsg = `🌸 +${eventAmount} Івенхомів`;
                 rewardIcon = '🌸';
             } else if (rewardRoll < 0.95) {
-                // 5% - Предмет апгрейдера
                 const items = UPGRADE_ITEMS.filter(i => i.price < 150000000);
                 const item = items[rand(0, items.length - 1)];
                 G.upgradeInventory[item.id] = (G.upgradeInventory[item.id] || 0) + 1;
                 rewardMsg = `🔧 ${item.name} (Предмет)`;
                 rewardIcon = item.image;
             } else {
-                // 5% - Енергія
                 const energyAmount = rand(10, 30);
                 G.maxEnergy += energyAmount;
                 G.energy += energyAmount;
@@ -2107,12 +2035,6 @@
 
             const rateDisp = document.getElementById('cryptoRateDisp');
             if (rateDisp) rateDisp.textContent = G.cryptoRate;
-
-            const chartContainer = document.getElementById('cryptoChart');
-            if (chartContainer && document.getElementById('tab-crypto').classList.contains('show')) {
-                drawLineChart('cryptoChart', G.cryptoHistory, '#f472b6');
-            }
-
             saveGame();
         }
 
@@ -2135,12 +2057,6 @@
 
             const rateDisp = document.getElementById('crypto2RateDisp');
             if (rateDisp) rateDisp.textContent = G.crypto2Rate;
-
-            const chartContainer = document.getElementById('crypto2Chart');
-            if (chartContainer && document.getElementById('tab-crypto').classList.contains('show')) {
-                drawLineChart('crypto2Chart', G.crypto2History, '#fbbf24');
-            }
-
             saveGame();
         }
 
@@ -2148,7 +2064,8 @@
             const container = document.getElementById(containerId);
             if (!container) return;
             if (data.length < 2) {
-                container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:8px;">⏳ Накопичення даних...</div>';
+                container.innerHTML =
+                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:8px;">⏳ Накопичення даних...</div>';
                 return;
             }
             const height = container.clientHeight || 70;
@@ -2282,7 +2199,7 @@
         function buyChestHoma(type) {
             const box = BOXES.find(b => b.id === type);
             if (!box) return;
-            
+
             if (box.currency === 'eventHoma') {
                 if (G.eventHoma < box.price) {
                     toast(`❌ Потрібно ${box.price}🌸 Івенхомів`);
@@ -2302,7 +2219,7 @@
                 }
                 G.coins -= box.price;
             }
-            
+
             G.chests[type] = (G.chests[type] || 0) + 1;
             toast(`✅ ${box.emoji} ${box.name} ящик в інвентарі!`);
             updateUI();
@@ -2327,9 +2244,8 @@
         }
 
         // ============================================================
-        //  🏪 ГЛОБАЛЬНИЙ РИНОК (у Firebase)
+        //  🏪 ГЛОБАЛЬНИЙ РИНОК
         // ============================================================
-
         function getMarketListings() {
             return new Promise((resolve) => {
                 if (!db) {
@@ -2356,7 +2272,7 @@
             const priceInput = document.getElementById('marketPriceInput');
             const type = select?.value;
             const price = parseFloat(priceInput?.value);
-            
+
             if (!type) { toast('Виберіть предмет'); return; }
             if (!price || price <= 0) { toast('Введіть ціну >0'); return; }
             if (!G.uid) { toast('Увійдіть в акаунт'); return; }
@@ -2375,8 +2291,7 @@
                     itemDisplay = `🎨 ${id}`;
                     removeGif(id, 1);
                 }
-            }
-            else if (type.startsWith('title_')) {
+            } else if (type.startsWith('title_')) {
                 const id = type.replace('title_', '');
                 if (hasTitle(id) && G.ownedTitles[id] > 0 && id !== 'none') {
                     found = true;
@@ -2386,8 +2301,7 @@
                     itemDisplay = `🏅 ${t.name}`;
                     removeTitle(id, 1);
                 }
-            }
-            else if (type.startsWith('chest_')) {
+            } else if (type.startsWith('chest_')) {
                 const id = type.replace('chest_', '');
                 if (G.chests[id] && G.chests[id] > 0) {
                     found = true;
@@ -2398,8 +2312,7 @@
                     G.chests[id]--;
                     if (G.chests[id] === 0) delete G.chests[id];
                 }
-            }
-            else if (type.startsWith('upgrade_')) {
+            } else if (type.startsWith('upgrade_')) {
                 const id = type.replace('upgrade_', '');
                 if (G.upgradeInventory[id] && G.upgradeInventory[id] > 0) {
                     found = true;
@@ -2410,8 +2323,7 @@
                     G.upgradeInventory[id]--;
                     if (G.upgradeInventory[id] === 0) delete G.upgradeInventory[id];
                 }
-            }
-            else if (type.startsWith('skin_')) {
+            } else if (type.startsWith('skin_')) {
                 const id = type.replace('skin_', '');
                 if (G.ownedShopSkins.includes(id)) {
                     found = true;
@@ -2473,7 +2385,7 @@
 
         function buyMarketItem(itemId) {
             if (!G.uid) { toast('Увійдіть в акаунт'); return; }
-            
+
             db.ref('global/market/' + itemId).once('value').then(snap => {
                 const item = snap.val();
                 if (!item) { toast('Лот вже продано'); return; }
@@ -2482,7 +2394,6 @@
 
                 G.homa -= item.price;
 
-                // Даємо предмет покупцю
                 if (item.itemType === 'gif') {
                     addGif(item.itemId, 1);
                 } else if (item.itemType === 'title') {
@@ -2498,22 +2409,19 @@
                     }
                 }
 
-                // Нараховуємо продавцю (з комісією 10%)
                 const sellerGain = Math.floor(item.price * 0.9);
                 if (item.sellerId && item.sellerId !== G.uid) {
-                    // Додаємо до pending виводу продавця
                     db.ref('users/' + item.sellerId + '/pendingWithdraw').set(
                         firebase.database.ServerValue.increment(sellerGain)
                     );
-                    // Також оновлюємо локально, якщо це наш продавець
                     if (item.sellerId === G.uid) {
                         G.pendingWithdraw = (G.pendingWithdraw || 0) + sellerGain;
                     }
                 }
 
-                // Видаляємо лот
                 db.ref('global/market/' + itemId).remove().then(() => {
-                    toast(`✅ Куплено за ${item.price}🟣 (комісія 10%, продавцю +${sellerGain}🟣 очікують виводу)`);
+                    toast(
+                        `✅ Куплено за ${item.price}🟣 (комісія 10%, продавцю +${sellerGain}🟣 очікують виводу)`);
                     saveGame();
                     renderMarketTab();
                     updateUI();
@@ -2522,8 +2430,10 @@
                     G.homa += item.price;
                     if (item.itemType === 'gif') removeGif(item.itemId, 1);
                     else if (item.itemType === 'title') removeTitle(item.itemId, 1);
-                    else if (item.itemType === 'chest') G.chests[item.itemId] = (G.chests[item.itemId] || 0) - 1;
-                    else if (item.itemType === 'upgrade') G.upgradeInventory[item.itemId] = (G.upgradeInventory[item.itemId] || 0) - 1;
+                    else if (item.itemType === 'chest') G.chests[item.itemId] = (G.chests[item.itemId] || 0) -
+                    1;
+                    else if (item.itemType === 'upgrade') G.upgradeInventory[item.itemId] = (G
+                        .upgradeInventory[item.itemId] || 0) - 1;
                     else if (item.itemType === 'skin') {
                         G.ownedShopSkins = G.ownedShopSkins.filter(s => s !== item.itemId);
                         if (G.activeShopSkin === item.itemId) G.activeShopSkin = null;
@@ -2536,7 +2446,7 @@
 
         function cancelMarketListing(itemId) {
             if (!G.uid) { toast('Увійдіть в акаунт'); return; }
-            
+
             db.ref('global/market/' + itemId).once('value').then(snap => {
                 const item = snap.val();
                 if (!item) { toast('Лот вже продано'); return; }
@@ -2566,27 +2476,27 @@
         }
 
         // ============================================================
-        //  🏪 РИНОК (оновлена вкладка)
+        //  🏪 РИНОК
         // ============================================================
         function renderMarketTab() {
             const el = document.getElementById('shop-inner');
             if (!el) return;
 
             let itemsHtml = '<option value="">Виберіть предмет...</option>';
-            
+
             Object.entries(G.ownedGifs).forEach(([id, count]) => {
                 if (count > 0) {
                     itemsHtml += `<option value="gif_${id}">🎨 ${id} (x${count})</option>`;
                 }
             });
-            
+
             Object.entries(G.ownedTitles).forEach(([id, count]) => {
                 if (count > 0 && id !== 'none') {
                     const t = TITLES[id] || { name: id };
                     itemsHtml += `<option value="title_${id}">🏅 ${t.name} (x${count})</option>`;
                 }
             });
-            
+
             Object.entries(G.chests).forEach(([id, count]) => {
                 if (count > 0) {
                     const box = BOXES.find(b => b.id === id);
@@ -2608,13 +2518,14 @@
                 }
             });
 
-            const pendingDisplay = G.pendingWithdraw > 0 ? 
+            const pendingDisplay = G.pendingWithdraw > 0 ?
                 `<div class="card" style="border-color:var(--gold);background:rgba(251,191,36,0.1);">
                     <div class="flex">
                         <b>💰 Очікує виводу: ${G.pendingWithdraw}🟣</b>
                         <button class="btn btn-g btn-sm" onclick="withdrawMarketEarnings()">💳 Вивести</button>
                     </div>
-                </div>` : '';
+                </div>` :
+                '';
 
             el.innerHTML = `
                 ${pendingDisplay}
@@ -2647,9 +2558,10 @@
             getMarketListings().then(listings => {
                 const container = document.getElementById('marketListings');
                 if (!container) return;
-                
+
                 if (listings.length === 0) {
-                    container.innerHTML = '<p style="color:var(--text-secondary);font-size:7px;padding:4px;text-align:center;">Немає активних лотів</p>';
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary);font-size:7px;padding:4px;text-align:center;">Немає активних лотів</p>';
                     return;
                 }
 
@@ -2659,7 +2571,7 @@
                 listings.forEach(item => {
                     const isOwn = item.sellerId === G.uid;
                     const timeStr = new Date(item.time).toLocaleString();
-                    
+
                     html += `
                         <div class="market-item" style="${isOwn ? 'border-color:var(--gold);' : ''}">
                             <div class="info">
@@ -2678,13 +2590,14 @@
             }).catch(e => {
                 const container = document.getElementById('marketListings');
                 if (container) {
-                    container.innerHTML = '<p style="color:var(--text-secondary);font-size:6px;padding:4px;text-align:center;">❌ Помилка завантаження ринку</p>';
+                    container.innerHTML =
+                        '<p style="color:var(--text-secondary);font-size:6px;padding:4px;text-align:center;">❌ Помилка завантаження ринку</p>';
                 }
             });
         }
 
         // ============================================================
-        //  🏪 МАГАЗИН (основна функція)
+        //  🏪 МАГАЗИН
         // ============================================================
         function renderShop() {
             const el = document.getElementById('shop-content');
@@ -2765,7 +2678,9 @@
                     </div>`;
                 }).join('');
 
-                let titles = Object.entries(TITLES).filter(([id, t]) => t.price && !['king', 'lord', 'knight', 'hamka', 'letniy', 'sunny', 'leto', 'top1', 'top2', 'top3'].includes(id)).map(([id, t]) => {
+                let titles = Object.entries(TITLES).filter(([id, t]) => t.price && !['king', 'lord', 'knight',
+                        'hamka', 'letniy', 'sunny', 'leto', 'top1', 'top2', 'top3'
+                    ].includes(id)).map(([id, t]) => {
                     let owned = hasTitle(id);
                     return `<div class="card"><div class="flex"><b style="color:${t.color};text-shadow:0 0 15px ${t.color};">${t.name}</b> <span style="color:var(--gold);font-size:6px;">${t.price}🟣</span> <button class="btn btn-g btn-sm" onclick="buyTitleHoma('${id}')" ${owned?'disabled':''}>${owned?'✅':'Купити'}</button></div></div>`;
                 }).join('');
@@ -2810,8 +2725,10 @@
             } else if (tab === 'box') {
                 let boxes = BOXES.map(b => {
                     let owned = G.chests[b.id] || 0;
-                    let currencyIcon = b.currency === 'eventHoma' ? '🌸' : (b.currency === 'homa' ? '🟣' : '💰');
-                    let priceDisplay = b.currency === 'eventHoma' ? b.price + '🌸' : (b.currency === 'homa' ? b.price + '🟣' : b.price + '💰');
+                    let currencyIcon = b.currency === 'eventHoma' ? '🌸' : (b.currency === 'homa' ? '🟣' :
+                    '💰');
+                    let priceDisplay = b.currency === 'eventHoma' ? b.price + '🌸' : (b.currency ===
+                        'homa' ? b.price + '🟣' : b.price + '💰');
                     return `<div class="card"><div class="flex">
                         <b>${b.emoji} ${b.name}</b>
                         <span style="color:${b.color};font-size:6px;">${priceDisplay}</span>
@@ -2869,7 +2786,8 @@
                     }
                 }
             }
-            if (!hasItems) { html += `<div style="color:var(--text-muted);font-size:7px;padding:6px;">Немає предметів</div>`; }
+            if (!hasItems) { html +=
+            `<div style="color:var(--text-muted);font-size:7px;padding:6px;">Немає предметів</div>`; }
 
             html += `</div></div>
                 <div class="card"><div class="card-title">🎯 Бажані предмети</div><div class="inventory-grid">`;
@@ -2892,7 +2810,7 @@
             }
             const price = Math.floor(item.price / 1000);
             if (price <= 0) { toast('❌ Занадто дешево'); return; }
-            
+
             G.upgradeInventory[itemId]--;
             if (G.upgradeInventory[itemId] === 0) delete G.upgradeInventory[itemId];
             G.homa += price;
@@ -2905,7 +2823,8 @@
         function performUpgrade() {
             if (!G.selectedItemIn || !G.selectedItemOut) { toast('Виберіть предмети');
                 return; }
-            if (!G.upgradeInventory[G.selectedItemIn] || G.upgradeInventory[G.selectedItemIn] <= 0) { toast('Немає предмета');
+            if (!G.upgradeInventory[G.selectedItemIn] || G.upgradeInventory[G.selectedItemIn] <= 0) { toast(
+                    'Немає предмета');
                 return; }
             const inItem = UPGRADE_ITEMS.find(i => i.id === G.selectedItemIn);
             const outItem = UPGRADE_ITEMS.find(i => i.id === G.selectedItemOut);
@@ -2925,8 +2844,10 @@
             setTimeout(() => {
                 if (Math.random() * 100 <= chance) {
                     G.upgradeInventory[G.selectedItemIn]--;
-                    if (G.upgradeInventory[G.selectedItemIn] === 0) delete G.upgradeInventory[G.selectedItemIn];
-                    G.upgradeInventory[G.selectedItemOut] = (G.upgradeInventory[G.selectedItemOut] || 0) + 1;
+                    if (G.upgradeInventory[G.selectedItemIn] === 0) delete G.upgradeInventory[G
+                        .selectedItemIn];
+                    G.upgradeInventory[G.selectedItemOut] = (G.upgradeInventory[G.selectedItemOut] || 0) +
+                    1;
                     toast('✅ Успіх! +' + outItem.name);
                     G.crypto += 0.5;
                     const randGif = GIFS[rand(0, GIFS.length - 1)];
@@ -2934,7 +2855,8 @@
                     toast('🎨 +' + randGif.id);
                 } else {
                     G.upgradeInventory[G.selectedItemIn]--;
-                    if (G.upgradeInventory[G.selectedItemIn] === 0) delete G.upgradeInventory[G.selectedItemIn];
+                    if (G.upgradeInventory[G.selectedItemIn] === 0) delete G.upgradeInventory[G
+                        .selectedItemIn];
                     toast('❌ Невдача! Предмет згорів');
                 }
                 G.selectedItemIn = null;
@@ -2960,7 +2882,8 @@
             if (b.id === 0) G.lastFreeBoss = Date.now();
             toast('⚔️ Битва...');
             setTimeout(() => {
-                let chance = b.chance + (G.level - 1) * 0.03 + getLuckBonus() * 0.5 + G.upgrades.luckB * 0.1;
+                let chance = b.chance + (G.level - 1) * 0.03 + getLuckBonus() * 0.5 + G.upgrades.luckB *
+                0.1;
                 chance = clamp(chance, 0.05, 0.85);
                 if (Math.random() < chance) {
                     if (b.rewardMin > 0) {
@@ -2968,8 +2891,9 @@
                         G.homa += reward;
                         toast(`🎉 Перемога! +${reward}🟣`);
                     } else {
-                        let rew = ['gif', 'homa', 'title', 'chest', 'crypto', 'crypto2', 'eventHoma', 'upgrade_item', 'skin'][rand(
-                            0, 8)];
+                        let rew = ['gif', 'homa', 'title', 'chest', 'crypto', 'crypto2', 'eventHoma',
+                            'upgrade_item', 'skin'
+                        ][rand(0, 8)];
                         if (rew === 'gif') {
                             let av = GIFS.filter(g => !g.id.includes('⚔️'));
                             let g = av[rand(0, av.length - 1)];
@@ -2979,9 +2903,11 @@
                             G.homa += a;
                             toast('🟣 +' + a); } else if (rew === 'crypto') { let a = rand(1, 10) / 100;
                             G.crypto += a;
-                            toast(`₿ +${a.toFixed(2)}`); } else if (rew === 'crypto2') { let a = rand(1, 10);
+                            toast(`₿ +${a.toFixed(2)}`); } else if (rew === 'crypto2') { let a = rand(1,
+                                10);
                             G.crypto2 += a;
-                            toast(`🪙 +${a} T HAM`); } else if (rew === 'eventHoma') { let a = rand(1, 5);
+                            toast(`🪙 +${a} T HAM`); } else if (rew === 'eventHoma') { let a = rand(1,
+                                5);
                             G.eventHoma += a;
                             toast(`🌸 +${a}`); } else if (rew === 'upgrade_item') {
                             const items = UPGRADE_ITEMS.filter(i => i.price < 100000000);
@@ -2989,8 +2915,9 @@
                             G.upgradeInventory[item.id] = (G.upgradeInventory[item.id] || 0) + 1;
                             toast(`🔧 +${item.name}`);
                         } else if (rew === 'title') {
-                            let titles = ['king', 'lord', 'knight', 'hamka', 'pro', 'player', 'noob', 'cyber',
-                            'neon'];
+                            let titles = ['king', 'lord', 'knight', 'hamka', 'pro', 'player', 'noob',
+                                'cyber', 'neon'
+                            ];
                             let nt = titles[rand(0, titles.length - 1)];
                             addTitle(nt);
                             toast('🏅 ' + (TITLES[nt]?.name || nt));
@@ -3022,7 +2949,8 @@
         function renderBosses() {
             let html = '<div class="center-game"><h3 style="color:var(--primary);font-size:13px;">🐉 БОСИ</h3>';
             BOSSES.forEach((b, i) => {
-                let cd = b.id === 0 ? Math.max(0, Math.ceil((600000 - (Date.now() - G.lastFreeBoss)) / 60000)) : 0;
+                let cd = b.id === 0 ? Math.max(0, Math.ceil((600000 - (Date.now() - G.lastFreeBoss)) /
+                    60000)) : 0;
                 let label = b.id === 0 ? (cd > 0 ? '⏳ ' + cd + 'хв' : 'Безкоштовно') : b.cost + '🟣';
                 let canFight = b.id === 0 ? cd === 0 : G.homa >= b.cost;
                 html += `<div class="card" style="width:100%;">
@@ -3107,7 +3035,8 @@
                 r2 = sym[rand(0, 5)],
                 r3 = sym[rand(0, 5)];
             document.querySelectorAll('.slot').forEach(el => el.classList.add('spinning'));
-            setTimeout(() => { document.querySelectorAll('.slot').forEach(el => el.classList.remove('spinning')); }, 300);
+            setTimeout(() => { document.querySelectorAll('.slot').forEach(el => el.classList.remove('spinning')); },
+            300);
             document.getElementById('s1').textContent = r1;
             document.getElementById('s2').textContent = r2;
             document.getElementById('s3').textContent = r3;
@@ -3310,7 +3239,7 @@
                 const topUsers = users.slice(0, 50);
 
                 const isInTop = topUsers.some(u => u.uid === G.uid);
-                
+
                 const userIndex = topUsers.findIndex(u => u.uid === G.uid);
                 if (userIndex === 0 && !hasTitle('top1')) {
                     addTitle('top1');
@@ -3744,8 +3673,8 @@
             const nick = prompt('Введіть нікнейм для акаунта (мін. 3 символи):');
             if (!nick || nick.length < 3) { toast('Нік має бути не менше 3 символів'); return; }
 
-            const pass = prompt('Введіть пароль (мін. 4 символи):');
-            if (!pass || pass.length < 4) { toast('Пароль має бути не менше 4 символів'); return; }
+            const pass = prompt('Введіть пароль (мін. 6 символів):');
+            if (!pass || pass.length < 6) { toast('Пароль має бути не менше 6 символів'); return; }
 
             try {
                 const guestData = { ...G };
@@ -3843,7 +3772,8 @@
                     btn.addEventListener('touchstart', function(e) { updateActivity(); handleTap(e); }, { passive: false });
                 }
             } else if (g === 'casino') {
-                a.innerHTML = `<div class="center-game"><h3 style="color:var(--primary);font-size:13px;">🎰 Казино</h3>
+                a.innerHTML =
+                    `<div class="center-game"><h3 style="color:var(--primary);font-size:13px;">🎰 Казино</h3>
                     <div class="slot-machine">
                         <div class="slot" id="s1">🍒</div><div class="slot" id="s2">🍋</div><div class="slot" id="s3">🍉</div>
                     </div>
@@ -3858,12 +3788,12 @@
         }
 
         // ============================================================
-        //  🐹 ТАП (з анти-автоклікером)
+        //  🐹 ТАП
         // ============================================================
         function handleTap(e) {
             e.preventDefault();
             updateActivity();
-            
+
             if (G.isBanned) {
                 toast(`⛔ Штраф: ${getPenaltyAmount()}🟣`);
                 return;
@@ -3984,7 +3914,7 @@
                 return; }
             if (nick.length < 3) { error.textContent = '❌ Нік ≥3';
                 return; }
-            if (pass.length < 4) { error.textContent = '❌ Пароль ≥4';
+            if (pass.length < 6) { error.textContent = '❌ Пароль ≥6';
                 return; }
             error.textContent = '';
             success.textContent = '⏳ Реєстрація...';
@@ -4025,7 +3955,7 @@
                 return; }
             if (nick.length < 3) { error.textContent = '❌ Нік ≥3';
                 return; }
-            if (pass.length < 4) { error.textContent = '❌ Пароль ≥4';
+            if (pass.length < 6) { error.textContent = '❌ Пароль ≥6';
                 return; }
             error.textContent = '';
             success.textContent = '⏳ Вхід...';
@@ -4055,51 +3985,6 @@
                     }
                     success.textContent = '';
                 });
-        }
-
-        function handleTelegramGuest() {
-            if (!auth) {
-                document.getElementById('authError').textContent = '❌ Firebase не готовий.';
-                return;
-            }
-            if (!tg || !tgUserId) {
-                document.getElementById('authError').textContent = '❌ Запустіть гру в Telegram';
-                return;
-            }
-
-            const error = document.getElementById('authError');
-            const success = document.getElementById('authSuccess');
-            error.textContent = '';
-            success.textContent = '⏳ Вхід через Telegram...';
-
-            const uid = 'tg_' + tgUserId;
-            G.uid = uid;
-            G.isTelegramUser = true;
-            G.isGuest = false;
-
-            const tgUser = tg.initDataUnsafe?.user;
-            if (tgUser) {
-                let name = tgUser.first_name || 'TelegramUser';
-                if (tgUser.last_name) name += ' ' + tgUser.last_name;
-                G.name = '🟣 ' + name;
-            }
-            G.season = 2;
-
-            db.ref('users/' + uid).once('value').then(snap => {
-                if (snap.val()) {
-                    loadGame(snap.val());
-                    success.textContent = '✅ Дані завантажено!';
-                } else {
-                    saveGame();
-                    success.textContent = '✅ Новий акаунт створено!';
-                }
-                error.textContent = '';
-                startGame();
-            }).catch(e => {
-                console.error('Telegram login error:', e);
-                error.textContent = '❌ Помилка: ' + e.message;
-                success.textContent = '';
-            });
         }
 
         function handleGuest() {
@@ -4141,6 +4026,27 @@
         }
 
         // ============================================================
+        //  🚪 ВИХІД
+        // ============================================================
+        function logout() {
+            if (G.isGuest) {
+                if (confirm('Ви в гостьовому режимі. Прогрес буде втрачено при виході. Продовжити?')) {
+                    localStorage.removeItem('hamka_guest_save');
+                    location.reload();
+                }
+                return;
+            }
+            if (confirm('Ви впевнені, що хочете вийти?')) {
+                auth.signOut().then(() => {
+                    location.reload();
+                }).catch(e => {
+                    console.error('Logout error:', e);
+                    location.reload();
+                });
+            }
+        }
+
+        // ============================================================
         //  🚀 СТАРТ ГРИ
         // ============================================================
         function startGame() {
@@ -4178,18 +4084,18 @@
 
             setInterval(() => {
                 checkAFK();
-                
+
                 let regen = G.energyRegen + G.upgrades.energyRegen;
                 G.energy = Math.min(G.maxEnergy, G.energy + regen);
-                
+
                 if (!afkAutoTapDisabled && G.autoTap > 0) {
                     G.coins += G.autoTap;
                 }
-                
+
                 if (!afkAutoXPDisabled && G.autoXP > 0) {
                     addXP(G.autoXP);
                 }
-                
+
                 let now = Date.now();
                 if (now - G.lastTimeReward >= 300000) {
                     G.lastTimeReward = now;
@@ -4234,88 +4140,47 @@
         }
 
         // ============================================================
-        //  🔄 АВТОВХІД ДЛЯ TELEGRAM
+        //  🔄 АВТОВХІД
         // ============================================================
-        if (tg && tgUserId && !gameStarted) {
-            setTimeout(() => {
-                if (db) {
-                    const uid = 'tg_' + tgUserId;
-                    G.uid = uid;
-                    G.isTelegramUser = true;
-                    G.isGuest = false;
+        document.getElementById('authStatus').textContent = '🔐 Виберіть спосіб входу';
 
-                    const tgUser = tg.initDataUnsafe?.user;
-                    if (tgUser) {
-                        let name = tgUser.first_name || 'TelegramUser';
-                        if (tgUser.last_name) name += ' ' + tgUser.last_name;
-                        G.name = '🟣 ' + name;
-                    }
-                    G.season = 2;
-
-                    db.ref('users/' + uid).once('value').then(snap => {
+        if (!authListenerSet) {
+            authListenerSet = true;
+            auth?.onAuthStateChanged(user => {
+                if (user && !gameStarted) {
+                    G.uid = user.uid;
+                    G.isTelegramUser = false;
+                    G.isGuest = user.isAnonymous || false;
+                    db.ref('users/' + user.uid).once('value').then(snap => {
                         if (snap.val()) {
-                            loadGame(snap.val());
-                            toast('✅ Дані завантажено!');
+                            const data = snap.val();
+                            data.isGuest = G.isGuest;
+                            loadGame(data);
                         } else {
+                            G.name = user.isAnonymous ? 'Гість' : 'Гравець';
+                            G.season = 2;
                             saveGame();
-                            toast('👋 Ласкаво просимо!');
                         }
                         startGame();
                     }).catch(e => {
-                        console.error('Auto login error:', e);
-                        document.getElementById('authStatus').textContent = '❌ Помилка входу';
+                        console.error('Load error:', e);
+                        startGame();
                     });
-                } else {
-                    document.getElementById('authStatus').textContent = '❌ Помилка підключення до сервера';
+                } else if (!user && !gameStarted) {
+                    document.getElementById('authScreen').style.display = 'flex';
+                    document.getElementById('game').style.display = 'none';
                 }
-            }, 500);
-        } else {
-            document.getElementById('authStatus').textContent = '🔐 Виберіть спосіб входу';
-
-            if (!authListenerSet) {
-                authListenerSet = true;
-                auth?.onAuthStateChanged(user => {
-                    if (user && !G.isTelegramUser) {
-                        G.uid = user.uid;
-                        G.isTelegramUser = false;
-                        G.isGuest = user.isAnonymous || false;
-                        db.ref('users/' + user.uid).once('value').then(snap => {
-                            if (snap.val()) {
-                                const data = snap.val();
-                                data.isGuest = G.isGuest;
-                                loadGame(data);
-                            } else {
-                                G.name = user.isAnonymous ? 'Гість' : 'Гравець';
-                                G.season = 2;
-                                saveGame();
-                            }
-                            startGame();
-                        }).catch(e => {
-                            console.error('Load error:', e);
-                            startGame();
-                        });
-                    } else if (!user && !G.isTelegramUser) {
-                        if (!gameStarted) {
-                            document.getElementById('authScreen').style.display = 'flex';
-                            document.getElementById('game').style.display = 'none';
-                        }
-                    }
-                });
-            }
+            });
         }
 
         console.log('🐹 Hamka — Сезон 2');
-        console.log('✅ ГЛОБАЛЬНИЙ РИНОК — всі лоти видно всім гравцям! 🎨🏅📦🔧🎨');
-        console.log('✅ Продавець отримує Хоми з комісією 10% — кошти в "Очікує виводу"');
-        console.log('✅ Кнопка "Вивести" для отримання коштів з ринку');
-        console.log('✅ Кнопка "Вийти" в профілі');
-        console.log('✅ Нові шанци на гачу: 25% Хоми, 20% Гіфки, 15% Титули, 12% Скіни, 10% Крипта, 8% Івенхоми, 5% Предмети, 5% Енергія');
-        console.log('✅ Продаж предметів апгрейдера за Хоми в самому апгрейдері');
-        console.log('✅ Кнопка сховати/показати в топі в профілі');
-        console.log('✅ AFK захист: 30 хв без активності → авто-тап та авто-XP вимикаються');
-        console.log('✅ МАКСИМАЛЬНА УДАЧА +30%');
-        console.log('✅ Топ-3: Король, Паладин, Хомяк');
+        console.log('✅ Реєстрація та вхід через Firebase');
+        console.log('✅ Гостьовий режим працює');
+        console.log('✅ Конвертація гостя в акаунт');
+        console.log('✅ Глобальний ринок з комісією 10%');
+        console.log('✅ Кнопка виходу в профілі');
         console.log('✅ Анти-автоклікер: 1200 тапів/хв');
+        console.log('✅ AFK захист: 30 хв без активності');
     </script>
 </body>
-    </html>
+    </html>є
