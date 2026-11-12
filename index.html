@@ -25,67 +25,48 @@
         #0f0f1e;
     }
 
+    /* ===== Екран авторизації ===== */
     #auth-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: #0f0f1e;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      transition: opacity 0.3s, visibility 0.3s;
+      position: fixed; inset: 0; z-index: 1000; background: #0f0f1e;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; transition: opacity 0.3s, visibility 0.3s;
     }
     #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
     .auth-logo { font-size: 72px; margin-bottom: 16px; }
     .auth-title { font-size: 24px; font-weight: 700; color: #f5a623; margin-bottom: 8px; }
     .auth-subtitle { font-size: 13px; color: #888; margin-bottom: 32px; text-align: center; }
-
     .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
-
     .auth-input {
-      width: 100%; padding: 14px 16px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px; color: #fff; font-size: 15px; outline: none;
-      transition: border-color 0.2s;
+      width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+      color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
     }
     .auth-input:focus { border-color: #f5a623; }
     .auth-input::placeholder { color: #666; }
-
     .auth-btn {
-      padding: 14px; border: none; border-radius: 12px;
-      font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: transform 0.1s, opacity 0.2s;
+      padding: 14px; border: none; border-radius: 12px; font-size: 15px;
+      font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
     }
     .auth-btn:active { transform: scale(0.97); }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .auth-btn.primary { background: linear-gradient(135deg, #f5a623, #d4891a); color: #1a1a2e; }
     .auth-btn.telegram {
-      background: #2aabee; color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; margin-top: 8px;
+      background: #2aabee; color: #fff; display: flex; align-items: center;
+      justify-content: center; gap: 8px; margin-top: 8px;
     }
     .auth-divider {
-      display: flex; align-items: center; gap: 12px;
-      color: #555; font-size: 12px; margin: 8px 0;
+      display: flex; align-items: center; gap: 12px; color: #555;
+      font-size: 12px; margin: 8px 0;
     }
     .auth-divider::before, .auth-divider::after {
       content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08);
     }
     .auth-switch { margin-top: 20px; font-size: 13px; color: #888; text-align: center; }
     .auth-switch a { color: #f5a623; cursor: pointer; text-decoration: none; font-weight: 600; }
-    .auth-error {
-      color: #ff6b6b; font-size: 12px; text-align: center;
-      min-height: 18px; line-height: 1.4;
-    }
-    .auth-hint {
-      color: #888; font-size: 11px; text-align: center;
-      margin-top: 6px; line-height: 1.4;
-    }
+    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 18px; line-height: 1.4; }
+    .auth-hint { color: #888; font-size: 11px; text-align: center; margin-top: 6px; line-height: 1.4; }
 
+    /* ===== Гра ===== */
     #game-screen { display: none; flex-direction: column; height: 100%; }
     #game-screen.visible { display: flex; }
 
@@ -173,16 +154,15 @@
     }
 
     .bottom-nav {
-      display: flex; justify-content: space-around;
+      display: flex; justify-content: center;
       padding: 10px 0 14px; background: rgba(0, 0, 0, 0.5);
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center;
-      gap: 4px; color: #666; font-size: 10px;
-      cursor: pointer; transition: color 0.2s; flex: 1;
+      gap: 4px; color: #f5a623; font-size: 10px;
+      cursor: pointer; flex: 1;
     }
-    .nav-item.active { color: #f5a623; }
     .nav-icon { font-size: 22px; }
 
     #status {
@@ -235,18 +215,15 @@
       <button class="logout-btn" id="logout-btn">Вийти</button>
     </div>
 
+    <!-- Тепер тільки 2 показники: Монети та Енергія -->
     <div class="stats-bar">
       <div class="stat-item">
         <div class="stat-label">Монети</div>
         <div class="stat-value coin" id="coin-display">0</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">Прибуток/год</div>
-        <div class="stat-value" id="profit-display">+0</div>
-      </div>
-      <div class="stat-item">
         <div class="stat-label">Енергія</div>
-        <div class="stat-value energy" id="energy-display">1000/1000</div>
+        <div class="stat-value energy" id="energy-display">200/200</div>
       </div>
     </div>
 
@@ -257,11 +234,9 @@
       <div class="tap-hint">Натискай на хом'яка 🐹</div>
     </div>
 
+    <!-- Тільки "Грати" -->
     <div class="bottom-nav">
       <div class="nav-item active"><span class="nav-icon">🐹</span><span>Грати</span></div>
-      <div class="nav-item"><span class="nav-icon">⛏️</span><span>Майнінг</span></div>
-      <div class="nav-item"><span class="nav-icon">👥</span><span>Друзі</span></div>
-      <div class="nav-item"><span class="nav-icon">🚀</span><span>Бусти</span></div>
     </div>
   </div>
 
@@ -272,9 +247,7 @@
     import { getDatabase, ref, get, set, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ============================================================
-    // FIREBASE CONFIG
-    // ============================================================
+    // === Firebase Config ===
     const firebaseConfig = {
       apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
       authDomain: "hamka-game.firebaseapp.com",
@@ -308,7 +281,6 @@
     const logoutBtn = document.getElementById('logout-btn');
 
     const coinDisplay = document.getElementById('coin-display');
-    const profitDisplay = document.getElementById('profit-display');
     const energyDisplay = document.getElementById('energy-display');
     const hamster = document.getElementById('hamster');
     const tapArea = document.getElementById('tap-area');
@@ -319,10 +291,10 @@
 
     // === Стан ===
     let isLoginMode = true;
-    let currentUser = null;
     let state = {
-      coins: 0, profitPerHour: 100, energy: 1000, maxEnergy: 1000,
-      lastMiningClaim: Date.now()
+      coins: 0,
+      energy: 200,
+      maxEnergy: 200
     };
     let isTapping = false;
     let unsubscribeUserData = null;
@@ -332,7 +304,7 @@
       statusEl.innerText = text;
       statusEl.classList.add('show');
       clearTimeout(showStatus._t);
-      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2500);
+      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2000);
     }
 
     function formatNumber(num) {
@@ -342,9 +314,15 @@
       return Math.floor(num).toString();
     }
 
-    // ============================================================
-    // ОБРОБКА ПОМИЛОК FIREBASE AUTH
-    // ============================================================
+    // === Отримати нік з Telegram ===
+    function getTelegramNick(tgUser) {
+      if (!tgUser) return null;
+      if (tgUser.username) return '@' + tgUser.username; // @nick
+      if (tgUser.first_name) return tgUser.first_name;   // fallback
+      return 'Гравець';
+    }
+
+    // === Помилки Firebase Auth ===
     function getAuthErrorMessage(err) {
       const messages = {
         'auth/invalid-email': 'Невірний формат email',
@@ -353,8 +331,8 @@
         'auth/email-already-in-use': 'Цей email вже зареєстровано. Увійдіть.',
         'auth/weak-password': 'Пароль занадто слабкий (мін. 6 символів)',
         'auth/invalid-credential': 'Невірний email або пароль',
-        'auth/too-many-requests': 'Занадто багато спроб. Зачекайте кілька хвилин.',
-        'auth/network-request-failed': 'Мережева помилка. Перевірте інтернет і повторіть.',
+        'auth/too-many-requests': 'Занадто багато спроб. Зачекайте.',
+        'auth/network-request-failed': 'Мережева помилка. Перевірте інтернет.',
         'auth/operation-not-allowed': 'Email/Password не увімкнено у Firebase Console',
         'auth/unauthorized-domain': 'Домен не авторизований у Firebase Console',
         'auth/internal-error': 'Внутрішня помилка Firebase. Спробуйте ще раз.'
@@ -362,20 +340,15 @@
       return messages[err.code] || err.message || 'Невідома помилка';
     }
 
-    // ============================================================
-    // RETRY-ЛОГІКА ДЛЯ МЕРЕЖЕВИХ ПОМИЛОК
-    // ============================================================
+    // === Авторизація з retry ===
     async function authWithRetry(action, email, password, maxRetries = 2) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          if (action === 'login') {
-            return await signInWithEmailAndPassword(auth, email, password);
-          } else {
-            return await createUserWithEmailAndPassword(auth, email, password);
-          }
+          if (action === 'login') return await signInWithEmailAndPassword(auth, email, password);
+          else return await createUserWithEmailAndPassword(auth, email, password);
         } catch (err) {
           if (err.code === 'auth/network-request-failed' && attempt < maxRetries) {
-            authError.innerText = `Мережева помилка. Повторна спроба ${attempt + 1}/${maxRetries}...`;
+            authError.innerText = `Мережева помилка. Спроба ${attempt + 1}/${maxRetries}...`;
             await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
             continue;
           }
@@ -384,9 +357,7 @@
       }
     }
 
-    // ============================================================
-    // ЕКРАН АВТОРИЗАЦІЇ
-    // ============================================================
+    // === Перемикання режиму ===
     function switchAuthMode() {
       isLoginMode = !isLoginMode;
       authSubmit.innerText = isLoginMode ? 'Увійти' : 'Зареєструватися';
@@ -401,18 +372,9 @@
       const email = authEmail.value.trim();
       const password = authPassword.value;
 
-      if (!email || !password) {
-        authError.innerText = 'Заповніть email та пароль';
-        return;
-      }
-      if (!email.includes('@')) {
-        authError.innerText = 'Введіть коректний email';
-        return;
-      }
-      if (password.length < 6) {
-        authError.innerText = 'Пароль має бути мінімум 6 символів';
-        return;
-      }
+      if (!email || !password) { authError.innerText = 'Заповніть email та пароль'; return; }
+      if (!email.includes('@')) { authError.innerText = 'Введіть коректний email'; return; }
+      if (password.length < 6) { authError.innerText = 'Пароль має бути мінімум 6 символів'; return; }
 
       authSubmit.disabled = true;
       authError.innerText = '';
@@ -423,30 +385,28 @@
       } catch (err) {
         console.error("Auth error:", err.code, err.message);
         authError.innerText = getAuthErrorMessage(err);
-
         if (err.code === 'auth/unauthorized-domain') {
-          authHint.innerText = 'Додайте ваш домен у Firebase Console → Authentication → Settings → Authorized domains';
+          authHint.innerText = 'Додайте домен у Firebase Console → Authentication → Settings → Authorized domains';
         } else if (err.code === 'auth/operation-not-allowed') {
-          authHint.innerText = 'Увімкніть Email/Password у Firebase Console → Authentication → Sign-in method';
-        } else if (err.code === 'auth/network-request-failed') {
-          authHint.innerText = 'Перевірте інтернет. Якщо ви в Telegram — спробуйте відкрити в браузері.';
+          authHint.innerText = 'Увімкніть Email/Password у Firebase Console';
         }
       } finally {
         authSubmit.disabled = false;
       }
     });
 
-    // === Вхід через Telegram (тестовий режим) ===
+    // === Вхід через Telegram (нік у грі = @username) ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
         authError.innerText = 'Не вдалося отримати дані Telegram';
-        authHint.innerText = 'Відкрийте гру через Telegram-бота, а не в браузері';
+        authHint.innerText = 'Відкрийте гру через Telegram-бота';
         return;
       }
 
       const fakeEmail = `tg_${tgUser.id}@hamka.test`;
       const fakePassword = `tg_${tgUser.id}_secret_hamka`;
+      const nick = getTelegramNick(tgUser);
 
       tgLoginBtn.disabled = true;
       authError.innerText = '';
@@ -462,7 +422,7 @@
             throw e;
           }
         }
-        showStatus(`✅ Вітаємо, ${tgUser.first_name || tgUser.username || 'гравець'}!`);
+        showStatus(`✅ Вітаємо, ${nick}!`);
       } catch (err) {
         console.error("TG login error:", err);
         authError.innerText = getAuthErrorMessage(err);
@@ -471,18 +431,23 @@
       }
     });
 
-    // ============================================================
-    // СЛУХАЧ СТАНУ АВТОРИЗАЦІЇ
-    // ============================================================
+    // === Слухач стану авторизації ===
     onAuthStateChanged(auth, (user) => {
-      currentUser = user;
       if (user) {
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
 
-        const displayName = user.displayName || user.email?.split('@')[0] || 'Гравець';
+        // Визначаємо нік: для TG — @username, для email — частина до @
+        const tgUser = tg.initDataUnsafe?.user;
+        let displayName;
+        if (tgUser) {
+          displayName = getTelegramNick(tgUser);
+        } else {
+          displayName = user.email?.split('@')[0] || 'Гравець';
+        }
+
         userNameEl.innerText = displayName;
-        avatarEl.innerText = displayName.charAt(0).toUpperCase();
+        avatarEl.innerText = displayName.replace('@', '').charAt(0).toUpperCase();
 
         initGame(user.uid);
       } else {
@@ -493,34 +458,33 @@
       }
     });
 
-    // ============================================================
-    // ІГРОВА ЛОГІКА
-    // ============================================================
+    // === Ігрова логіка ===
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
       const coinsRef = ref(db, 'users/' + uid + '/coins');
       const energyRef = ref(db, 'users/' + uid + '/energy');
 
+      // Ініціалізація: 200 енергії, 0 монет
       get(userRef).then((snap) => {
         if (!snap.exists()) {
           set(userRef, {
-            coins: 0, profitPerHour: 100, energy: 1000, maxEnergy: 1000,
-            lastMiningClaim: Date.now(), createdAt: Date.now()
+            coins: 0,
+            energy: 200,
+            maxEnergy: 200,
+            createdAt: Date.now()
           });
         }
       }).catch(err => console.error("Init user error:", err));
 
+      // Підписка на зміни
       unsubscribeUserData = onValue(userRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
         state.coins = data.coins || 0;
-        state.profitPerHour = data.profitPerHour || 0;
-        state.energy = data.energy ?? 1000;
-        state.maxEnergy = data.maxEnergy ?? 1000;
-        state.lastMiningClaim = data.lastMiningClaim || Date.now();
+        state.energy = data.energy ?? 200;
+        state.maxEnergy = data.maxEnergy ?? 200;
 
         coinDisplay.innerText = formatNumber(state.coins);
-        profitDisplay.innerText = "+" + formatNumber(state.profitPerHour);
         energyDisplay.innerText = Math.floor(state.energy) + "/" + state.maxEnergy;
 
         const level = state.coins >= 1e9 ? "Creator" :
@@ -531,11 +495,16 @@
         userLevelEl.innerText = level;
       });
 
+      // === ТАП ПО ХОМ'ЯКУ ===
       hamster.onclick = async (e) => {
         if (isTapping) return;
-        if (state.energy < 1) { showStatus("❌ Немає енергії!"); return; }
+        if (state.energy < 1) {
+          showStatus("❌ Немає енергії!");
+          return;
+        }
         isTapping = true;
 
+        // Анімація
         const rect = tapArea.getBoundingClientRect();
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
@@ -548,24 +517,30 @@
         try { tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
 
         try {
+          // Атомарно +1 монета та -1 енергія ОДНИМ пакетом через транзакції
           await runTransaction(coinsRef, (c) => (c || 0) + 1);
-          await runTransaction(energyRef, (c) => Math.max(0, (c ?? 1000) - 1));
-        } catch (err) { console.error("Tap error:", err); }
-        finally { isTapping = false; }
+          await runTransaction(energyRef, (c) => Math.max(0, (c ?? 200) - 1));
+        } catch (err) {
+          console.error("Tap error:", err);
+        } finally {
+          isTapping = false;
+        }
       };
 
+      // === Відновлення енергії: +5 кожні 3 секунди ===
       if (energyInterval) clearInterval(energyInterval);
       energyInterval = setInterval(async () => {
         if (state.energy >= state.maxEnergy) return;
         try {
           await runTransaction(energyRef, (c) => {
-            const cur = c ?? 1000;
-            return Math.min(state.maxEnergy, cur + 10);
+            const cur = c ?? 200;
+            return Math.min(state.maxEnergy, cur + 5);
           });
-        } catch (err) {}
-      }, 5000);
+        } catch (err) { /* ігноруємо */ }
+      }, 3000);
     }
 
+    // === Вихід ===
     logoutBtn.addEventListener('click', () => {
       if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
       signOut(auth);
