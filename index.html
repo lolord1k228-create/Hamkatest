@@ -3,40 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hamka Kombat</title>
+  <title>Hamka Game</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
       height: 100%; overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0f0f1e; color: #fff; user-select: none;
+      background: #0b0c10; /* Темний фон */
+      color: #fff; user-select: none;
     }
     body {
       display: flex; flex-direction: column; position: relative;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(245, 166, 35, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
-        #0f0f1e;
+      background: radial-gradient(circle at 50% 30%, rgba(255, 140, 0, 0.05) 0%, transparent 60%), #0b0c10;
     }
 
-    /* ===== Авторизація ===== */
+    /* ===== Екран авторизації ===== */
     #auth-screen {
-      position: fixed; inset: 0; z-index: 1000; background: #0f0f1e;
+      position: fixed; inset: 0; z-index: 1000; background: #0b0c10;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; transition: opacity 0.3s, visibility 0.3s;
     }
     #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .auth-logo { font-size: 72px; margin-bottom: 16px; }
-    .auth-title { font-size: 24px; font-weight: 700; color: #f5a623; margin-bottom: 8px; }
+    .auth-title { font-size: 24px; font-weight: 700; color: #ff9800; margin-bottom: 8px; }
     .auth-subtitle { font-size: 13px; color: #888; margin-bottom: 32px; text-align: center; }
     .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
     .auth-input {
-      width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+      width: 100%; padding: 14px 16px; background: #1c1d22;
+      border: 1px solid #333; border-radius: 12px;
       color: #fff; font-size: 15px; outline: none;
     }
-    .auth-input:focus { border-color: #f5a623; }
+    .auth-input:focus { border-color: #ff9800; }
     .auth-input::placeholder { color: #666; }
     .auth-btn {
       padding: 14px; border: none; border-radius: 12px; font-size: 15px;
@@ -44,186 +42,153 @@
     }
     .auth-btn:active { transform: scale(0.97); }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .auth-btn.primary { background: linear-gradient(135deg, #f5a623, #d4891a); color: #1a1a2e; }
-    .auth-btn.telegram {
-      background: #2aabee; color: #fff; display: flex; align-items: center;
-      justify-content: center; gap: 8px; margin-top: 8px;
-    }
-    .auth-divider {
-      display: flex; align-items: center; gap: 12px; color: #555; font-size: 12px; margin: 8px 0;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08);
-    }
+    .auth-btn.primary { background: #ff9800; color: #000; }
+    .auth-btn.telegram { background: #2aabee; color: #fff; margin-top: 8px; }
+    .auth-divider { display: flex; align-items: center; gap: 12px; color: #555; font-size: 12px; margin: 8px 0; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #333; }
     .auth-switch { margin-top: 20px; font-size: 13px; color: #888; text-align: center; }
-    .auth-switch a { color: #f5a623; cursor: pointer; text-decoration: none; font-weight: 600; }
-    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 18px; line-height: 1.4; }
+    .auth-switch a { color: #ff9800; cursor: pointer; text-decoration: none; font-weight: 600; }
+    .auth-error { color: #ff5252; font-size: 12px; text-align: center; min-height: 18px; line-height: 1.4; }
     .auth-hint { color: #888; font-size: 11px; text-align: center; margin-top: 6px; line-height: 1.4; }
 
-    /* ===== Гра ===== */
+    /* ===== Головний екран ===== */
     #game-screen { display: none; flex-direction: column; height: 100%; }
     #game-screen.visible { display: flex; }
 
-    .top-bar {
+    /* --- Верхній скрол-бар ресурсів --- */
+    .top-resources {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 16px; background: rgba(0, 0, 0, 0.4);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 5;
+      padding: 8px 12px; background: #15161a; font-size: 12px; font-weight: 700;
+      border-bottom: 1px solid #222; overflow-x: auto; white-space: nowrap;
     }
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, #f5a623, #d4891a);
+    .res-item { display: flex; align-items: center; gap: 4px; margin-right: 8px; }
+    .res-item.active-badge { background: #ff9800; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+
+    /* --- Головне меню (вкладки) --- */
+    .main-menu {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 12px; background: #15161a; overflow-x: auto; gap: 8px;
+    }
+    .menu-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: #666; font-size: 10px; cursor: pointer; min-width: 50px;
+    }
+    .menu-item.active { color: #4caf50; }
+    .menu-icon { font-size: 20px; }
+
+    /* --- Суб-меню (кнопки дій) --- */
+    .sub-menu {
+      display: flex; gap: 8px; padding: 10px 12px; overflow-x: auto;
+    }
+    .sub-btn {
+      padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      color: #000; border: none; white-space: nowrap; cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .sub-btn.tap { background: #00ff88; color: #000; }
+    .sub-btn.orange { background: #ff6b00; color: #fff; }
+    .sub-btn.purple { background: #7b1fa2; color: #fff; }
+    .sub-btn.pink { background: #e91e63; color: #fff; }
+
+    /* --- Центральна зона (Хом'як) --- */
+    .center-zone {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; position: relative; overflow: hidden;
+    }
+    .balance-big {
+      font-size: 32px; font-weight: 800; color: #fff;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+      text-shadow: 0 2px 10px rgba(255,255,255,0.2);
+    }
+    .balance-big span { font-size: 24px; }
+
+    .hamster-circle {
+      width: 280px; height: 280px; border-radius: 50%;
+      border: 4px solid #00ff88;
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), inset 0 0 40px rgba(0,0,0,0.8);
+      background: radial-gradient(circle at center, #1c1d22 0%, #0b0c10 100%);
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 16px; color: #1a1a2e;
-      box-shadow: 0 0 12px rgba(245, 166, 35, 0.4);
+      cursor: pointer; position: relative; z-index: 2;
+      transition: transform 0.1s;
     }
-    .user-name { font-size: 14px; font-weight: 600; }
-    .user-level {
-      font-size: 11px; color: #f5a623; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .logout-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #aaa; padding: 6px 12px; border-radius: 8px;
-      font-size: 12px; cursor: pointer;
+    .hamster-circle:active { transform: scale(0.95); }
+    .hamster-circle::after {
+      content: '🐹'; font-size: 140px;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
     }
 
-    .stats-bar {
-      display: flex; justify-content: space-around;
-      padding: 14px 12px; background: rgba(0, 0, 0, 0.25);
-      margin: 10px 12px; border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .stat-item { text-align: center; flex: 1; }
-    .stat-item + .stat-item { border-left: 1px solid rgba(255, 255, 255, 0.08); }
-    .stat-label {
-      font-size: 10px; color: #888; text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 3px;
-    }
-    .stat-value { font-size: 17px; font-weight: 700; color: #f5a623; }
-    .stat-value.coin { color: #ffd700; }
-    .stat-value.energy { color: #4caf50; }
-
-    /* ===== Вкладки ===== */
-    .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
-    .page.active { display: flex; }
-
-    /* ===== Тап ===== */
-    .tap-area {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative; padding: 10px; overflow: hidden;
-    }
-    .hamster-wrap {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      width: 420px; height: 420px;
-      max-width: 100%; max-height: 100%;
-    }
-    .hamster-wrap::before {
-      content: ''; position: absolute; width: 90%; height: 90%;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(245, 166, 35, 0.25), transparent 70%);
-      animation: pulseGlow 2s ease-in-out infinite;
-    }
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); opacity: 0.6; }
-      50% { transform: scale(1.1); opacity: 1; }
-    }
-    .hamster {
-      width: 380px; height: 380px;
-      max-width: 100%; max-height: 100%;
-      background: radial-gradient(circle at 35% 30%, #ffd27a, #f5a623 40%, #d4891a);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 170px; cursor: pointer; transition: transform 0.1s ease;
-      box-shadow: 0 10px 40px rgba(245, 166, 35, 0.4),
-        inset 0 -8px 20px rgba(0, 0, 0, 0.2),
-        inset 0 8px 20px rgba(255, 255, 255, 0.3);
-      position: relative; z-index: 2;
-    }
-    .hamster:active { transform: scale(0.92); }
-    .tap-hint { margin-top: 24px; font-size: 13px; color: #888; text-align: center; }
     .tap-effect {
-      position: absolute; font-size: 30px; font-weight: 800; color: #ffd700;
+      position: absolute; font-size: 24px; font-weight: 800; color: #ff9800;
       pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
     @keyframes floatUp {
       0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-90px) scale(1.4); }
+      100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
     }
 
-    /* ===== Крипто ===== */
-    .crypto-page { padding: 8px 12px 90px; }
-    .crypto-title {
-      font-size: 18px; font-weight: 700; color: #f5a623;
-      text-align: center; margin: 8px 0 12px;
+    /* --- Нижня панель (Енергія + Баланс) --- */
+    .bottom-panel {
+      background: #15161a; padding: 10px 16px; border-top: 1px solid #222;
+      display: flex; flex-direction: column; gap: 8px;
     }
+    .energy-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #ccc; }
+    .energy-progress {
+      width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden;
+    }
+    .energy-fill { height: 100%; background: #ff9800; width: 100%; transition: width 0.3s; }
+    .bottom-balance {
+      display: flex; justify-content: center; align-items: center; gap: 6px;
+      font-size: 20px; font-weight: 800; color: #fff;
+    }
+    .xp-row { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 4px; }
+
+    /* --- Нижнє меню навігації --- */
+    .nav-tabs {
+      display: flex; justify-content: space-around; padding: 8px 0 12px;
+      background: #0b0c10; border-top: 1px solid #222;
+    }
+    .nav-tab {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: #666; font-size: 10px; cursor: pointer;
+    }
+    .nav-tab.active { color: #ff9800; }
+    .nav-tab .icon { font-size: 20px; }
+
+    /* ===== Сторінка Крипти ===== */
+    .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 12px; }
+    .page.active { display: flex; }
+    
     .crypto-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #15161a; border: 1px solid #222;
       border-radius: 14px; padding: 12px; margin-bottom: 10px;
     }
-    .crypto-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px;
-    }
-    .crypto-symbol { font-size: 16px; font-weight: 700; color: #f5a623; }
+    .crypto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .crypto-symbol { font-size: 16px; font-weight: 700; color: #ff9800; }
     .crypto-price { font-size: 15px; font-weight: 700; color: #fff; }
     .crypto-price.up { color: #4caf50; }
     .crypto-price.down { color: #ff5252; }
-    .crypto-chart {
-      width: 100%; height: 60px; display: block;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px; margin-bottom: 8px;
-    }
-    .crypto-actions {
-      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
-    }
+    .crypto-chart { width: 100%; height: 50px; background: #0b0c10; border-radius: 8px; margin-bottom: 8px; }
+    .crypto-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .crypto-input {
-      width: 60px; flex-shrink: 0; padding: 8px 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px; color: #fff; font-size: 14px; outline: none;
-      -moz-appearance: textfield;
+      width: 60px; flex-shrink: 0; padding: 8px; background: #1c1d22;
+      border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; outline: none;
     }
-    .crypto-input::-webkit-outer-spin-button,
-    .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .crypto-input:focus { border-color: #f5a623; }
+    .crypto-input:focus { border-color: #ff9800; }
     .crypto-btn {
-      flex: 1; min-width: 0; padding: 8px 8px; border: none; border-radius: 8px;
-      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      flex: 1; min-width: 0; padding: 8px; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer; color: #fff;
     }
-    .crypto-btn.buy { background: #4caf50; color: #fff; }
-    .crypto-btn.sell { background: #ff5252; color: #fff; }
-    .crypto-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .crypto-holdings {
-      font-size: 11px; color: #888; margin-top: 6px;
-    }
-    .crypto-holdings span { color: #f5a623; font-weight: 600; }
-
-    /* ===== Нижня навігація ===== */
-    .bottom-nav {
-      display: flex; justify-content: space-around;
-      padding: 10px 0 14px; background: rgba(0, 0, 0, 0.5);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      position: relative; z-index: 5;
-    }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 4px; color: #666; font-size: 10px;
-      cursor: pointer; transition: color 0.2s; flex: 1;
-    }
-    .nav-item.active { color: #f5a623; }
-    .nav-icon { font-size: 22px; }
+    .crypto-btn.buy { background: #4caf50; }
+    .crypto-btn.sell { background: #ff5252; }
+    .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
+    .crypto-holdings span { color: #ff9800; font-weight: 600; }
 
     #status {
-      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.9); padding: 10px 20px; border-radius: 10px;
       font-size: 13px; opacity: 0; transition: opacity 0.3s;
       pointer-events: none; white-space: nowrap; z-index: 100;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+      border: 1px solid #333;
     }
     #status.show { opacity: 1; }
   </style>
@@ -233,7 +198,7 @@
   <!-- ===== АВТОРИЗАЦІЯ ===== -->
   <div id="auth-screen">
     <div class="auth-logo">🐹</div>
-    <div class="auth-title">Hamka Kombat</div>
+    <div class="auth-title">Hamka Game</div>
     <div class="auth-subtitle">Увійдіть, щоб грати та зберігати прогрес</div>
     <div class="auth-form">
       <input type="email" id="auth-email" class="auth-input" placeholder="Email" autocomplete="email">
@@ -254,48 +219,70 @@
 
   <!-- ===== ГРА ===== -->
   <div id="game-screen">
-    <div class="top-bar">
-      <div class="user-info">
-        <div class="avatar" id="avatar">H</div>
-        <div>
-          <div class="user-name" id="user-name">Гравець</div>
-          <div class="user-level" id="user-level">Bronze</div>
-        </div>
-      </div>
-      <button class="logout-btn" id="logout-btn">Вийти</button>
+    
+    <!-- Верхні ресурси (за дизайном) -->
+    <div class="top-resources">
+      <div class="res-item"><span>🏦</span> 550</div>
+      <div class="res-item"><span>💎</span> 0</div>
+      <div class="res-item"><span>💲</span> 0.00</div>
+      <div class="res-item active-badge">Сезон 2</div>
     </div>
 
-    <div class="stats-bar">
-      <div class="stat-item">
-        <div class="stat-label">Монети</div>
-        <div class="stat-value coin" id="coin-display">0</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">Енергія</div>
-        <div class="stat-value energy" id="energy-display">200/200</div>
-      </div>
+    <!-- Головне меню (за дизайном) -->
+    <div class="main-menu">
+      <div class="menu-item active"><span class="menu-icon">🎮</span>Гра</div>
+      <div class="menu-item"><span class="menu-icon">🛒</span>Магазин</div>
+      <div class="menu-item"><span class="menu-icon">₿</span>Крипта</div>
+      <div class="menu-item"><span class="menu-icon">👑</span>VIP</div>
+      <div class="menu-item"><span class="menu-icon">👤</span>Профіль</div>
+      <div class="menu-item"><span class="menu-icon">🎒</span>Інвентар</div>
+      <div class="menu-item"><span class="menu-icon">🏆</span>Топ</div>
     </div>
 
-    <!-- ТАП -->
+    <!-- Суб-меню (кнопки дій) -->
+    <div class="sub-menu">
+      <button class="sub-btn tap">👆 Тап</button>
+      <button class="sub-btn orange">🎁</button>
+      <button class="sub-btn purple">🔧</button>
+      <button class="sub-btn orange">🚀</button>
+      <button class="sub-btn pink">🌸</button>
+    </div>
+
+    <!-- Сторінка ТАП -->
     <div class="page active" id="page-tap">
-      <div class="tap-area" id="tap-area">
-        <div class="hamster-wrap">
-          <div class="hamster" id="hamster">🐹</div>
-        </div>
-        <div class="tap-hint">Натискай на хом'яка 🐹</div>
+      <div class="center-zone">
+        <div class="balance-big">🪙 <span id="big-balance">0</span></div>
+        <div class="hamster-circle" id="hamster"></div>
       </div>
     </div>
 
-    <!-- КРИПТА -->
-    <div class="page crypto-page" id="page-crypto">
-      <div class="crypto-title">💹 Ринок крипти</div>
+    <!-- Сторінка КРИПТА -->
+    <div class="page" id="page-crypto">
       <div id="crypto-list"></div>
     </div>
 
-    <div class="bottom-nav">
-      <div class="nav-item active" data-page="tap"><span class="nav-icon">🐹</span><span>Грати</span></div>
-      <div class="nav-item" data-page="crypto"><span class="nav-icon">💹</span><span>Крипта</span></div>
+    <!-- Нижня панель (Енергія + Баланс) -->
+    <div class="bottom-panel">
+      <div class="energy-row">
+        <span>⚡ <span id="energy-display">200 / 200</span></span>
+        <span>+1 ⚡/сек</span>
+      </div>
+      <div class="energy-progress">
+        <div class="energy-fill" id="energy-fill"></div>
+      </div>
+      <div class="bottom-balance">💰 <span id="coin-display">0</span></div>
+      <div class="xp-row">
+        <span>XP: 0</span>
+        <span id="user-level">Рівень 1</span>
+      </div>
     </div>
+
+    <!-- Нижнє меню навігації -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" data-page="tap"><span class="icon">🐹</span>Грати</div>
+      <div class="nav-tab" data-page="crypto"><span class="icon">💹</span>Крипта</div>
+    </div>
+
   </div>
 
   <div id="status"></div>
@@ -334,14 +321,14 @@
     const authSwitchText = document.getElementById('auth-switch-text');
     const authSwitchLink = document.getElementById('auth-switch-link');
     const tgLoginBtn = document.getElementById('tg-login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
+    
+    const bigBalanceEl = document.getElementById('big-balance');
     const coinDisplay = document.getElementById('coin-display');
     const energyDisplay = document.getElementById('energy-display');
+    const energyFill = document.getElementById('energy-fill');
     const hamster = document.getElementById('hamster');
-    const tapArea = document.getElementById('tap-area');
+    const tapArea = document.getElementById('page-tap');
     const statusEl = document.getElementById('status');
-    const userNameEl = document.getElementById('user-name');
-    const avatarEl = document.getElementById('avatar');
     const userLevelEl = document.getElementById('user-level');
     const cryptoListEl = document.getElementById('crypto-list');
 
@@ -359,9 +346,8 @@
       OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50
     };
     const PLAYERHOM_BASE = 50;
-    const PLAYERHOM_PER_UNIT = 2; // кожна одиниця холдингів у грі додає +2 до ціни
+    const PLAYERHOM_PER_UNIT = 2;
 
-    // === Збереження qty в localStorage ===
     function getQty(symbol) {
       const v = localStorage.getItem('qty_' + symbol);
       return v ? Math.max(1, parseInt(v) || 1) : 1;
@@ -502,11 +488,6 @@
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
 
-        const tgUser = tg.initDataUnsafe?.user;
-        let displayName = tgUser ? getTelegramNick(tgUser) : (user.email?.split('@')[0] || 'Гравець');
-        userNameEl.innerText = displayName;
-        avatarEl.innerText = displayName.replace('@', '').charAt(0).toUpperCase();
-
         initGame(user.uid);
         initCryptoSystem();
       } else {
@@ -519,9 +500,10 @@
       }
     });
 
-    document.querySelectorAll('.nav-item').forEach(item => {
+    // Навігація
+    document.querySelectorAll('.nav-tab').forEach(item => {
       item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         item.classList.add('active');
         document.getElementById('page-' + item.dataset.page).classList.add('active');
@@ -529,7 +511,7 @@
     });
 
     // ============================================================
-    // ТАП
+    // ГРА (ТАП)
     // ============================================================
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
@@ -538,7 +520,8 @@
       get(userRef).then((snap) => {
         if (!snap.exists()) {
           set(userRef, {
-            coins: 0, energy: 200, maxEnergy: 200,
+            coins: 550, // Початковий баланс як на скріншоті
+            energy: 200, maxEnergy: 200,
             holdings: {}, createdAt: Date.now()
           });
         } else if (!snap.val().holdings) {
@@ -557,7 +540,6 @@
         state.holdings = data.holdings || {};
 
         renderUI();
-        // Перемальовуємо список, але зберігаємо qty
         renderCryptoList();
       });
 
@@ -609,13 +591,18 @@
     }
 
     function renderUI() {
+      bigBalanceEl.innerText = formatNumber(state.coins);
       coinDisplay.innerText = formatNumber(state.coins);
-      energyDisplay.innerText = Math.floor(state.energy) + "/" + state.maxEnergy;
-      const level = state.coins >= 1e9 ? "Creator" :
-                    state.coins >= 1e8 ? "Legendary" :
-                    state.coins >= 1e7 ? "Master" :
-                    state.coins >= 1e6 ? "Gold" :
-                    state.coins >= 1e5 ? "Silver" : "Bronze";
+      energyDisplay.innerText = Math.floor(state.energy) + " / " + state.maxEnergy;
+      
+      const percent = (state.energy / state.maxEnergy) * 100;
+      energyFill.style.width = percent + '%';
+      
+      const level = state.coins >= 1e9 ? "Рівень 100" :
+                    state.coins >= 1e8 ? "Рівень 50" :
+                    state.coins >= 1e7 ? "Рівень 25" :
+                    state.coins >= 1e6 ? "Рівень 10" :
+                    state.coins >= 1e5 ? "Рівень 5" : "Рівень 1";
       userLevelEl.innerText = level;
     }
 
@@ -630,10 +617,7 @@
         const snap = await get(cRef);
         if (!snap.exists()) {
           const price = INITIAL_PRICES[symbol];
-          await set(cRef, {
-            price: price,
-            history: [{ t: Date.now(), p: price }]
-          });
+          await set(cRef, { price: price, history: [{ t: Date.now(), p: price }] });
         }
       }
 
@@ -648,7 +632,7 @@
       if (cryptoInterval) clearInterval(cryptoInterval);
       cryptoInterval = setInterval(async () => {
         for (const symbol of COINS) {
-          if (symbol === 'PLAYERHOM') continue; // PLAYERHOM не рухається сам
+          if (symbol === 'PLAYERHOM') continue;
           updateCryptoPrice(symbol);
         }
       }, 10000);
@@ -662,9 +646,7 @@
           const currentPrice = data.price || INITIAL_PRICES[symbol];
           const isGrowth = Math.random() < 0.4;
           const percent = (Math.random() * 0.03) + 0.005;
-          let newPrice = isGrowth
-            ? currentPrice * (1 + percent)
-            : currentPrice * (1 - percent);
+          let newPrice = isGrowth ? currentPrice * (1 + percent) : currentPrice * (1 - percent);
           newPrice = Math.max(1, newPrice);
 
           const history = data.history || [];
@@ -673,15 +655,11 @@
 
           return { price: newPrice, history: history };
         });
-      } catch (err) {
-        console.error("Crypto update error:", err);
-      }
+      } catch (err) { console.error("Crypto update error:", err); }
     }
 
-    // === PLAYERHOM: ціна = базова + (сумарні холдинги всіх гравців * коефіцієнт) ===
     async function recalcPlayerhomPrice() {
       try {
-        // Отримуємо всіх користувачів
         const usersSnap = await get(ref(db, 'users'));
         const users = usersSnap.val() || {};
         let totalHoldings = 0;
@@ -699,14 +677,11 @@
           if (history.length > 30) history.shift();
           return { price: newPrice, history: history };
         });
-      } catch (err) {
-        console.error("recalcPlayerhom error:", err);
-      }
+      } catch (err) { console.error("recalcPlayerhom error:", err); }
     }
 
     function renderCryptoList() {
       if (!cryptoListEl) return;
-      // Зберігаємо поточні qty з полів (щоб не втратити при ререндері)
       document.querySelectorAll('.crypto-input').forEach(inp => {
         const symbol = inp.dataset.symbol;
         if (symbol) setQty(symbol, inp.value);
@@ -734,7 +709,7 @@
             <div class="crypto-symbol">${symbol}</div>
             <div class="crypto-price ${isUp ? 'up' : 'down'}">${formatPrice(price)} 🪙</div>
           </div>
-          <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
+          <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="50"></canvas>
           <div class="crypto-actions">
             <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
             <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити</button>
@@ -747,7 +722,6 @@
         drawChart(document.getElementById('chart-' + symbol), history, isUp);
       }
 
-      // Обробники
       cryptoListEl.querySelectorAll('.crypto-input').forEach(inp => {
         inp.addEventListener('input', () => {
           const symbol = inp.dataset.symbol;
@@ -800,7 +774,6 @@
       ctx.fill();
     }
 
-    // === Купівля/Продаж ===
     async function tradeCrypto(symbol, action, qty) {
       if (!currentUid) return;
       const info = cryptoState[symbol];
@@ -844,11 +817,7 @@
           return;
         }
 
-        // Оновлюємо ціну PLAYERHOM на основі загальних холдингів
-        // (купив 3 → продав 3 → холдинги повернулись → ціна повернулась)
-        if (symbol === 'PLAYERHOM' || true) {
-          await recalcPlayerhomPrice();
-        }
+        await recalcPlayerhomPrice();
 
         showStatus(action === 'buy'
           ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
@@ -861,7 +830,7 @@
       }
     }
 
-    logoutBtn.addEventListener('click', () => {
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
       if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
       if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
       signOut(auth);
@@ -869,4 +838,4 @@
 
   </script>
 </body>
-</html>
+  </html>
