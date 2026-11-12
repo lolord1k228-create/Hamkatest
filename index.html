@@ -178,7 +178,6 @@
 </head>
 <body>
 
-  <!-- ===== ЕКРАН АВТОРИЗАЦІЇ ===== -->
   <div id="auth-screen">
     <div class="auth-logo">🐹</div>
     <div class="auth-title">Hamka Kombat</div>
@@ -202,7 +201,6 @@
     </div>
   </div>
 
-  <!-- ===== ОСНОВНА ГРА ===== -->
   <div id="game-screen">
     <div class="top-bar">
       <div class="user-info">
@@ -215,7 +213,6 @@
       <button class="logout-btn" id="logout-btn">Вийти</button>
     </div>
 
-    <!-- Тепер тільки 2 показники: Монети та Енергія -->
     <div class="stats-bar">
       <div class="stat-item">
         <div class="stat-label">Монети</div>
@@ -234,7 +231,6 @@
       <div class="tap-hint">Натискай на хом'яка 🐹</div>
     </div>
 
-    <!-- Тільки "Грати" -->
     <div class="bottom-nav">
       <div class="nav-item active"><span class="nav-icon">🐹</span><span>Грати</span></div>
     </div>
@@ -263,7 +259,6 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    // === Telegram ===
     const tg = window.Telegram.WebApp;
     try { tg.expand(); tg.ready(); } catch(e) {}
 
@@ -291,12 +286,8 @@
 
     // === Стан ===
     let isLoginMode = true;
-    let state = {
-      coins: 0,
-      energy: 200,
-      maxEnergy: 200
-    };
-    let isTapping = false;
+    let state = { coins: 0, energy: 200, maxEnergy: 200 };
+    let pendingTap = false; // true, поки транзакція тапу не завершиться
     let unsubscribeUserData = null;
     let energyInterval = null;
 
@@ -314,15 +305,13 @@
       return Math.floor(num).toString();
     }
 
-    // === Отримати нік з Telegram ===
     function getTelegramNick(tgUser) {
       if (!tgUser) return null;
-      if (tgUser.username) return '@' + tgUser.username; // @nick
-      if (tgUser.first_name) return tgUser.first_name;   // fallback
+      if (tgUser.username) return '@' + tgUser.username;
+      if (tgUser.first_name) return tgUser.first_name;
       return 'Гравець';
     }
 
-    // === Помилки Firebase Auth ===
     function getAuthErrorMessage(err) {
       const messages = {
         'auth/invalid-email': 'Невірний формат email',
@@ -340,7 +329,6 @@
       return messages[err.code] || err.message || 'Невідома помилка';
     }
 
-    // === Авторизація з retry ===
     async function authWithRetry(action, email, password, maxRetries = 2) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
@@ -357,7 +345,6 @@
       }
     }
 
-    // === Перемикання режиму ===
     function switchAuthMode() {
       isLoginMode = !isLoginMode;
       authSubmit.innerText = isLoginMode ? 'Увійти' : 'Зареєструватися';
@@ -395,7 +382,6 @@
       }
     });
 
-    // === Вхід через Telegram (нік у грі = @username) ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
@@ -431,13 +417,11 @@
       }
     });
 
-    // === Слухач стану авторизації ===
     onAuthStateChanged(auth, (user) => {
       if (user) {
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
 
-        // Визначаємо нік: для TG — @username, для email — частина до @
         const tgUser = tg.initDataUnsafe?.user;
         let displayName;
         if (tgUser) {
@@ -464,7 +448,6 @@
       const coinsRef = ref(db, 'users/' + uid + '/coins');
       const energyRef = ref(db, 'users/' + uid + '/energy');
 
-      // Ініціалізація: 200 енергії, 0 монет
       get(userRef).then((snap) => {
         if (!snap.exists()) {
           set(userRef, {
@@ -476,35 +459,34 @@
         }
       }).catch(err => console.error("Init user error:", err));
 
-      // Підписка на зміни
       unsubscribeUserData = onValue(userRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
+
+        // ⚠️ Не перезаписуємо локальний стан, поки тап у процесі
+        if (pendingTap) return;
+
         state.coins = data.coins || 0;
         state.energy = data.energy ?? 200;
         state.maxEnergy = data.maxEnergy ?? 200;
 
-        coinDisplay.innerText = formatNumber(state.coins);
-        energyDisplay.innerText = Math.floor(state.energy) + "/" + state.maxEnergy;
-
-        const level = state.coins >= 1e9 ? "Creator" :
-                      state.coins >= 1e8 ? "Legendary" :
-                      state.coins >= 1e7 ? "Master" :
-                      state.coins >= 1e6 ? "Gold" :
-                      state.coins >= 1e5 ? "Silver" : "Bronze";
-        userLevelEl.innerText = level;
+        renderUI();
       });
 
-      // === ТАП ПО ХОМ'ЯКУ ===
+      // === ТАП ===
       hamster.onclick = async (e) => {
-        if (isTapping) return;
+        // 1. Локальна перевірка — миттєво
         if (state.energy < 1) {
           showStatus("❌ Немає енергії!");
           return;
         }
-        isTapping = true;
 
-        // Анімація
+        // 2. Оптимістичне локальне оновлення (гравець бачить зміну ОДРАЗУ)
+        state.energy = Math.max(0, state.energy - 1);
+        state.coins = state.coins + 1;
+        renderUI();
+
+        // 3. Анімація
         const rect = tapArea.getBoundingClientRect();
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
@@ -516,18 +498,27 @@
 
         try { tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
 
+        // 4. Атомарна транзакція — один пакет
+        pendingTap = true;
         try {
-          // Атомарно +1 монета та -1 енергія ОДНИМ пакетом через транзакції
-          await runTransaction(coinsRef, (c) => (c || 0) + 1);
-          await runTransaction(energyRef, (c) => Math.max(0, (c ?? 200) - 1));
+          await runTransaction(userRef, (data) => {
+            if (!data) data = { coins: 0, energy: 200, maxEnergy: 200 };
+            const curEnergy = data.energy ?? 200;
+            if (curEnergy < 1) return; // відмова, якщо на сервері вже 0
+            data.energy = curEnergy - 1;
+            data.coins = (data.coins || 0) + 1;
+            return data;
+          });
         } catch (err) {
           console.error("Tap error:", err);
+          // Відкат локального стану
+          showStatus("❌ Помилка мережі");
         } finally {
-          isTapping = false;
+          pendingTap = false;
         }
       };
 
-      // === Відновлення енергії: +5 кожні 3 секунди ===
+      // === Відновлення енергії: +5 кожні 3 сек ===
       if (energyInterval) clearInterval(energyInterval);
       energyInterval = setInterval(async () => {
         if (state.energy >= state.maxEnergy) return;
@@ -536,11 +527,21 @@
             const cur = c ?? 200;
             return Math.min(state.maxEnergy, cur + 5);
           });
-        } catch (err) { /* ігноруємо */ }
+        } catch (err) {}
       }, 3000);
     }
 
-    // === Вихід ===
+    function renderUI() {
+      coinDisplay.innerText = formatNumber(state.coins);
+      energyDisplay.innerText = Math.floor(state.energy) + "/" + state.maxEnergy;
+      const level = state.coins >= 1e9 ? "Creator" :
+                    state.coins >= 1e8 ? "Legendary" :
+                    state.coins >= 1e7 ? "Master" :
+                    state.coins >= 1e6 ? "Gold" :
+                    state.coins >= 1e5 ? "Silver" : "Bronze";
+      userLevelEl.innerText = level;
+    }
+
     logoutBtn.addEventListener('click', () => {
       if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
       signOut(auth);
