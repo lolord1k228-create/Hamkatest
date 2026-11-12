@@ -20,7 +20,7 @@
         #0f0f1e;
     }
 
-    /* ===== Екран авторизації ===== */
+    /* ===== Авторизація ===== */
     #auth-screen {
       position: fixed; inset: 0; z-index: 1000; background: #0f0f1e;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -109,7 +109,7 @@
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
 
-    /* ===== Тап-сторінка ===== */
+    /* ===== Тап ===== */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -153,7 +153,7 @@
       100% { opacity: 0; transform: translateY(-90px) scale(1.4); }
     }
 
-    /* ===== Крипто-сторінка ===== */
+    /* ===== Крипто ===== */
     .crypto-page { padding: 8px 12px 90px; }
     .crypto-title {
       font-size: 18px; font-weight: 700; color: #f5a623;
@@ -178,18 +178,21 @@
       border-radius: 8px; margin-bottom: 8px;
     }
     .crypto-actions {
-      display: flex; gap: 8px; align-items: center;
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
     }
     .crypto-input {
-      flex: 1; padding: 8px 10px;
+      width: 60px; flex-shrink: 0; padding: 8px 8px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px; color: #fff; font-size: 14px; outline: none;
+      -moz-appearance: textfield;
     }
+    .crypto-input::-webkit-outer-spin-button,
+    .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .crypto-input:focus { border-color: #f5a623; }
     .crypto-btn {
-      padding: 8px 14px; border: none; border-radius: 8px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
+      flex: 1; min-width: 0; padding: 8px 8px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
     }
     .crypto-btn.buy { background: #4caf50; color: #fff; }
     .crypto-btn.sell { background: #ff5252; color: #fff; }
@@ -273,7 +276,7 @@
       </div>
     </div>
 
-    <!-- Сторінка ТАП -->
+    <!-- ТАП -->
     <div class="page active" id="page-tap">
       <div class="tap-area" id="tap-area">
         <div class="hamster-wrap">
@@ -283,7 +286,7 @@
       </div>
     </div>
 
-    <!-- Сторінка КРИПТА -->
+    <!-- КРИПТА -->
     <div class="page crypto-page" id="page-crypto">
       <div class="crypto-title">💹 Ринок крипти</div>
       <div id="crypto-list"></div>
@@ -351,12 +354,21 @@
     let cryptoInterval = null;
     let currentUid = null;
 
-    // Монети, які є на ринку
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
-    // Початкові ціни
     const INITIAL_PRICES = {
       OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50
     };
+    const PLAYERHOM_BASE = 50;
+    const PLAYERHOM_PER_UNIT = 2; // кожна одиниця холдингів у грі додає +2 до ціни
+
+    // === Збереження qty в localStorage ===
+    function getQty(symbol) {
+      const v = localStorage.getItem('qty_' + symbol);
+      return v ? Math.max(1, parseInt(v) || 1) : 1;
+    }
+    function setQty(symbol, val) {
+      localStorage.setItem('qty_' + symbol, val);
+    }
 
     function showStatus(text) {
       statusEl.innerText = text;
@@ -507,7 +519,6 @@
       }
     });
 
-    // === Навігація по вкладках ===
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -518,7 +529,7 @@
     });
 
     // ============================================================
-    // ІГРОВА ЛОГІКА (тап)
+    // ТАП
     // ============================================================
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
@@ -546,7 +557,8 @@
         state.holdings = data.holdings || {};
 
         renderUI();
-        renderCryptoHoldings();
+        // Перемальовуємо список, але зберігаємо qty
+        renderCryptoList();
       });
 
       hamster.onclick = async (e) => {
@@ -608,12 +620,11 @@
     }
 
     // ============================================================
-    // КРИПТО-СИСТЕМА
+    // КРИПТО
     // ============================================================
-    let cryptoState = {}; // { OLDHAM: { price, history }, ... }
+    let cryptoState = {};
 
     async function initCryptoSystem() {
-      // Ініціалізуємо крипту в БД, якщо її немає
       for (const symbol of COINS) {
         const cRef = ref(db, 'crypto/' + symbol);
         const snap = await get(cRef);
@@ -626,7 +637,6 @@
         }
       }
 
-      // Підписка на всі монети
       const cryptoRef = ref(db, 'crypto');
       onValue(cryptoRef, (snap) => {
         const data = snap.val();
@@ -635,7 +645,6 @@
         renderCryptoList();
       });
 
-      // === Оновлення цін ===
       if (cryptoInterval) clearInterval(cryptoInterval);
       cryptoInterval = setInterval(async () => {
         for (const symbol of COINS) {
@@ -651,7 +660,6 @@
         await runTransaction(cRef, (data) => {
           if (!data) return data;
           const currentPrice = data.price || INITIAL_PRICES[symbol];
-          // Визначаємо напрямок (внутрішня логіка)
           const isGrowth = Math.random() < 0.4;
           const percent = (Math.random() * 0.03) + 0.005;
           let newPrice = isGrowth
@@ -670,8 +678,40 @@
       }
     }
 
+    // === PLAYERHOM: ціна = базова + (сумарні холдинги всіх гравців * коефіцієнт) ===
+    async function recalcPlayerhomPrice() {
+      try {
+        // Отримуємо всіх користувачів
+        const usersSnap = await get(ref(db, 'users'));
+        const users = usersSnap.val() || {};
+        let totalHoldings = 0;
+        for (const uid in users) {
+          const h = users[uid]?.holdings?.PLAYERHOM || 0;
+          totalHoldings += h;
+        }
+
+        const newPrice = PLAYERHOM_BASE + totalHoldings * PLAYERHOM_PER_UNIT;
+        const playerRef = ref(db, 'crypto/PLAYERHOM');
+
+        await runTransaction(playerRef, (data) => {
+          const history = data?.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
+          return { price: newPrice, history: history };
+        });
+      } catch (err) {
+        console.error("recalcPlayerhom error:", err);
+      }
+    }
+
     function renderCryptoList() {
       if (!cryptoListEl) return;
+      // Зберігаємо поточні qty з полів (щоб не втратити при ререндері)
+      document.querySelectorAll('.crypto-input').forEach(inp => {
+        const symbol = inp.dataset.symbol;
+        if (symbol) setQty(symbol, inp.value);
+      });
+
       cryptoListEl.innerHTML = '';
 
       for (const symbol of COINS) {
@@ -685,6 +725,7 @@
 
         const holding = state.holdings?.[symbol] || 0;
         const holdingValue = holding * price;
+        const qty = getQty(symbol);
 
         const card = document.createElement('div');
         card.className = 'crypto-card';
@@ -695,7 +736,7 @@
           </div>
           <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
           <div class="crypto-actions">
-            <input type="number" min="1" value="1" class="crypto-input" id="qty-${symbol}" placeholder="К-сть">
+            <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
             <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити</button>
             <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">Продати</button>
           </div>
@@ -703,17 +744,25 @@
         `;
         cryptoListEl.appendChild(card);
 
-        // Малюємо графік
         drawChart(document.getElementById('chart-' + symbol), history, isUp);
       }
 
-      // Обробники кнопок
+      // Обробники
+      cryptoListEl.querySelectorAll('.crypto-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const symbol = inp.dataset.symbol;
+          if (symbol) setQty(symbol, inp.value);
+        });
+      });
+
       cryptoListEl.querySelectorAll('.crypto-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const symbol = btn.dataset.symbol;
           const action = btn.dataset.action;
-          const qty = parseInt(document.getElementById('qty-' + symbol).value) || 0;
+          const qtyInput = document.getElementById('qty-' + symbol);
+          const qty = parseInt(qtyInput.value) || 0;
           if (qty <= 0) { showStatus("❌ Введіть кількість"); return; }
+          setQty(symbol, qty);
           tradeCrypto(symbol, action, qty);
         });
       });
@@ -724,7 +773,6 @@
       const ctx = canvas.getContext('2d');
       const w = canvas.width, h = canvas.height;
       ctx.clearRect(0, 0, w, h);
-
       if (history.length < 2) return;
 
       const prices = history.map(x => x.p);
@@ -745,7 +793,6 @@
       });
       ctx.stroke();
 
-      // Заливка
       ctx.lineTo(w - 2, h);
       ctx.lineTo(2, h);
       ctx.closePath();
@@ -753,14 +800,7 @@
       ctx.fill();
     }
 
-    function renderCryptoHoldings() {
-      // Перемальовуємо список, щоб оновити "У вас: X"
-      if (cryptoState && Object.keys(cryptoState).length) {
-        renderCryptoList();
-      }
-    }
-
-    // === Купівля / Продаж ===
+    // === Купівля/Продаж ===
     async function tradeCrypto(symbol, action, qty) {
       if (!currentUid) return;
       const info = cryptoState[symbol];
@@ -804,24 +844,11 @@
           return;
         }
 
-        // === Вплив на PLAYERHOM ===
-        // Купівля будь-якої крипти → PLAYERHOM росте
-        // Продаж будь-якої крипти → PLAYERHOM падає
-        const playerRef = ref(db, 'crypto/PLAYERHOM');
-        await runTransaction(playerRef, (data) => {
-          if (!data) return data;
-          const curPrice = data.price || INITIAL_PRICES.PLAYERHOM;
-          // Вплив пропорційний до суми угоди відносно ціни монети
-          const impact = action === 'buy' ? 0.02 : -0.02;
-          let newPrice = curPrice * (1 + impact);
-          newPrice = Math.max(1, newPrice);
-
-          const history = data.history || [];
-          history.push({ t: Date.now(), p: newPrice });
-          if (history.length > 30) history.shift();
-
-          return { price: newPrice, history: history };
-        });
+        // Оновлюємо ціну PLAYERHOM на основі загальних холдингів
+        // (купив 3 → продав 3 → холдинги повернулись → ціна повернулась)
+        if (symbol === 'PLAYERHOM' || true) {
+          await recalcPlayerhomPrice();
+        }
 
         showStatus(action === 'buy'
           ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
