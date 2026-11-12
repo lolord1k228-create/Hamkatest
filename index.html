@@ -8,17 +8,12 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
-      height: 100%;
-      overflow: hidden;
+      height: 100%; overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0f0f1e;
-      color: #fff;
-      user-select: none;
+      background: #0f0f1e; color: #fff; user-select: none;
     }
     body {
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      display: flex; flex-direction: column; position: relative;
       background:
         radial-gradient(circle at 50% 20%, rgba(245, 166, 35, 0.15) 0%, transparent 50%),
         radial-gradient(circle at 50% 100%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
@@ -39,7 +34,7 @@
     .auth-input {
       width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
-      color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
+      color: #fff; font-size: 15px; outline: none;
     }
     .auth-input:focus { border-color: #f5a623; }
     .auth-input::placeholder { color: #666; }
@@ -55,8 +50,7 @@
       justify-content: center; gap: 8px; margin-top: 8px;
     }
     .auth-divider {
-      display: flex; align-items: center; gap: 12px; color: #555;
-      font-size: 12px; margin: 8px 0;
+      display: flex; align-items: center; gap: 12px; color: #555; font-size: 12px; margin: 8px 0;
     }
     .auth-divider::before, .auth-divider::after {
       content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08);
@@ -94,7 +88,6 @@
       color: #aaa; padding: 6px 12px; border-radius: 8px;
       font-size: 12px; cursor: pointer;
     }
-    .logout-btn:active { opacity: 0.7; }
 
     .stats-bar {
       display: flex; justify-content: space-around;
@@ -112,6 +105,11 @@
     .stat-value.coin { color: #ffd700; }
     .stat-value.energy { color: #4caf50; }
 
+    /* ===== Вкладки ===== */
+    .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
+    .page.active { display: flex; }
+
+    /* ===== Тап-сторінка ===== */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -119,10 +117,11 @@
     }
     .hamster-wrap {
       position: relative; display: flex; align-items: center; justify-content: center;
-      width: 240px; height: 240px;
+      width: 420px; height: 420px;
+      max-width: 100%; max-height: 100%;
     }
     .hamster-wrap::before {
-      content: ''; position: absolute; width: 260px; height: 260px;
+      content: ''; position: absolute; width: 90%; height: 90%;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(245, 166, 35, 0.25), transparent 70%);
       animation: pulseGlow 2s ease-in-out infinite;
@@ -132,10 +131,11 @@
       50% { transform: scale(1.1); opacity: 1; }
     }
     .hamster {
-      width: 200px; height: 200px;
+      width: 380px; height: 380px;
+      max-width: 100%; max-height: 100%;
       background: radial-gradient(circle at 35% 30%, #ffd27a, #f5a623 40%, #d4891a);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 100px; cursor: pointer; transition: transform 0.1s ease;
+      font-size: 170px; cursor: pointer; transition: transform 0.1s ease;
       box-shadow: 0 10px 40px rgba(245, 166, 35, 0.4),
         inset 0 -8px 20px rgba(0, 0, 0, 0.2),
         inset 0 8px 20px rgba(255, 255, 255, 0.3);
@@ -144,7 +144,7 @@
     .hamster:active { transform: scale(0.92); }
     .tap-hint { margin-top: 24px; font-size: 13px; color: #888; text-align: center; }
     .tap-effect {
-      position: absolute; font-size: 26px; font-weight: 800; color: #ffd700;
+      position: absolute; font-size: 30px; font-weight: 800; color: #ffd700;
       pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
@@ -153,16 +153,65 @@
       100% { opacity: 0; transform: translateY(-90px) scale(1.4); }
     }
 
+    /* ===== Крипто-сторінка ===== */
+    .crypto-page { padding: 8px 12px 90px; }
+    .crypto-title {
+      font-size: 18px; font-weight: 700; color: #f5a623;
+      text-align: center; margin: 8px 0 12px;
+    }
+    .crypto-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px; padding: 12px; margin-bottom: 10px;
+    }
+    .crypto-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .crypto-symbol { font-size: 16px; font-weight: 700; color: #f5a623; }
+    .crypto-price { font-size: 15px; font-weight: 700; color: #fff; }
+    .crypto-price.up { color: #4caf50; }
+    .crypto-price.down { color: #ff5252; }
+    .crypto-chart {
+      width: 100%; height: 60px; display: block;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px; margin-bottom: 8px;
+    }
+    .crypto-actions {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .crypto-input {
+      flex: 1; padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px; color: #fff; font-size: 14px; outline: none;
+    }
+    .crypto-input:focus { border-color: #f5a623; }
+    .crypto-btn {
+      padding: 8px 14px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .crypto-btn.buy { background: #4caf50; color: #fff; }
+    .crypto-btn.sell { background: #ff5252; color: #fff; }
+    .crypto-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .crypto-holdings {
+      font-size: 11px; color: #888; margin-top: 6px;
+    }
+    .crypto-holdings span { color: #f5a623; font-weight: 600; }
+
+    /* ===== Нижня навігація ===== */
     .bottom-nav {
-      display: flex; justify-content: center;
+      display: flex; justify-content: space-around;
       padding: 10px 0 14px; background: rgba(0, 0, 0, 0.5);
       border-top: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative; z-index: 5;
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center;
-      gap: 4px; color: #f5a623; font-size: 10px;
-      cursor: pointer; flex: 1;
+      gap: 4px; color: #666; font-size: 10px;
+      cursor: pointer; transition: color 0.2s; flex: 1;
     }
+    .nav-item.active { color: #f5a623; }
     .nav-icon { font-size: 22px; }
 
     #status {
@@ -178,11 +227,11 @@
 </head>
 <body>
 
+  <!-- ===== АВТОРИЗАЦІЯ ===== -->
   <div id="auth-screen">
     <div class="auth-logo">🐹</div>
     <div class="auth-title">Hamka Kombat</div>
     <div class="auth-subtitle">Увійдіть, щоб грати та зберігати прогрес</div>
-
     <div class="auth-form">
       <input type="email" id="auth-email" class="auth-input" placeholder="Email" autocomplete="email">
       <input type="password" id="auth-password" class="auth-input" placeholder="Пароль (мін. 6 символів)" autocomplete="current-password">
@@ -194,13 +243,13 @@
         <span>✈️</span> Увійти через Telegram
       </button>
     </div>
-
     <div class="auth-switch">
       <span id="auth-switch-text">Немає акаунту?</span>
       <a id="auth-switch-link">Зареєструватися</a>
     </div>
   </div>
 
+  <!-- ===== ГРА ===== -->
   <div id="game-screen">
     <div class="top-bar">
       <div class="user-info">
@@ -224,15 +273,25 @@
       </div>
     </div>
 
-    <div class="tap-area" id="tap-area">
-      <div class="hamster-wrap">
-        <div class="hamster" id="hamster">🐹</div>
+    <!-- Сторінка ТАП -->
+    <div class="page active" id="page-tap">
+      <div class="tap-area" id="tap-area">
+        <div class="hamster-wrap">
+          <div class="hamster" id="hamster">🐹</div>
+        </div>
+        <div class="tap-hint">Натискай на хом'яка 🐹</div>
       </div>
-      <div class="tap-hint">Натискай на хом'яка 🐹</div>
+    </div>
+
+    <!-- Сторінка КРИПТА -->
+    <div class="page crypto-page" id="page-crypto">
+      <div class="crypto-title">💹 Ринок крипти</div>
+      <div id="crypto-list"></div>
     </div>
 
     <div class="bottom-nav">
-      <div class="nav-item active"><span class="nav-icon">🐹</span><span>Грати</span></div>
+      <div class="nav-item active" data-page="tap"><span class="nav-icon">🐹</span><span>Грати</span></div>
+      <div class="nav-item" data-page="crypto"><span class="nav-icon">💹</span><span>Крипта</span></div>
     </div>
   </div>
 
@@ -240,10 +299,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, get, set, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, get, set, update, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // === Firebase Config ===
     const firebaseConfig = {
       apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
       authDomain: "hamka-game.firebaseapp.com",
@@ -274,7 +332,6 @@
     const authSwitchLink = document.getElementById('auth-switch-link');
     const tgLoginBtn = document.getElementById('tg-login-btn');
     const logoutBtn = document.getElementById('logout-btn');
-
     const coinDisplay = document.getElementById('coin-display');
     const energyDisplay = document.getElementById('energy-display');
     const hamster = document.getElementById('hamster');
@@ -283,13 +340,23 @@
     const userNameEl = document.getElementById('user-name');
     const avatarEl = document.getElementById('avatar');
     const userLevelEl = document.getElementById('user-level');
+    const cryptoListEl = document.getElementById('crypto-list');
 
     // === Стан ===
     let isLoginMode = true;
-    let state = { coins: 0, energy: 200, maxEnergy: 200 };
-    let pendingTap = false; // true, поки транзакція тапу не завершиться
+    let state = { coins: 0, energy: 200, maxEnergy: 200, holdings: {} };
+    let pendingTap = false;
     let unsubscribeUserData = null;
     let energyInterval = null;
+    let cryptoInterval = null;
+    let currentUid = null;
+
+    // Монети, які є на ринку
+    const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
+    // Початкові ціни
+    const INITIAL_PRICES = {
+      OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50
+    };
 
     function showStatus(text) {
       statusEl.innerText = text;
@@ -303,6 +370,12 @@
       if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
       if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
       return Math.floor(num).toString();
+    }
+
+    function formatPrice(p) {
+      if (p >= 1e6) return (p / 1e6).toFixed(2) + 'M';
+      if (p >= 1e3) return (p / 1e3).toFixed(2) + 'K';
+      return p.toFixed(2);
     }
 
     function getTelegramNick(tgUser) {
@@ -358,7 +431,6 @@
     authSubmit.addEventListener('click', async () => {
       const email = authEmail.value.trim();
       const password = authPassword.value;
-
       if (!email || !password) { authError.innerText = 'Заповніть email та пароль'; return; }
       if (!email.includes('@')) { authError.innerText = 'Введіть коректний email'; return; }
       if (password.length < 6) { authError.innerText = 'Пароль має бути мінімум 6 символів'; return; }
@@ -366,11 +438,9 @@
       authSubmit.disabled = true;
       authError.innerText = '';
       authHint.innerText = '';
-
       try {
         await authWithRetry(isLoginMode ? 'login' : 'register', email, password);
       } catch (err) {
-        console.error("Auth error:", err.code, err.message);
         authError.innerText = getAuthErrorMessage(err);
         if (err.code === 'auth/unauthorized-domain') {
           authHint.innerText = 'Додайте домен у Firebase Console → Authentication → Settings → Authorized domains';
@@ -389,7 +459,6 @@
         authHint.innerText = 'Відкрийте гру через Telegram-бота';
         return;
       }
-
       const fakeEmail = `tg_${tgUser.id}@hamka.test`;
       const fakePassword = `tg_${tgUser.id}_secret_hamka`;
       const nick = getTelegramNick(tgUser);
@@ -397,7 +466,6 @@
       tgLoginBtn.disabled = true;
       authError.innerText = '';
       authHint.innerText = '';
-
       try {
         try {
           await signInWithEmailAndPassword(auth, fakeEmail, fakePassword);
@@ -410,7 +478,6 @@
         }
         showStatus(`✅ Вітаємо, ${nick}!`);
       } catch (err) {
-        console.error("TG login error:", err);
         authError.innerText = getAuthErrorMessage(err);
       } finally {
         tgLoginBtn.disabled = false;
@@ -419,74 +486,76 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        currentUid = user.uid;
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
 
         const tgUser = tg.initDataUnsafe?.user;
-        let displayName;
-        if (tgUser) {
-          displayName = getTelegramNick(tgUser);
-        } else {
-          displayName = user.email?.split('@')[0] || 'Гравець';
-        }
-
+        let displayName = tgUser ? getTelegramNick(tgUser) : (user.email?.split('@')[0] || 'Гравець');
         userNameEl.innerText = displayName;
         avatarEl.innerText = displayName.replace('@', '').charAt(0).toUpperCase();
 
         initGame(user.uid);
+        initCryptoSystem();
       } else {
+        currentUid = null;
         authScreen.classList.remove('hidden');
         gameScreen.classList.remove('visible');
         if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
         if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
+        if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
       }
     });
 
-    // === Ігрова логіка ===
+    // === Навігація по вкладках ===
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        item.classList.add('active');
+        document.getElementById('page-' + item.dataset.page).classList.add('active');
+      });
+    });
+
+    // ============================================================
+    // ІГРОВА ЛОГІКА (тап)
+    // ============================================================
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
-      const coinsRef = ref(db, 'users/' + uid + '/coins');
       const energyRef = ref(db, 'users/' + uid + '/energy');
 
       get(userRef).then((snap) => {
         if (!snap.exists()) {
           set(userRef, {
-            coins: 0,
-            energy: 200,
-            maxEnergy: 200,
-            createdAt: Date.now()
+            coins: 0, energy: 200, maxEnergy: 200,
+            holdings: {}, createdAt: Date.now()
           });
+        } else if (!snap.val().holdings) {
+          update(userRef, { holdings: {} });
         }
       }).catch(err => console.error("Init user error:", err));
 
       unsubscribeUserData = onValue(userRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-
-        // ⚠️ Не перезаписуємо локальний стан, поки тап у процесі
         if (pendingTap) return;
 
         state.coins = data.coins || 0;
         state.energy = data.energy ?? 200;
         state.maxEnergy = data.maxEnergy ?? 200;
+        state.holdings = data.holdings || {};
 
         renderUI();
+        renderCryptoHoldings();
       });
 
-      // === ТАП ===
       hamster.onclick = async (e) => {
-        // 1. Локальна перевірка — миттєво
-        if (state.energy < 1) {
-          showStatus("❌ Немає енергії!");
-          return;
-        }
+        if (state.energy < 1) { showStatus("❌ Немає енергії!"); return; }
 
-        // 2. Оптимістичне локальне оновлення (гравець бачить зміну ОДРАЗУ)
         state.energy = Math.max(0, state.energy - 1);
         state.coins = state.coins + 1;
         renderUI();
 
-        // 3. Анімація
         const rect = tapArea.getBoundingClientRect();
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
@@ -498,27 +567,23 @@
 
         try { tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
 
-        // 4. Атомарна транзакція — один пакет
         pendingTap = true;
         try {
           await runTransaction(userRef, (data) => {
-            if (!data) data = { coins: 0, energy: 200, maxEnergy: 200 };
+            if (!data) data = { coins: 0, energy: 200, maxEnergy: 200, holdings: {} };
             const curEnergy = data.energy ?? 200;
-            if (curEnergy < 1) return; // відмова, якщо на сервері вже 0
+            if (curEnergy < 1) return;
             data.energy = curEnergy - 1;
             data.coins = (data.coins || 0) + 1;
             return data;
           });
         } catch (err) {
           console.error("Tap error:", err);
-          // Відкат локального стану
-          showStatus("❌ Помилка мережі");
         } finally {
           pendingTap = false;
         }
       };
 
-      // === Відновлення енергії: +5 кожні 3 сек ===
       if (energyInterval) clearInterval(energyInterval);
       energyInterval = setInterval(async () => {
         if (state.energy >= state.maxEnergy) return;
@@ -542,8 +607,236 @@
       userLevelEl.innerText = level;
     }
 
+    // ============================================================
+    // КРИПТО-СИСТЕМА
+    // ============================================================
+    let cryptoState = {}; // { OLDHAM: { price, history }, ... }
+
+    async function initCryptoSystem() {
+      // Ініціалізуємо крипту в БД, якщо її немає
+      for (const symbol of COINS) {
+        const cRef = ref(db, 'crypto/' + symbol);
+        const snap = await get(cRef);
+        if (!snap.exists()) {
+          const price = INITIAL_PRICES[symbol];
+          await set(cRef, {
+            price: price,
+            history: [{ t: Date.now(), p: price }]
+          });
+        }
+      }
+
+      // Підписка на всі монети
+      const cryptoRef = ref(db, 'crypto');
+      onValue(cryptoRef, (snap) => {
+        const data = snap.val();
+        if (!data) return;
+        cryptoState = data;
+        renderCryptoList();
+      });
+
+      // === Оновлення цін ===
+      if (cryptoInterval) clearInterval(cryptoInterval);
+      cryptoInterval = setInterval(async () => {
+        for (const symbol of COINS) {
+          if (symbol === 'PLAYERHOM') continue; // PLAYERHOM не рухається сам
+          updateCryptoPrice(symbol);
+        }
+      }, 10000);
+    }
+
+    async function updateCryptoPrice(symbol) {
+      const cRef = ref(db, 'crypto/' + symbol);
+      try {
+        await runTransaction(cRef, (data) => {
+          if (!data) return data;
+          const currentPrice = data.price || INITIAL_PRICES[symbol];
+          // Визначаємо напрямок (внутрішня логіка)
+          const isGrowth = Math.random() < 0.4;
+          const percent = (Math.random() * 0.03) + 0.005;
+          let newPrice = isGrowth
+            ? currentPrice * (1 + percent)
+            : currentPrice * (1 - percent);
+          newPrice = Math.max(1, newPrice);
+
+          const history = data.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
+
+          return { price: newPrice, history: history };
+        });
+      } catch (err) {
+        console.error("Crypto update error:", err);
+      }
+    }
+
+    function renderCryptoList() {
+      if (!cryptoListEl) return;
+      cryptoListEl.innerHTML = '';
+
+      for (const symbol of COINS) {
+        const info = cryptoState[symbol];
+        if (!info) continue;
+
+        const price = info.price || INITIAL_PRICES[symbol];
+        const history = info.history || [];
+        const firstPrice = history[0]?.p || price;
+        const isUp = price >= firstPrice;
+
+        const holding = state.holdings?.[symbol] || 0;
+        const holdingValue = holding * price;
+
+        const card = document.createElement('div');
+        card.className = 'crypto-card';
+        card.innerHTML = `
+          <div class="crypto-header">
+            <div class="crypto-symbol">${symbol}</div>
+            <div class="crypto-price ${isUp ? 'up' : 'down'}">${formatPrice(price)} 🪙</div>
+          </div>
+          <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
+          <div class="crypto-actions">
+            <input type="number" min="1" value="1" class="crypto-input" id="qty-${symbol}" placeholder="К-сть">
+            <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити</button>
+            <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">Продати</button>
+          </div>
+          <div class="crypto-holdings">У вас: <span>${holding}</span> ${symbol} (≈ ${formatPrice(holdingValue)} 🪙)</div>
+        `;
+        cryptoListEl.appendChild(card);
+
+        // Малюємо графік
+        drawChart(document.getElementById('chart-' + symbol), history, isUp);
+      }
+
+      // Обробники кнопок
+      cryptoListEl.querySelectorAll('.crypto-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const symbol = btn.dataset.symbol;
+          const action = btn.dataset.action;
+          const qty = parseInt(document.getElementById('qty-' + symbol).value) || 0;
+          if (qty <= 0) { showStatus("❌ Введіть кількість"); return; }
+          tradeCrypto(symbol, action, qty);
+        });
+      });
+    }
+
+    function drawChart(canvas, history, isUp) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      if (history.length < 2) return;
+
+      const prices = history.map(x => x.p);
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      const range = max - min || 1;
+
+      ctx.beginPath();
+      ctx.strokeStyle = isUp ? '#4caf50' : '#ff5252';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+
+      history.forEach((point, i) => {
+        const x = (i / (history.length - 1)) * (w - 4) + 2;
+        const y = h - ((point.p - min) / range) * (h - 8) - 4;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Заливка
+      ctx.lineTo(w - 2, h);
+      ctx.lineTo(2, h);
+      ctx.closePath();
+      ctx.fillStyle = isUp ? 'rgba(76, 175, 80, 0.15)' : 'rgba(255, 82, 82, 0.15)';
+      ctx.fill();
+    }
+
+    function renderCryptoHoldings() {
+      // Перемальовуємо список, щоб оновити "У вас: X"
+      if (cryptoState && Object.keys(cryptoState).length) {
+        renderCryptoList();
+      }
+    }
+
+    // === Купівля / Продаж ===
+    async function tradeCrypto(symbol, action, qty) {
+      if (!currentUid) return;
+      const info = cryptoState[symbol];
+      if (!info) return;
+
+      const price = info.price;
+      const total = price * qty;
+      const userRef = ref(db, 'users/' + currentUid);
+
+      try {
+        let success = false;
+        let errorMsg = '';
+
+        await runTransaction(userRef, (data) => {
+          if (!data) return data;
+          if (!data.holdings) data.holdings = {};
+
+          if (action === 'buy') {
+            if ((data.coins || 0) < total) {
+              errorMsg = 'Недостатньо монет';
+              return;
+            }
+            data.coins = (data.coins || 0) - total;
+            data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
+            success = true;
+          } else {
+            const owned = data.holdings[symbol] || 0;
+            if (owned < qty) {
+              errorMsg = `У вас лише ${owned} ${symbol}`;
+              return;
+            }
+            data.coins = (data.coins || 0) + total;
+            data.holdings[symbol] = owned - qty;
+            success = true;
+          }
+          return data;
+        });
+
+        if (!success) {
+          showStatus("❌ " + (errorMsg || "Помилка"));
+          return;
+        }
+
+        // === Вплив на PLAYERHOM ===
+        // Купівля будь-якої крипти → PLAYERHOM росте
+        // Продаж будь-якої крипти → PLAYERHOM падає
+        const playerRef = ref(db, 'crypto/PLAYERHOM');
+        await runTransaction(playerRef, (data) => {
+          if (!data) return data;
+          const curPrice = data.price || INITIAL_PRICES.PLAYERHOM;
+          // Вплив пропорційний до суми угоди відносно ціни монети
+          const impact = action === 'buy' ? 0.02 : -0.02;
+          let newPrice = curPrice * (1 + impact);
+          newPrice = Math.max(1, newPrice);
+
+          const history = data.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
+
+          return { price: newPrice, history: history };
+        });
+
+        showStatus(action === 'buy'
+          ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
+          : `✅ Продано ${qty} ${symbol} за ${formatPrice(total)} 🪙`);
+
+        try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+      } catch (err) {
+        console.error("Trade error:", err);
+        showStatus("❌ Помилка транзакції");
+      }
+    }
+
     logoutBtn.addEventListener('click', () => {
       if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
+      if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
       signOut(auth);
     });
 
