@@ -273,22 +273,18 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     // ============================================================
-    // FIREBASE CONFIG — ЗАМІНІТЬ НА СВОЇ ЗНАЧЕННЯ!
+    // FIREBASE CONFIG
     // ============================================================
     const firebaseConfig = {
-      apiKey: "ВАШ_API_KEY",
+      apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
       authDomain: "hamka-game.firebaseapp.com",
-      databaseURL: "https://hamka-game-default-rtdb.firebaseio.com",
+      databaseURL: "https://hamka-game-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "hamka-game",
-      storageBucket: "hamka-game.appspot.com",
-      messagingSenderId: "ВАШ_SENDER_ID",
-      appId: "ВАШ_APP_ID"
+      storageBucket: "hamka-game.firebasestorage.app",
+      messagingSenderId: "975050013138",
+      appId: "1:975050013138:web:19f42c1c5f2b2d35d6300b",
+      measurementId: "G-W4G3ZZ5R68"
     };
-
-    // Перевірка, чи заповнена конфігурація
-    if (firebaseConfig.apiKey === "ВАШ_API_KEY") {
-      alert("⚠️ Замініть firebaseConfig на свої ключі з Firebase Console!");
-    }
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -330,6 +326,7 @@
     };
     let isTapping = false;
     let unsubscribeUserData = null;
+    let energyInterval = null;
 
     function showStatus(text) {
       statusEl.innerText = text;
@@ -377,7 +374,6 @@
             return await createUserWithEmailAndPassword(auth, email, password);
           }
         } catch (err) {
-          // Retry лише для мережевих помилок
           if (err.code === 'auth/network-request-failed' && attempt < maxRetries) {
             authError.innerText = `Мережева помилка. Повторна спроба ${attempt + 1}/${maxRetries}...`;
             await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
@@ -428,7 +424,6 @@
         console.error("Auth error:", err.code, err.message);
         authError.innerText = getAuthErrorMessage(err);
 
-        // Підказки для частих проблем
         if (err.code === 'auth/unauthorized-domain') {
           authHint.innerText = 'Додайте ваш домен у Firebase Console → Authentication → Settings → Authorized domains';
         } else if (err.code === 'auth/operation-not-allowed') {
@@ -494,14 +489,13 @@
         authScreen.classList.remove('hidden');
         gameScreen.classList.remove('visible');
         if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
+        if (energyInterval) { clearInterval(energyInterval); energyInterval = null; }
       }
     });
 
     // ============================================================
     // ІГРОВА ЛОГІКА
     // ============================================================
-    let energyInterval = null;
-
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
       const coinsRef = ref(db, 'users/' + uid + '/coins');
