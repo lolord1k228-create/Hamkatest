@@ -14,101 +14,131 @@
     }
     body {
       display: flex; flex-direction: column; position: relative;
-      background: radial-gradient(circle at 50% 30%, #1a1a1a 0%, #000 70%);
+      background: radial-gradient(circle at 50% 30%, #111 0%, #000 80%);
     }
 
-    /* ===== Екран авторизації ===== */
+    /* ===== ЕКРАН АВТОРИЗАЦІЇ ===== */
     #auth-screen {
-      position: fixed; inset: 0; z-index: 1000; background: #000;
+      position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; transition: opacity 0.3s, visibility 0.3s;
+      overflow-y: auto;
     }
     #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .auth-logo { font-size: 72px; margin-bottom: 16px; }
-    .auth-title { font-size: 24px; font-weight: 700; color: #f5a623; margin-bottom: 8px; }
-    .auth-subtitle { font-size: 13px; color: #888; margin-bottom: 32px; text-align: center; }
-    .auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
-    .auth-input {
-      width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
-      color: #fff; font-size: 15px; outline: none;
+    
+    .auth-logo-img { font-size: 80px; margin-bottom: 10px; line-height: 1; }
+    .auth-title { font-size: 36px; font-weight: 800; color: #2ecc71; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .auth-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; text-align: center; }
+
+    /* Перемикач Вхід / Реєстрація */
+    .auth-tabs {
+      display: flex; width: 100%; max-width: 340px; gap: 10px; margin-bottom: 20px;
     }
-    .auth-input:focus { border-color: #f5a623; }
+    .auth-tab {
+      flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
+      text-align: center; cursor: pointer; border: 1px solid #222; color: #aaa;
+      background: transparent; transition: 0.2s;
+    }
+    .auth-tab.active {
+      background: #0f1f15; color: #fff; border-color: #2ecc71;
+    }
+
+    .auth-hint-top {
+      font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .auth-form { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; }
+    
+    /* Поля вводу */
+    .input-wrap {
+      position: relative; width: 100%;
+    }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: #555; pointer-events: none;
+    }
+    .auth-input {
+      width: 100%; padding: 16px 16px 16px 44px; 
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
+      color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
+    }
+    .auth-input:focus { border-color: #2ecc71; }
+    .auth-input::placeholder { color: #555; }
+
+    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 16px; margin-top: 4px; }
+
+    /* Кнопки */
     .auth-btn {
-      padding: 14px; border: none; border-radius: 12px; font-size: 15px;
-      font-weight: 700; cursor: pointer; transition: transform 0.1s;
+      width: 100%; max-width: 340px; padding: 16px; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
     }
     .auth-btn:active { transform: scale(0.97); }
-    .auth-btn:disabled { opacity: 0.5; }
-    .auth-btn.primary { background: linear-gradient(135deg, #f5a623, #d4891a); color: #000; }
-    .auth-btn.telegram { background: #2aabee; color: #fff; margin-top: 8px; }
-    .auth-divider { display: flex; align-items: center; gap: 12px; color: #555; font-size: 12px; margin: 8px 0; }
-    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08); }
-    .auth-switch { margin-top: 20px; font-size: 13px; color: #888; }
-    .auth-switch a { color: #f5a623; cursor: pointer; font-weight: 600; }
-    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 18px; }
-    .auth-hint { color: #888; font-size: 11px; text-align: center; margin-top: 6px; }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-green { background: #2ecc71; color: #000; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
+    .btn-blue { background: #2aabee; color: #fff; }
+    .btn-purple { background: #9b59b6; color: #fff; }
+    .btn-orange { background: #f39c12; color: #fff; }
 
-    /* ===== Гра ===== */
+    /* Розділювач */
+    .auth-divider {
+      display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px; 
+      margin: 10px 0; width: 100%; max-width: 340px;
+    }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
+
+    /* ===== ГРА ===== */
     #game-screen { display: none; flex-direction: column; height: 100%; }
     #game-screen.visible { display: flex; }
 
     /* Верхня панель статистики */
     .top-stats {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 12px; background: #000;
-      font-size: 12px; font-weight: 600;
+      padding: 8px 12px; background: #000; font-size: 12px; font-weight: 600;
       border-bottom: 1px solid #222;
     }
-    .top-stats-group { display: flex; gap: 10px; align-items: center; }
+    .top-stats-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .stat-pill {
       display: flex; align-items: center; gap: 4px;
       background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px;
     }
-    .stat-pill .icon { font-size: 12px; }
     .season-badge {
       background: #f5a623; color: #000; padding: 4px 10px;
       border-radius: 20px; font-size: 11px; font-weight: 700;
-      display: flex; align-items: center; gap: 4px;
+      display: flex; align-items: center; gap: 4px; white-space: nowrap;
     }
 
-    /* Горизонтальне меню */
+    /* Головне меню */
     .main-menu {
       display: flex; justify-content: space-around; align-items: center;
-      padding: 10px 6px; background: #111;
-      border-bottom: 1px solid #222;
-      overflow-x: auto;
-      scrollbar-width: none;
+      padding: 10px 6px; background: #111; border-bottom: 1px solid #222;
+      overflow-x: auto; scrollbar-width: none;
     }
     .main-menu::-webkit-scrollbar { display: none; }
     .menu-item {
       display: flex; flex-direction: column; align-items: center;
       gap: 3px; color: #666; font-size: 10px; font-weight: 600;
-      min-width: 50px; cursor: pointer;
+      min-width: 55px; cursor: pointer;
     }
     .menu-item.active { color: #fff; }
     .menu-item.active .menu-icon-wrap {
-      background: #2ecc71; color: #000;
-      box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+      background: #2ecc71; color: #000; box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
     }
     .menu-icon-wrap {
       width: 32px; height: 32px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; background: rgba(255,255,255,0.05);
-      color: #888;
+      font-size: 16px; background: rgba(255,255,255,0.05); color: #888;
     }
 
     /* Кольорові кнопки */
     .action-buttons {
-      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px;
-      background: #000;
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: #000;
     }
     .color-btn {
-      flex: 1; min-width: 70px;
-      padding: 8px 10px; border: none; border-radius: 20px;
+      flex: 1; min-width: 70px; padding: 8px 10px; border: none; border-radius: 20px;
       font-size: 12px; font-weight: 700; color: #fff;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
     }
     .color-btn:active { opacity: 0.8; }
     .btn-tap { background: #2ecc71; color: #000; }
@@ -124,51 +154,39 @@
       position: relative; overflow: hidden;
     }
     .coin-counter {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 22px; font-weight: 700; color: #fff;
-      margin-bottom: 20px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      display: flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 700;
+      color: #fff; margin-bottom: 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
     }
-    .coin-counter .coin-icon { font-size: 20px; }
-
     .hamster-wrap {
       position: relative; display: flex; align-items: center; justify-content: center;
-      width: 320px; height: 320px;
-      max-width: 85vw; max-height: 85vw;
+      width: 320px; height: 320px; max-width: 85vw; max-height: 85vw;
     }
     .hamster {
-      width: 100%; height: 100%;
-      border-radius: 50%;
+      width: 100%; height: 100%; border-radius: 50%;
       border: 4px solid #2ecc71;
       box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), inset 0 0 40px rgba(46, 204, 113, 0.15);
       background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 140px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-      position: relative;
-      z-index: 2;
+      font-size: 140px; cursor: pointer; transition: transform 0.1s ease; position: relative; z-index: 2;
     }
     .hamster:active { transform: scale(0.96); }
     
     .tap-effect {
       position: absolute; font-size: 28px; font-weight: 800; color: #2ecc71;
       pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
     }
     @keyframes floatUp {
       0% { opacity: 1; transform: translateY(0) scale(1); }
       100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
     }
 
-    /* Крипта */
+    /* Сторінки */
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
     .crypto-page { padding: 8px 12px 100px; }
 
     .crypto-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px; padding: 12px; margin-bottom: 10px;
     }
     .crypto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -176,72 +194,37 @@
     .crypto-price { font-size: 15px; font-weight: 700; }
     .crypto-price.up { color: #2ecc71; }
     .crypto-price.down { color: #ff5252; }
-    .crypto-chart {
-      width: 100%; height: 60px; display: block;
-      background: rgba(0, 0, 0, 0.3); border-radius: 8px; margin-bottom: 8px;
-    }
+    .crypto-chart { width: 100%; height: 60px; display: block; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; }
     .crypto-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .crypto-input {
-      width: 60px; flex-shrink: 0; padding: 8px;
-      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px; color: #fff; font-size: 14px; outline: none;
+      width: 60px; flex-shrink: 0; padding: 8px; background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; outline: none;
       -moz-appearance: textfield;
     }
     .crypto-input::-webkit-outer-spin-button,
     .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .crypto-btn {
-      flex: 1; min-width: 0; padding: 8px; border: none; border-radius: 8px;
-      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
-    }
+    .crypto-btn { flex: 1; min-width: 0; padding: 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .crypto-btn.buy { background: #2ecc71; color: #000; }
     .crypto-btn.sell { background: #ff5252; color: #fff; }
     .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
     .crypto-holdings span { color: #f5a623; font-weight: 600; }
 
     /* Нижня панель */
-    .bottom-panel {
-      background: #0a0a0a; border-top: 1px solid #222;
-      padding: 6px 12px 10px;
-    }
-    .bottom-stats {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 11px; color: #aaa; margin-bottom: 4px;
-    }
-    .bottom-stats span { display: flex; align-items: center; gap: 3px; }
-    .energy-bar-wrap {
-      width: 100%; height: 10px; background: #222;
-      border-radius: 5px; overflow: hidden; position: relative;
-    }
-    .energy-bar {
-      height: 100%; background: linear-gradient(90deg, #f5a623, #ffd700);
-      width: 100%; transition: width 0.3s;
-    }
-    .energy-labels {
-      display: flex; justify-content: space-between; font-size: 10px; color: #666;
-      margin-top: 2px;
-    }
-    .coin-bottom {
-      text-align: center; font-size: 14px; font-weight: 700; color: #ffd700;
-      margin: 6px 0;
-    }
-    .xp-row {
-      display: flex; justify-content: space-between; font-size: 11px; color: #666;
-    }
-    .promo-row {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 11px; color: #888; margin-top: 6px;
-    }
-    .promo-btn {
-      background: #2ecc71; color: #000; border: none; border-radius: 6px;
-      padding: 4px 12px; font-size: 11px; font-weight: 700; cursor: pointer;
-    }
+    .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
+    .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; margin-bottom: 4px; }
+    .energy-bar-wrap { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; }
+    .energy-bar { height: 100%; background: linear-gradient(90deg, #f5a623, #ffd700); width: 100%; transition: width 0.3s; }
+    .energy-labels { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 2px; }
+    .coin-bottom { text-align: center; font-size: 14px; font-weight: 700; color: #ffd700; margin: 6px 0; }
+    .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; }
+    .promo-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; margin-top: 6px; }
+    .promo-btn { background: #2ecc71; color: #000; border: none; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
     #status {
       position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.9); padding: 10px 20px; border-radius: 10px;
-      font-size: 13px; opacity: 0; transition: opacity 0.3s;
-      pointer-events: none; white-space: nowrap; z-index: 100;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.1);
       max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
     }
     #status.show { opacity: 1; }
@@ -249,31 +232,51 @@
 </head>
 <body>
 
-  <!-- ===== АВТОРИЗАЦІЯ ===== -->
+  <!-- ===== АВТОРИЗАЦІЯ (СТИЛЬ ЯК НА СКРІНШОТІ) ===== -->
   <div id="auth-screen">
-    <div class="auth-logo">🐭</div>
-    <div class="auth-title">Hamka Game</div>
-    <div class="auth-subtitle">Увійдіть, щоб грати та зберігати прогрес</div>
-    <div class="auth-form">
-      <input type="email" id="auth-email" class="auth-input" placeholder="Email" autocomplete="email">
-      <input type="password" id="auth-password" class="auth-input" placeholder="Пароль (мін. 6 символів)" autocomplete="current-password">
-      <div class="auth-error" id="auth-error"></div>
-      <button class="auth-btn primary" id="auth-submit">Увійти</button>
-      <div class="auth-hint" id="auth-hint"></div>
-      <div class="auth-divider">або</div>
-      <button class="auth-btn telegram" id="tg-login-btn">
-        <span>✈️</span> Увійти через Telegram
-      </button>
+    <div class="auth-logo-img">🐭</div>
+    <div class="auth-title">Hamka</div>
+    <div class="auth-subtitle">Крипто-клікер з апгрейдами</div>
+
+    <!-- Вкладки Вхід / Реєстрація -->
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login">Вхід</div>
+      <div class="auth-tab" id="tab-register">Реєстрація</div>
     </div>
-    <div class="auth-switch">
-      <span id="auth-switch-text">Немає акаунту?</span>
-      <a id="auth-switch-link">Зареєструватися</a>
+
+    <div class="auth-hint-top">🔒 Виберіть спосіб входу</div>
+
+    <div class="auth-form">
+      <!-- Поля вводу -->
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм">
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">🔑</span>
+        <input type="password" id="auth-password" class="auth-input" placeholder="Пароль (мін. 4)">
+      </div>
+      
+      <div class="auth-error" id="auth-error"></div>
+
+      <!-- Кнопка входу/реєстрації -->
+      <button class="auth-btn btn-green" id="auth-submit">👉 Увійти</button>
+      
+      <div class="auth-divider">або</div>
+
+      <!-- Інші способи -->
+      <button class="auth-btn btn-blue" id="tg-login-btn">📱 Увійти через Telegram</button>
+      <div class="auth-divider">або</div>
+      
+      <button class="auth-btn btn-purple" id="guest-login-btn">🎮 Гість</button>
+      <div class="auth-divider">або</div>
+      
+      <button class="auth-btn btn-orange" id="guest-to-account-btn">📝 Гість → Акаунт</button>
     </div>
   </div>
 
   <!-- ===== ГРА ===== -->
   <div id="game-screen">
-    
     <!-- Верхня панель -->
     <div class="top-stats">
       <div class="top-stats-group">
@@ -293,30 +296,12 @@
         <div class="menu-icon-wrap">🐭</div>
         <span>Гра</span>
       </div>
-      <div class="menu-item">
-        <div class="menu-icon-wrap">🛒</div>
-        <span>Магазин</span>
-      </div>
-      <div class="menu-item" data-page="crypto">
-        <div class="menu-icon-wrap">₿</div>
-        <span>Крипта</span>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon-wrap">👑</div>
-        <span>VIP</span>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon-wrap">👤</div>
-        <span>Профіль</span>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon-wrap">🎒</div>
-        <span>Інвентар</span>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon-wrap">🏆</div>
-        <span>Топ</span>
-      </div>
+      <div class="menu-item"><div class="menu-icon-wrap">🛒</div><span>Магазин</span></div>
+      <div class="menu-item" data-page="crypto"><div class="menu-icon-wrap">₿</div><span>Крипта</span></div>
+      <div class="menu-item"><div class="menu-icon-wrap">👑</div><span>VIP</span></div>
+      <div class="menu-item"><div class="menu-icon-wrap">👤</div><span>Профіль</span></div>
+      <div class="menu-item"><div class="menu-icon-wrap">🎒</div><span>Інвентар</span></div>
+      <div class="menu-item"><div class="menu-icon-wrap">🏆</div><span>Топ</span></div>
     </div>
 
     <!-- Кольорові кнопки -->
@@ -354,24 +339,16 @@
         <span>+1 ⚡/сек</span>
         <span>📈 0 🪙/сек</span>
         <span>💵 1000</span>
-        <span>🪙 <span id="bottom-coins">971</span></span>
+        <span>🪙 <span id="bottom-coins">0</span></span>
       </div>
-      <div class="energy-bar-wrap">
-        <div class="energy-bar" id="energy-bar" style="width: 100%;"></div>
-      </div>
+      <div class="energy-bar-wrap"><div class="energy-bar" id="energy-bar" style="width: 100%;"></div></div>
       <div class="energy-labels">
         <span>Енергія</span>
-        <span id="energy-label-text">100/100</span>
+        <span id="energy-label-text">200/200</span>
       </div>
-      <div class="coin-bottom">💰 <span id="bottom-coin-display">550</span></div>
-      <div class="xp-row">
-        <span>XP: 0</span>
-        <span>Рівень 1</span>
-      </div>
-      <div class="promo-row">
-        <span>🎁 Промокод</span>
-        <button class="promo-btn">OK</button>
-      </div>
+      <div class="coin-bottom">💰 <span id="bottom-coin-display">0</span></div>
+      <div class="xp-row"><span>XP: 0</span><span>Рівень 1</span></div>
+      <div class="promo-row"><span>🎁 Промокод</span><button class="promo-btn">OK</button></div>
     </div>
   </div>
 
@@ -380,7 +357,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, get, set, update, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
@@ -400,24 +377,24 @@
     const tg = window.Telegram.WebApp;
     try { tg.expand(); tg.ready(); } catch(e) {}
 
-    // === DOM ===
+    // === DOM Auth ===
     const authScreen = document.getElementById('auth-screen');
     const gameScreen = document.getElementById('game-screen');
-    const authEmail = document.getElementById('auth-email');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const authNickname = document.getElementById('auth-nickname');
     const authPassword = document.getElementById('auth-password');
     const authError = document.getElementById('auth-error');
-    const authHint = document.getElementById('auth-hint');
     const authSubmit = document.getElementById('auth-submit');
-    const authSwitchText = document.getElementById('auth-switch-text');
-    const authSwitchLink = document.getElementById('auth-switch-link');
     const tgLoginBtn = document.getElementById('tg-login-btn');
-    const logoutBtn = document.getElementById('logout-btn'); // прибрано, але для сумісності
+    const guestLoginBtn = document.getElementById('guest-login-btn');
+    const guestToAccountBtn = document.getElementById('guest-to-account-btn');
 
+    // === DOM Game ===
     const tapCoinDisplay = document.getElementById('tap-coin-display');
     const topCoins = document.getElementById('top-coins');
     const bottomCoins = document.getElementById('bottom-coins');
     const bottomCoinDisplay = document.getElementById('bottom-coin-display');
-    
     const energyDisplay = document.getElementById('energy-label-text');
     const energyBar = document.getElementById('energy-bar');
     const hamster = document.getElementById('hamster');
@@ -435,9 +412,7 @@
     let currentUid = null;
 
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
-    const INITIAL_PRICES = {
-      OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50
-    };
+    const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
     const PLAYERHOM_BASE = 50;
     const PLAYERHOM_PER_UNIT = 2;
 
@@ -445,9 +420,7 @@
       const v = localStorage.getItem('qty_' + symbol);
       return v ? Math.max(1, parseInt(v) || 1) : 1;
     }
-    function setQty(symbol, val) {
-      localStorage.setItem('qty_' + symbol, val);
-    }
+    function setQty(symbol, val) { localStorage.setItem('qty_' + symbol, val); }
 
     function showStatus(text) {
       statusEl.innerText = text;
@@ -469,105 +442,96 @@
       return p.toFixed(2);
     }
 
-    function getTelegramNick(tgUser) {
-      if (!tgUser) return null;
-      if (tgUser.username) return '@' + tgUser.username;
-      if (tgUser.first_name) return tgUser.first_name;
-      return 'Гравець';
+    // === Перемикання Вхід / Реєстрація ===
+    function setAuthMode(loginMode) {
+      isLoginMode = loginMode;
+      if (loginMode) {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        authSubmit.innerHTML = '👉 Увійти';
+      } else {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        authSubmit.innerHTML = '📝 Зареєструватися';
+      }
+      authError.innerText = '';
+    }
+    tabLogin.addEventListener('click', () => setAuthMode(true));
+    tabRegister.addEventListener('click', () => setAuthMode(false));
+
+    // === Допоміжна функція для перетворення нікнейму в email ===
+    function nickToEmail(nick) {
+      // Якщо вже є @, залишаємо як є (раптом ввели email)
+      if (nick.includes('@')) return nick.trim();
+      // Інакше робимо фейковий email
+      return nick.trim().toLowerCase().replace(/[^a-z0-9]/g, '') + '@hamka.game';
     }
 
+    // === Помилки Firebase ===
     function getAuthErrorMessage(err) {
       const messages = {
-        'auth/invalid-email': 'Невірний формат email',
-        'auth/user-not-found': 'Користувача не знайдено. Зареєструйтесь.',
+        'auth/invalid-email': 'Невірний формат',
+        'auth/user-not-found': 'Акаунт не знайдено',
         'auth/wrong-password': 'Невірний пароль',
-        'auth/email-already-in-use': 'Цей email вже зареєстровано. Увійдіть.',
-        'auth/weak-password': 'Пароль занадто слабкий (мін. 6 символів)',
-        'auth/invalid-credential': 'Невірний email або пароль',
-        'auth/too-many-requests': 'Занадто багато спроб. Зачекайте.',
-        'auth/network-request-failed': 'Мережева помилка. Перевірте інтернет.',
-        'auth/operation-not-allowed': 'Email/Password не увімкнено у Firebase Console',
-        'auth/unauthorized-domain': 'Домен не авторизований у Firebase Console',
-        'auth/internal-error': 'Внутрішня помилка Firebase. Спробуйте ще раз.'
+        'auth/email-already-in-use': 'Цей нікнейм вже зайнятий',
+        'auth/weak-password': 'Пароль занадто слабкий (мін. 4)',
+        'auth/invalid-credential': 'Невірний нікнейм або пароль',
+        'auth/too-many-requests': 'Занадто багато спроб',
+        'auth/network-request-failed': 'Мережева помилка',
+        'auth/operation-not-allowed': 'Увімкніть Email/Password та Anonymous у Firebase',
+        'auth/unauthorized-domain': 'Домен не авторизований',
+        'auth/internal-error': 'Помилка Firebase'
       };
-      return messages[err.code] || err.message || 'Невідома помилка';
+      return messages[err.code] || err.message || 'Помилка';
     }
 
-    async function authWithRetry(action, email, password, maxRetries = 2) {
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          if (action === 'login') return await signInWithEmailAndPassword(auth, email, password);
-          else return await createUserWithEmailAndPassword(auth, email, password);
-        } catch (err) {
-          if (err.code === 'auth/network-request-failed' && attempt < maxRetries) {
-            authError.innerText = `Мережева помилка. Спроба ${attempt + 1}/${maxRetries}...`;
-            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-            continue;
-          }
-          throw err;
-        }
-      }
-    }
-
-    function switchAuthMode() {
-      isLoginMode = !isLoginMode;
-      authSubmit.innerText = isLoginMode ? 'Увійти' : 'Зареєструватися';
-      authSwitchText.innerText = isLoginMode ? 'Немає акаунту?' : 'Вже є акаунт?';
-      authSwitchLink.innerText = isLoginMode ? 'Зареєструватися' : 'Увійти';
-      authError.innerText = '';
-      authHint.innerText = '';
-    }
-    authSwitchLink.addEventListener('click', switchAuthMode);
-
+    // === Вхід/Реєстрація ===
     authSubmit.addEventListener('click', async () => {
-      const email = authEmail.value.trim();
+      const nick = authNickname.value.trim();
       const password = authPassword.value;
-      if (!email || !password) { authError.innerText = 'Заповніть email та пароль'; return; }
-      if (!email.includes('@')) { authError.innerText = 'Введіть коректний email'; return; }
-      if (password.length < 6) { authError.innerText = 'Пароль має бути мінімум 6 символів'; return; }
 
+      if (!nick || !password) { authError.innerText = 'Заповніть всі поля'; return; }
+      if (password.length < 4) { authError.innerText = 'Пароль має бути мінімум 4 символи'; return; }
+
+      const email = nickToEmail(nick);
       authSubmit.disabled = true;
       authError.innerText = '';
-      authHint.innerText = '';
+
       try {
-        await authWithRetry(isLoginMode ? 'login' : 'register', email, password);
+        if (isLoginMode) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+        }
       } catch (err) {
         authError.innerText = getAuthErrorMessage(err);
-        if (err.code === 'auth/unauthorized-domain') {
-          authHint.innerText = 'Додайте домен у Firebase Console → Authentication → Settings → Authorized domains';
-        } else if (err.code === 'auth/operation-not-allowed') {
-          authHint.innerText = 'Увімкніть Email/Password у Firebase Console';
-        }
       } finally {
         authSubmit.disabled = false;
       }
     });
 
+    // === Вхід через Telegram ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
-        authError.innerText = 'Не вдалося отримати дані Telegram';
-        authHint.innerText = 'Відкрийте гру через Telegram-бота';
+        authError.innerText = 'Відкрийте гру через Telegram-бота';
         return;
       }
-      const fakeEmail = `tg_${tgUser.id}@hamka.test`;
-      const fakePassword = `tg_${tgUser.id}_secret_hamka`;
-      const nick = getTelegramNick(tgUser);
+      const email = `tg_${tgUser.id}@hamka.test`;
+      const password = `tg_${tgUser.id}_secret`;
 
       tgLoginBtn.disabled = true;
       authError.innerText = '';
-      authHint.innerText = '';
       try {
         try {
-          await signInWithEmailAndPassword(auth, fakeEmail, fakePassword);
+          await signInWithEmailAndPassword(auth, email, password);
         } catch (e) {
           if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-            await createUserWithEmailAndPassword(auth, fakeEmail, fakePassword);
+            await createUserWithEmailAndPassword(auth, email, password);
           } else {
             throw e;
           }
         }
-        showStatus(`✅ Вітаємо, ${nick}!`);
       } catch (err) {
         authError.innerText = getAuthErrorMessage(err);
       } finally {
@@ -575,6 +539,30 @@
       }
     });
 
+    // === Гість (Анонімний вхід) ===
+    guestLoginBtn.addEventListener('click', async () => {
+      guestLoginBtn.disabled = true;
+      authError.innerText = '';
+      try {
+        await signInAnonymously(auth);
+      } catch (err) {
+        if (err.code === 'auth/operation-not-allowed') {
+          authError.innerText = 'Увімкніть Anonymous у Firebase Console';
+        } else {
+          authError.innerText = getAuthErrorMessage(err);
+        }
+      } finally {
+        guestLoginBtn.disabled = false;
+      }
+    });
+
+    // === Гість → Акаунт (просто перемикає на реєстрацію) ===
+    guestToAccountBtn.addEventListener('click', () => {
+      setAuthMode(false);
+      authNickname.focus();
+    });
+
+    // === Слухач стану ===
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUid = user.uid;
@@ -592,7 +580,7 @@
       }
     });
 
-    // Перемикання сторінок
+    // === Перемикання сторінок у грі ===
     document.querySelectorAll('.menu-item[data-page]').forEach(item => {
       item.addEventListener('click', () => {
         document.querySelectorAll('.menu-item').forEach(n => n.classList.remove('active'));
@@ -603,7 +591,7 @@
     });
 
     // ============================================================
-    // ТАП
+    // ГРА (ТАП)
     // ============================================================
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
@@ -611,10 +599,7 @@
 
       get(userRef).then((snap) => {
         if (!snap.exists()) {
-          set(userRef, {
-            coins: 0, energy: 200, maxEnergy: 200,
-            holdings: {}, createdAt: Date.now()
-          });
+          set(userRef, { coins: 0, energy: 200, maxEnergy: 200, holdings: {}, createdAt: Date.now() });
         } else if (!snap.val().holdings) {
           update(userRef, { holdings: {} });
         }
@@ -622,8 +607,7 @@
 
       unsubscribeUserData = onValue(userRef, (snapshot) => {
         const data = snapshot.val();
-        if (!data) return;
-        if (pendingTap) return;
+        if (!data || pendingTap) return;
 
         state.coins = data.coins || 0;
         state.energy = data.energy ?? 200;
@@ -662,5 +646,246 @@
             data.coins = (data.coins || 0) + 1;
             return data;
           });
-        } catch (err) {
-          console.error("Tap error:",
+        } catch (err) { console.error(err); } 
+        finally { pendingTap = false; }
+      };
+
+      if (energyInterval) clearInterval(energyInterval);
+      energyInterval = setInterval(async () => {
+        if (state.energy >= state.maxEnergy) return;
+        try {
+          await runTransaction(energyRef, (c) => {
+            const cur = c ?? 200;
+            return Math.min(state.maxEnergy, cur + 5);
+          });
+        } catch (err) {}
+      }, 3000);
+    }
+
+    function renderUI() {
+      const coinsStr = formatNumber(state.coins);
+      tapCoinDisplay.innerText = coinsStr;
+      topCoins.innerText = coinsStr;
+      bottomCoins.innerText = coinsStr;
+      bottomCoinDisplay.innerText = coinsStr;
+
+      const energyPct = (state.energy / state.maxEnergy) * 100;
+      energyBar.style.width = energyPct + '%';
+      energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
+    }
+
+    // ============================================================
+    // КРИПТА
+    // ============================================================
+    let cryptoState = {};
+
+    async function initCryptoSystem() {
+      for (const symbol of COINS) {
+        const cRef = ref(db, 'crypto/' + symbol);
+        const snap = await get(cRef);
+        if (!snap.exists()) {
+          const price = INITIAL_PRICES[symbol];
+          await set(cRef, { price: price, history: [{ t: Date.now(), p: price }] });
+        }
+      }
+
+      const cryptoRef = ref(db, 'crypto');
+      onValue(cryptoRef, (snap) => {
+        const data = snap.val();
+        if (!data) return;
+        cryptoState = data;
+        renderCryptoList();
+      });
+
+      if (cryptoInterval) clearInterval(cryptoInterval);
+      cryptoInterval = setInterval(async () => {
+        for (const symbol of COINS) {
+          if (symbol === 'PLAYERHOM') continue;
+          updateCryptoPrice(symbol);
+        }
+      }, 10000);
+    }
+
+    async function updateCryptoPrice(symbol) {
+      const cRef = ref(db, 'crypto/' + symbol);
+      try {
+        await runTransaction(cRef, (data) => {
+          if (!data) return data;
+          const currentPrice = data.price || INITIAL_PRICES[symbol];
+          const isGrowth = Math.random() < 0.4;
+          const percent = (Math.random() * 0.03) + 0.005;
+          let newPrice = isGrowth ? currentPrice * (1 + percent) : currentPrice * (1 - percent);
+          newPrice = Math.max(1, newPrice);
+
+          const history = data.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
+
+          return { price: newPrice, history: history };
+        });
+      } catch (err) { console.error(err); }
+    }
+
+    async function recalcPlayerhomPrice() {
+      try {
+        const usersSnap = await get(ref(db, 'users'));
+        const users = usersSnap.val() || {};
+        let totalHoldings = 0;
+        for (const uid in users) {
+          const h = users[uid]?.holdings?.PLAYERHOM || 0;
+          totalHoldings += h;
+        }
+
+        const newPrice = PLAYERHOM_BASE + totalHoldings * PLAYERHOM_PER_UNIT;
+        const playerRef = ref(db, 'crypto/PLAYERHOM');
+
+        await runTransaction(playerRef, (data) => {
+          const history = data?.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
+          return { price: newPrice, history: history };
+        });
+      } catch (err) { console.error(err); }
+    }
+
+    function renderCryptoList() {
+      if (!cryptoListEl) return;
+      document.querySelectorAll('.crypto-input').forEach(inp => {
+        const symbol = inp.dataset.symbol;
+        if (symbol) setQty(symbol, inp.value);
+      });
+
+      cryptoListEl.innerHTML = '';
+      for (const symbol of COINS) {
+        const info = cryptoState[symbol];
+        if (!info) continue;
+
+        const price = info.price || INITIAL_PRICES[symbol];
+        const history = info.history || [];
+        const firstPrice = history[0]?.p || price;
+        const isUp = price >= firstPrice;
+
+        const holding = state.holdings?.[symbol] || 0;
+        const holdingValue = holding * price;
+        const qty = getQty(symbol);
+
+        const card = document.createElement('div');
+        card.className = 'crypto-card';
+        card.innerHTML = `
+          <div class="crypto-header">
+            <div class="crypto-symbol">${symbol}</div>
+            <div class="crypto-price ${isUp ? 'up' : 'down'}">${formatPrice(price)} 🪙</div>
+          </div>
+          <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
+          <div class="crypto-actions">
+            <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
+            <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити</button>
+            <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">Продати</button>
+          </div>
+          <div class="crypto-holdings">У вас: <span>${holding}</span> ${symbol} (≈ ${formatPrice(holdingValue)} 🪙)</div>
+        `;
+        cryptoListEl.appendChild(card);
+        drawChart(document.getElementById('chart-' + symbol), history, isUp);
+      }
+
+      cryptoListEl.querySelectorAll('.crypto-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const symbol = inp.dataset.symbol;
+          if (symbol) setQty(symbol, inp.value);
+        });
+      });
+
+      cryptoListEl.querySelectorAll('.crypto-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const symbol = btn.dataset.symbol;
+          const action = btn.dataset.action;
+          const qtyInput = document.getElementById('qty-' + symbol);
+          const qty = parseInt(qtyInput.value) || 0;
+          if (qty <= 0) { showStatus("❌ Введіть кількість"); return; }
+          setQty(symbol, qty);
+          tradeCrypto(symbol, action, qty);
+        });
+      });
+    }
+
+    function drawChart(canvas, history, isUp) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      if (history.length < 2) return;
+
+      const prices = history.map(x => x.p);
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      const range = max - min || 1;
+
+      ctx.beginPath();
+      ctx.strokeStyle = isUp ? '#2ecc71' : '#ff5252';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+
+      history.forEach((point, i) => {
+        const x = (i / (history.length - 1)) * (w - 4) + 2;
+        const y = h - ((point.p - min) / range) * (h - 8) - 4;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      ctx.lineTo(w - 2, h);
+      ctx.lineTo(2, h);
+      ctx.closePath();
+      ctx.fillStyle = isUp ? 'rgba(46, 204, 113, 0.15)' : 'rgba(255, 82, 82, 0.15)';
+      ctx.fill();
+    }
+
+    async function tradeCrypto(symbol, action, qty) {
+      if (!currentUid) return;
+      const info = cryptoState[symbol];
+      if (!info) return;
+
+      const price = info.price;
+      const total = price * qty;
+      const userRef = ref(db, 'users/' + currentUid);
+
+      try {
+        let success = false;
+        let errorMsg = '';
+
+        await runTransaction(userRef, (data) => {
+          if (!data) return data;
+          if (!data.holdings) data.holdings = {};
+
+          if (action === 'buy') {
+            if ((data.coins || 0) < total) { errorMsg = 'Недостатньо монет'; return; }
+            data.coins = (data.coins || 0) - total;
+            data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
+            success = true;
+          } else {
+            const owned = data.holdings[symbol] || 0;
+            if (owned < qty) { errorMsg = `У вас лише ${owned} ${symbol}`; return; }
+            data.coins = (data.coins || 0) + total;
+            data.holdings[symbol] = owned - qty;
+            success = true;
+          }
+          return data;
+        });
+
+        if (!success) { showStatus("❌ " + (errorMsg || "Помилка")); return; }
+
+        if (symbol === 'PLAYERHOM' || true) await recalcPlayerhomPrice();
+
+        showStatus(action === 'buy'
+          ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
+          : `✅ Продано ${qty} ${symbol} за ${formatPrice(total)} 🪙`);
+
+        try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+      } catch (err) {
+        console.error(err);
+        showStatus("❌ Помилка транзакції");
+      }
+    }
+  </script>
+</body>
+</html>
