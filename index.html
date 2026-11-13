@@ -72,6 +72,7 @@
     #game-screen { display: none; flex-direction: column; height: 100%; }
     #game-screen.visible { display: flex; }
 
+    /* Верхня панель (тільки монети) */
     .top-stats {
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 12px; background: #000; font-size: 12px; font-weight: 600;
@@ -146,7 +147,7 @@
     .page.active { display: flex; }
     .crypto-page { padding: 8px 12px 100px; }
 
-    /* Крипта (1 валюта HAM) */
+    /* Крипта (5 монет) */
     .crypto-card {
       background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px; padding: 12px; margin-bottom: 10px;
@@ -224,19 +225,15 @@
 
   <!-- ===== ГРА ===== -->
   <div id="game-screen">
+    <!-- Верхня панель: ТІЛЬКИ МОНЕТИ -->
     <div class="top-stats">
       <div class="top-stats-group">
-        <div class="stat-pill"><span class="icon">👥</span> Vi</div>
         <div class="stat-pill"><span class="icon">🪙</span> <span id="top-coins">0</span></div>
-        <div class="stat-pill"><span class="icon">💎</span> 0</div>
-        <div class="stat-pill"><span class="icon">₿</span> 0.00</div>
-        <div class="stat-pill"><span class="icon">💵</span> 0.00</div>
-        <div class="stat-pill"><span class="icon">⭐</span> 1</div>
       </div>
       <div class="season-badge">🏆 Сезон 2</div>
     </div>
 
-    <!-- ОДИН РЯД КНОПОК -->
+    <!-- Ряд кнопок вибору -->
     <div class="main-menu">
       <div class="menu-item active" data-page="tap">
         <div class="menu-icon-wrap">🐭</div>
@@ -269,7 +266,7 @@
     <!-- Нижня панель -->
     <div class="bottom-panel">
       <div class="bottom-stats">
-        <span>⚡ 100 / 100</span>
+        <span>⚡ 200 / 200</span>
         <span>-1 ⚡</span>
         <span>+1 ⚡/сек</span>
         <span>📈 0 🪙/сек</span>
@@ -343,9 +340,11 @@
     let cryptoInterval = null;
     let currentUid = null;
 
-    // Тільки 1 валюта
-    const COINS = ['HAM'];
-    const INITIAL_PRICES = { HAM: 500 };
+    // ПОВЕРТАЄМО ВСІ 5 КРИПТОВАЛЮТ
+    const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
+    const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
+    const PLAYERHOM_BASE = 50;
+    const PLAYERHOM_PER_UNIT = 2;
 
     function getQty(symbol) {
       const v = localStorage.getItem('qty_' + symbol);
@@ -575,7 +574,7 @@
     }
 
     // ============================================================
-    // КРИПТА (тільки HAM)
+    // КРИПТА (всі 5 монет)
     // ============================================================
     let cryptoState = {};
 
@@ -600,6 +599,7 @@
       if (cryptoInterval) clearInterval(cryptoInterval);
       cryptoInterval = setInterval(async () => {
         for (const symbol of COINS) {
+          if (symbol === 'PLAYERHOM') continue; // ця монета залежить тільки від гравців
           updateCryptoPrice(symbol);
         }
       }, 10000);
@@ -620,6 +620,28 @@
           history.push({ t: Date.now(), p: newPrice });
           if (history.length > 30) history.shift();
 
+          return { price: newPrice, history: history };
+        });
+      } catch (err) { console.error(err); }
+    }
+
+    async function recalcPlayerhomPrice() {
+      try {
+        const usersSnap = await get(ref(db, 'users'));
+        const users = usersSnap.val() || {};
+        let totalHoldings = 0;
+        for (const uid in users) {
+          const h = users[uid]?.holdings?.PLAYERHOM || 0;
+          totalHoldings += h;
+        }
+
+        const newPrice = PLAYERHOM_BASE + totalHoldings * PLAYERHOM_PER_UNIT;
+        const playerRef = ref(db, 'crypto/PLAYERHOM');
+
+        await runTransaction(playerRef, (data) => {
+          const history = data?.history || [];
+          history.push({ t: Date.now(), p: newPrice });
+          if (history.length > 30) history.shift();
           return { price: newPrice, history: history };
         });
       } catch (err) { console.error(err); }
@@ -750,6 +772,8 @@
         });
 
         if (!success) { showStatus("❌ " + (errorMsg || "Помилка")); return; }
+
+        if (symbol === 'PLAYERHOM' || true) await recalcPlayerhomPrice();
 
         showStatus(action === 'buy'
           ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
