@@ -144,9 +144,7 @@
     .scroll-page { padding: 8px 12px 100px; }
 
     /* Магазин */
-    .shop-tabs {
-      display: flex; gap: 6px; margin-bottom: 12px;
-    }
+    .shop-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
     .shop-tab {
       flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 700;
       background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; color: #aaa;
@@ -194,13 +192,72 @@
     .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
     .crypto-holdings span { color: #f5a623; font-weight: 600; }
 
+    /* Профіль */
+    .profile-card {
+      background: linear-gradient(145deg, #1a1a24, #0f0f15);
+      border: 1px solid #333; border-radius: 20px; padding: 20px;
+      text-align: center; margin-bottom: 16px; position: relative; overflow: hidden;
+    }
+    .profile-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #f5a623, #d4891a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; margin: 0 auto 12px;
+      box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
+    }
+    .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
+    .profile-title-badge {
+      display: inline-block; margin-top: 8px; padding: 4px 16px; border-radius: 20px;
+      background: linear-gradient(90deg, #8a2be2, #da70d6);
+      font-size: 12px; font-weight: 700; color: #fff;
+      box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    }
+    .profile-stats {
+      display: flex; justify-content: space-around; margin-top: 16px;
+      background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px;
+    }
+    .profile-stat-item { text-align: center; }
+    .profile-stat-val { font-size: 16px; font-weight: 700; color: #f5a623; }
+    .profile-stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; }
+
+    .prestige-section {
+      background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3);
+      border-radius: 14px; padding: 16px; text-align: center;
+    }
+    .prestige-btn {
+      width: 100%; padding: 14px; margin-top: 10px;
+      background: linear-gradient(90deg, #8a2be2, #da70d6);
+      border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+      color: #fff; cursor: pointer; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+    }
+    .prestige-btn:disabled { background: #333; box-shadow: none; color: #666; }
+
+    .titles-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .title-item {
+      padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center;
+      cursor: pointer; color: #fff; border: 1px solid transparent;
+    }
+    .title-item.available {
+      background: linear-gradient(90deg, #6a1b9a, #ab47bc);
+    }
+    .title-item.locked {
+      background: #222; color: #666; cursor: not-allowed;
+    }
+    .title-item.current {
+      border: 2px solid #fff;
+      box-shadow: 0 0 15px rgba(255,255,255,0.5);
+    }
+
+    /* Нижня панель */
     .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
     .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; margin-bottom: 4px; }
     .energy-bar-wrap { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; }
     .energy-bar { height: 100%; background: linear-gradient(90deg, #f5a623, #ffd700); width: 100%; transition: width 0.3s; }
     .energy-labels { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 2px; }
     .coin-bottom { text-align: center; font-size: 14px; font-weight: 700; color: #ffd700; margin: 6px 0; }
-    .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; }
+    .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
+    .xp-bar-wrap { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+    .xp-bar { height: 100%; background: linear-gradient(90deg, #00bcd4, #2196f3); width: 0%; transition: width 0.3s; }
 
     #status {
       position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
@@ -209,6 +266,22 @@
       white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.1);
     }
     #status.show { opacity: 1; }
+
+    /* Анімація престижу */
+    .prestige-overlay {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.9);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.5s;
+    }
+    .prestige-overlay.show { opacity: 1; pointer-events: all; }
+    .prestige-glow {
+      font-size: 80px; animation: prestigePop 1s ease-out infinite alternate;
+    }
+    @keyframes prestigePop {
+      0% { transform: scale(1); filter: drop-shadow(0 0 10px #8a2be2); }
+      100% { transform: scale(1.2); filter: drop-shadow(0 0 30px #da70d6); }
+    }
+    .prestige-text { font-size: 32px; font-weight: 900; margin-top: 20px; background: linear-gradient(90deg, #8a2be2, #da70d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   </style>
 </head>
 <body>
@@ -251,7 +324,7 @@
       <div class="top-stats-group">
         <div class="stat-pill"><span class="icon">🪙</span> <span id="top-coins">0</span></div>
       </div>
-      <div class="season-badge">🏆 Сезон 2</div>
+      <div class="season-badge">🏆 Сезон 1</div>
     </div>
 
     <div class="main-menu">
@@ -266,6 +339,10 @@
       <div class="menu-item" data-page="crypto">
         <div class="menu-icon-wrap">₿</div>
         <span>Крипта</span>
+      </div>
+      <div class="menu-item" data-page="profile">
+        <div class="menu-icon-wrap">👤</div>
+        <span>Профіль</span>
       </div>
     </div>
 
@@ -296,6 +373,41 @@
       <div id="crypto-list"></div>
     </div>
 
+    <!-- Сторінка ПРОФІЛЬ -->
+    <div class="page scroll-page" id="page-profile">
+      <div class="profile-card">
+        <div class="profile-avatar" id="prof-avatar">🐭</div>
+        <div class="profile-name" id="prof-name">Гравець</div>
+        <div class="profile-title-badge" id="prof-title">Початківець</div>
+        
+        <div class="profile-stats">
+          <div class="profile-stat-item">
+            <div class="profile-stat-val" id="prof-coins">0</div>
+            <div class="profile-stat-lbl">Монети</div>
+          </div>
+          <div class="profile-stat-item">
+            <div class="profile-stat-val" id="prof-xp">0</div>
+            <div class="profile-stat-lbl">XP</div>
+          </div>
+          <div class="profile-stat-item">
+            <div class="profile-stat-val" id="prof-prestige">0</div>
+            <div class="profile-stat-lbl">Престиж</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prestige-section">
+        <div style="font-size: 18px; font-weight: 800; color: #da70d6;">🌟 Престиж</div>
+        <div style="font-size: 12px; color: #aaa; margin-top: 4px;" id="prestige-info">Потрібно 1,000,000 XP</div>
+        <button class="prestige-btn" id="prestige-btn" disabled>Зробити престиж</button>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Титули</div>
+        <div class="titles-list" id="titles-list"></div>
+      </div>
+    </div>
+
     <!-- Нижня панель -->
     <div class="bottom-panel">
       <div class="bottom-stats">
@@ -310,13 +422,20 @@
         <span id="energy-label-bottom">200/200</span>
       </div>
       <div class="xp-row">
-        <span>XP: <span id="xp-display">0</span></span>
-        <span>Рівень <span id="level-display">1</span></span>
+        <span id="level-name">0 початківець</span>
+        <span><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
       </div>
+      <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar"></div></div>
     </div>
   </div>
 
   <div id="status"></div>
+
+  <!-- Анімація престижу -->
+  <div class="prestige-overlay" id="prestige-overlay">
+    <div class="prestige-glow">🌟</div>
+    <div class="prestige-text" id="prestige-text">PRESTIGE 1</div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -363,9 +482,23 @@
     const statusEl = document.getElementById('status');
     const cryptoListEl = document.getElementById('crypto-list');
     const shopListEl = document.getElementById('shop-list');
+    
     const xpDisplay = document.getElementById('xp-display');
-    const levelDisplay = document.getElementById('level-display');
+    const xpNext = document.getElementById('xp-next');
+    const xpBar = document.getElementById('xp-bar');
+    const levelName = document.getElementById('level-name');
     const autoTapLabel = document.getElementById('auto-tap-label');
+
+    const profName = document.getElementById('prof-name');
+    const profTitle = document.getElementById('prof-title');
+    const profCoins = document.getElementById('prof-coins');
+    const profXp = document.getElementById('prof-xp');
+    const profPrestige = document.getElementById('prof-prestige');
+    const prestigeInfo = document.getElementById('prestige-info');
+    const prestigeBtn = document.getElementById('prestige-btn');
+    const titlesList = document.getElementById('titles-list');
+    const prestigeOverlay = document.getElementById('prestige-overlay');
+    const prestigeText = document.getElementById('prestige-text');
 
     // === Стан ===
     let isLoginMode = true;
@@ -374,16 +507,15 @@
       energy: 200, 
       maxEnergy: 200,
       xp: 0,
+      prestige: 0,
+      title: '0 початківець',
       holdings: {},
       upgrades: {
         tapLevel: 0,
         tapPower: 1,
         xpPerTap: 1,
-        autoTapLevel: 0,
         autoTapRate: 0,
-        autoXpLevel: 0,
         autoXpRate: 0,
-        energyLevel: 0,
         energyRate: 1
       }
     };
@@ -394,11 +526,40 @@
     let currentUid = null;
     let currentShopTab = 'auto';
 
+    // === Рівні (XP) ===
+    const LEVELS = [
+      { name: '0 початківець', xp: 0 },
+      { name: '1 початківець', xp: 50 },
+      { name: '2 початківець', xp: 200 },
+      { name: '3 початківець', xp: 500 },
+      { name: '4 початківець', xp: 1500 },
+      { name: 'bronze 1', xp: 5000 },
+      { name: 'bronze 2', xp: 10000 },
+      { name: 'bronze 3', xp: 15000 },
+      { name: 'silver 1', xp: 50000 },
+      { name: 'silver 2', xp: 1000000 },
+      { name: 'silver 3', xp: 150000 },
+      { name: 'gold 1', xp: 300000 },
+      { name: 'gold 2', xp: 600000 },
+      { name: 'gold 3', xp: 900000 }
+    ];
+
+    // === Титули (відкриваються за престиж) ===
+    const TITLES = [
+      { name: 'Початківець', reqPrestige: 0 },
+      { name: 'Бронзовий Хом\'як', reqPrestige: 1 },
+      { name: 'Срібний Хом\'як', reqPrestige: 2 },
+      { name: 'Золотий Хом\'як', reqPrestige: 3 },
+      { name: 'Крипто-Магнат', reqPrestige: 4 },
+      { name: 'Легенда Hamka', reqPrestige: 5 }
+    ];
+
     // === Крипта ===
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
     const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
     const PLAYERHOM_BASE = 50;
     const PLAYERHOM_PER_UNIT = 2;
+    const CRYPTO_FEE = 0.02; // 2% комісія
 
     // === Магазин: Конфігурація ===
     const SHOP_ITEMS = {
@@ -423,7 +584,7 @@
         return item.prices[level];
       }
       if (item.prices && level >= item.prices.length) {
-        return Infinity; // досягнуто ліміту цін
+        return Infinity;
       }
       return Math.floor(item.basePrice * Math.pow(item.multiplier, level));
     }
@@ -549,6 +710,7 @@
         currentUid = user.uid;
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
+        profName.innerText = user.email?.split('@')[0] || 'Гравець';
         initGame(user.uid);
         initCryptoSystem();
       } else {
@@ -568,10 +730,10 @@
         item.classList.add('active');
         document.getElementById('page-' + item.dataset.page).classList.add('active');
         if (item.dataset.page === 'shop') renderShop();
+        if (item.dataset.page === 'profile') renderProfile();
       });
     });
 
-    // Магазин таби
     document.querySelectorAll('.shop-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
@@ -582,7 +744,7 @@
     });
 
     // ============================================================
-    // ГРА (ТАП)
+    // ГРА (ТАП + ЦИКЛ)
     // ============================================================
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
@@ -590,13 +752,11 @@
       get(userRef).then((snap) => {
         if (!snap.exists()) {
           set(userRef, { 
-            coins: 0, energy: 200, maxEnergy: 200, xp: 0, holdings: {},
+            coins: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0, title: '0 початківець', holdings: {},
             tapLevel: 0, tapPower: 1, xpPerTap: 1,
             autoTapRate: 0, autoXpRate: 0, energyRate: 1,
             createdAt: Date.now()
           });
-        } else {
-          update(userRef, { energyRate: snap.val().energyRate ?? 1 });
         }
       }).catch(err => console.error("Init user error:", err));
 
@@ -609,6 +769,8 @@
         state.energy = data.energy ?? 200;
         state.maxEnergy = data.maxEnergy ?? 200;
         state.xp = data.xp || 0;
+        state.prestige = data.prestige || 0;
+        state.title = data.title || '0 початківець';
         state.holdings = data.holdings || {};
         
         state.upgrades.tapLevel = data.tapLevel || 0;
@@ -619,14 +781,14 @@
         state.upgrades.energyRate = data.energyRate || 1;
 
         renderUI();
-        if (currentShopTab) renderShop();
+        if (document.getElementById('page-shop').classList.contains('active')) renderShop();
+        if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
         renderCryptoList();
       });
 
-      // Основний цикл гри (кожну секунду)
+      // Основний цикл гри
       if (gameLoop) clearInterval(gameLoop);
       gameLoop = setInterval(async () => {
-        // Логіка пасивного доходу
         const earn = state.upgrades.autoTapRate;
         const earnXp = state.upgrades.autoXpRate;
         const earnEnergy = state.upgrades.energyRate;
@@ -685,6 +847,18 @@
       };
     }
 
+    function getLevelInfo(xp) {
+      let currentLvl = LEVELS[0];
+      let nextLvl = LEVELS[1];
+      for (let i = 0; i < LEVELS.length; i++) {
+        if (xp >= LEVELS[i].xp) {
+          currentLvl = LEVELS[i];
+          nextLvl = LEVELS[i + 1] || LEVELS[i];
+        }
+      }
+      return { currentLvl, nextLvl };
+    }
+
     function renderUI() {
       const coinsStr = formatNumber(state.coins);
       tapCoinDisplay.innerText = coinsStr;
@@ -697,9 +871,14 @@
       energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
       energyDisplayBottom.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
 
-      const level = Math.floor(Math.sqrt(state.xp / 100)) + 1;
+      // XP Bar
+      const { currentLvl, nextLvl } = getLevelInfo(state.xp);
+      levelName.innerText = currentLvl.name;
       xpDisplay.innerText = formatNumber(state.xp);
-      levelDisplay.innerText = level;
+      xpNext.innerText = nextLvl.xp === currentLvl.xp ? 'MAX' : formatNumber(nextLvl.xp);
+      
+      const lvlProgress = nextLvl.xp === currentLvl.xp ? 100 : ((state.xp - currentLvl.xp) / (nextLvl.xp - currentLvl.xp)) * 100;
+      xpBar.style.width = Math.min(100, Math.max(0, lvlProgress)) + '%';
     }
 
     // ============================================================
@@ -786,7 +965,6 @@
 
         if (!success) { showStatus("❌ " + (errorMsg || "Помилка")); return; }
         
-        // Оновлюємо локальний стейт (щоб кнопка не блимала)
         if (itemId === 'autoTap') state.upgrades.autoTapRate++;
         else if (itemId === 'autoXp') state.upgrades.autoXpRate++;
         else if (itemId === 'energyRate') state.upgrades.energyRate++;
@@ -801,6 +979,75 @@
         showStatus("❌ Помилка транзакції");
       }
     }
+
+    // ============================================================
+    // ПРОФІЛЬ ТА ПРЕСТИЖ
+    // ============================================================
+    function getPrestigeReq(prestigeLvl) {
+      if (prestigeLvl === 0) return 1000000;
+      return 1000000 * Math.pow(2, prestigeLvl);
+    }
+
+    function renderProfile() {
+      profCoins.innerText = formatNumber(state.coins);
+      profXp.innerText = formatNumber(state.xp);
+      profPrestige.innerText = state.prestige;
+      profTitle.innerText = state.title;
+
+      const req = getPrestigeReq(state.prestige);
+      if (state.xp >= req) {
+        prestigeInfo.innerText = `Доступно! Ви отримаєте ${state.prestige + 1} престиж.`;
+        prestigeBtn.disabled = false;
+      } else {
+        prestigeInfo.innerText = `Потрібно ${formatNumber(req)} XP (у вас ${formatNumber(state.xp)})`;
+        prestigeBtn.disabled = true;
+      }
+
+      titlesList.innerHTML = '';
+      TITLES.forEach(t => {
+        const isAvailable = state.prestige >= t.reqPrestige;
+        const isCurrent = state.title === t.name;
+        const el = document.createElement('div');
+        el.className = `title-item ${isAvailable ? 'available' : 'locked'} ${isCurrent ? 'current' : ''}`;
+        el.innerText = `${t.name} (Потрібно: ${t.reqPrestige} пр.)`;
+        if (isAvailable && !isCurrent) {
+          el.addEventListener('click', () => selectTitle(t.name));
+        }
+        titlesList.appendChild(el);
+      });
+    }
+
+    async function selectTitle(newTitle) {
+      if (!currentUid) return;
+      const userRef = ref(db, 'users/' + currentUid);
+      await update(userRef, { title: newTitle });
+      showStatus('✅ Титул змінено!');
+    }
+
+    prestigeBtn.addEventListener('click', async () => {
+      if (!currentUid) return;
+      const req = getPrestigeReq(state.prestige);
+      if (state.xp < req) return;
+
+      const userRef = ref(db, 'users/' + currentUid);
+      const newPrestige = state.prestige + 1;
+      
+      // Анімація
+      prestigeText.innerText = `PRESTIGE ${newPrestige}`;
+      prestigeOverlay.classList.add('show');
+      setTimeout(() => prestigeOverlay.classList.remove('show'), 2500);
+
+      await runTransaction(userRef, (data) => {
+        if (!data) return data;
+        if ((data.xp || 0) < req) return;
+        data.xp = (data.xp || 0) - req;
+        data.prestige = (data.prestige || 0) + 1;
+        return data;
+      });
+
+      renderProfile();
+      try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+    });
 
     // ============================================================
     // КРИПТА (5 монет)
@@ -897,6 +1144,10 @@
         const holdingValue = holding * price;
         const qty = getQty(symbol);
 
+        // Розрахунок з комісією для відображення
+        const buyPrice = price * (1 + CRYPTO_FEE);
+        const sellPrice = price * (1 - CRYPTO_FEE);
+
         const card = document.createElement('div');
         card.className = 'crypto-card';
         card.innerHTML = `
@@ -907,8 +1158,8 @@
           <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
           <div class="crypto-actions">
             <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
-            <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити</button>
-            <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">Продати</button>
+            <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">Купити (${formatPrice(buyPrice)})</button>
+            <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">Продати (${formatPrice(sellPrice)})</button>
           </div>
           <div class="crypto-holdings">У вас: <span>${holding}</span> ${symbol} (≈ ${formatPrice(holdingValue)} 🪙)</div>
         `;
@@ -974,27 +1225,35 @@
       if (!info) return;
 
       const price = info.price;
-      const total = price * qty;
       const userRef = ref(db, 'users/' + currentUid);
 
       try {
         let success = false;
         let errorMsg = '';
+        let finalTotal = 0;
 
         await runTransaction(userRef, (data) => {
           if (!data) return data;
           if (!data.holdings) data.holdings = {};
 
           if (action === 'buy') {
+            // Купівля за ціною + комісія 2%
+            const buyPrice = price * (1 + CRYPTO_FEE);
+            const total = buyPrice * qty;
             if ((data.coins || 0) < total) { errorMsg = 'Недостатньо монет'; return; }
             data.coins = (data.coins || 0) - total;
             data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
+            finalTotal = total;
             success = true;
           } else {
+            // Продаж за ціною - комісія 2%
+            const sellPrice = price * (1 - CRYPTO_FEE);
+            const total = sellPrice * qty;
             const owned = data.holdings[symbol] || 0;
             if (owned < qty) { errorMsg = `У вас лише ${owned} ${symbol}`; return; }
             data.coins = (data.coins || 0) + total;
             data.holdings[symbol] = owned - qty;
+            finalTotal = total;
             success = true;
           }
           return data;
@@ -1005,8 +1264,8 @@
         if (symbol === 'PLAYERHOM') await recalcPlayerhomPrice();
 
         showStatus(action === 'buy'
-          ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(total)} 🪙`
-          : `✅ Продано ${qty} ${symbol} за ${formatPrice(total)} 🪙`);
+          ? `✅ Куплено ${qty} ${symbol} за ${formatPrice(finalTotal)} 🪙 (комісія 2%)`
+          : `✅ Продано ${qty} ${symbol} за ${formatPrice(finalTotal)} 🪙 (комісія 2%)`);
 
         try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
       } catch (err) {
