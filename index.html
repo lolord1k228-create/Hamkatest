@@ -87,6 +87,11 @@
       border-radius: 20px; font-size: 11px; font-weight: 700;
       display: flex; align-items: center; gap: 4px; white-space: nowrap;
     }
+    .admin-btn-badge {
+      background: #ff3333; color: #fff; padding: 4px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      cursor: pointer; display: none; align-items: center; gap: 4px;
+    }
 
     .main-menu {
       display: flex; justify-content: space-around; align-items: center;
@@ -273,6 +278,14 @@
     .modal-btn.cancel { background: #333; color: #fff; }
     .modal-btn.confirm { background: #2ecc71; color: #000; }
 
+    /* Адмінка */
+    .admin-input-group { margin-bottom: 12px; text-align: left; }
+    .admin-input-group label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+    .admin-input {
+      width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333;
+      border-radius: 8px; color: #fff; font-size: 14px; outline: none;
+    }
+
     /* Нижня панель */
     .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
     .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; margin-bottom: 4px; }
@@ -347,7 +360,10 @@
       <div class="top-stats-group">
         <div class="stat-pill"><span class="icon">🪙</span> <span id="top-coins">0</span></div>
       </div>
-      <div class="season-badge">🏆 Сезон 1</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div class="admin-btn-badge" id="admin-btn-badge" onclick="document.getElementById('modal-admin').classList.add('show')">🛠 Адмін</div>
+        <div class="season-badge">🏆 Сезон 1</div>
+      </div>
     </div>
 
     <div class="main-menu">
@@ -483,6 +499,35 @@
     </div>
   </div>
 
+  <!-- Модалка Адмінки -->
+  <div class="modal-overlay" id="modal-admin">
+    <div class="modal-content">
+      <div class="modal-title">🛠 Адмін Панель</div>
+      
+      <div class="admin-input-group">
+        <label>Додати монет:</label>
+        <input type="number" class="admin-input" id="admin-coins-input" placeholder="Кількість">
+        <button class="modal-btn confirm" style="width:100%; margin-top:8px;" onclick="adminAddCoins()">Нарахувати</button>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Додати XP:</label>
+        <input type="number" class="admin-input" id="admin-xp-input" placeholder="Кількість">
+        <button class="modal-btn confirm" style="width:100%; margin-top:8px;" onclick="adminAddXp()">Нарахувати</button>
+      </div>
+
+      <div class="modal-input-group">
+        <label>Змінити престиж:</label>
+        <input type="number" class="admin-input" id="admin-prestige-input" placeholder="Новий престиж">
+        <button class="modal-btn confirm" style="width:100%; margin-top:8px;" onclick="adminSetPrestige()">Встановити</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="document.getElementById('modal-admin').classList.remove('show')">Закрити</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Анімація престижу -->
   <div class="prestige-overlay" id="prestige-overlay">
     <div class="prestige-glow">🌟</div>
@@ -522,6 +567,7 @@
     const authError = document.getElementById('auth-error');
     const authSubmit = document.getElementById('auth-submit');
     const tgLoginBtn = document.getElementById('tg-login-btn');
+    const adminBtnBadge = document.getElementById('admin-btn-badge');
 
     const tapCoinDisplay = document.getElementById('tap-coin-display');
     const topCoins = document.getElementById('top-coins');
@@ -591,6 +637,7 @@
     let currentUid = null;
     let currentShopTab = 'auto';
     let pendingCosmeticBuy = null;
+    let isAdmin = false;
 
     // === Рівні (XP) ===
     const LEVELS = [
@@ -620,7 +667,7 @@
       { name: 'Легенда Hamka', reqPrestige: 5 }
     ];
 
-    // === Косметика (Аватарки тепер ПЛАТНІ) ===
+    // === Косметика ===
     const COSMETICS = [
       { id: 'title_crypto_baron', type: 'title', name: 'Крипто-Барон', price: 10000 },
       { id: 'title_tap_god', type: 'title', name: 'Бог Тапів', price: 50000 },
@@ -632,7 +679,6 @@
       { id: 'avatar_alien', type: 'avatar', name: '👽', price: 40000 }
     ];
 
-    // Безкоштовна тільки стартова 🐭
     const BASE_AVATARS = ['🐭'];
 
     // === Крипта ===
@@ -753,7 +799,6 @@
       }
     });
 
-    // === ВИПРАВЛЕНИЙ ВХІД ЧЕРЕЗ TELEGRAM ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
@@ -761,7 +806,6 @@
         return;
       }
       
-      // Використовуємо ID для генерації стабільного email та пароля
       const email = `tg_${tgUser.id}@hamka.test`;
       const password = `tg_${tgUser.id}_secure_pass_123!`;
 
@@ -769,10 +813,8 @@
       authError.innerText = '';
       
       try {
-        // Спочатку пробуємо увійти
         await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
-        // Якщо акаунта немає, створюємо його
         if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials') {
           try {
             await createUserWithEmailAndPassword(auth, email, password);
@@ -797,6 +839,7 @@
         profName.innerText = user.email?.split('@')[0] || 'Гравець';
         initGame(user.uid);
         initCryptoSystem();
+        checkAdminStatus(user.uid);
       } else {
         currentUid = null;
         authScreen.classList.remove('hidden');
@@ -827,6 +870,62 @@
         renderShop();
       });
     });
+
+    // ============================================================
+    // АДМІНКА
+    // ============================================================
+    async function checkAdminStatus(uid) {
+      try {
+        const snap = await get(ref(db, 'admins/' + uid));
+        if (snap.exists() && snap.val() === true) {
+          isAdmin = true;
+          adminBtnBadge.style.display = 'flex';
+        } else {
+          isAdmin = false;
+          adminBtnBadge.style.display = 'none';
+        }
+      } catch (err) {
+        console.error("Admin check error:", err);
+      }
+    }
+
+    window.adminAddCoins = async () => {
+      if (!isAdmin || !currentUid) return;
+      const amount = parseInt(document.getElementById('admin-coins-input').value);
+      if (!amount || amount <= 0) { showStatus('❌ Введіть суму'); return; }
+      
+      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+        if (!data) return data;
+        data.coins = (data.coins || 0) + amount;
+        return data;
+      });
+      showStatus(`✅ Нараховано ${amount} монет`);
+      document.getElementById('admin-coins-input').value = '';
+    };
+
+    window.adminAddXp = async () => {
+      if (!isAdmin || !currentUid) return;
+      const amount = parseInt(document.getElementById('admin-xp-input').value);
+      if (!amount || amount <= 0) { showStatus('❌ Введіть суму'); return; }
+      
+      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+        if (!data) return data;
+        data.xp = (data.xp || 0) + amount;
+        return data;
+      });
+      showStatus(`✅ Нараховано ${amount} XP`);
+      document.getElementById('admin-xp-input').value = '';
+    };
+
+    window.adminSetPrestige = async () => {
+      if (!isAdmin || !currentUid) return;
+      const amount = parseInt(document.getElementById('admin-prestige-input').value);
+      if (isNaN(amount) || amount < 0) { showStatus('❌ Введіть число'); return; }
+      
+      await update(ref(db, 'users/' + currentUid), { prestige: amount });
+      showStatus(`✅ Престиж встановлено на ${amount}`);
+      document.getElementById('admin-prestige-input').value = '';
+    };
 
     // ============================================================
     // ГРА
@@ -1202,7 +1301,6 @@
     // ІНВЕНТАР
     // ============================================================
     function renderInventory() {
-      // Титули
       const availableTitles = [
         ...PRESTIGE_TITLES.filter(t => state.prestige >= t.reqPrestige).map(t => t.name),
         ...state.purchasedTitles
@@ -1221,7 +1319,6 @@
         invTitles.appendChild(el);
       });
 
-      // Аватарки
       const availableAvatars = [...BASE_AVATARS, ...state.purchasedAvatars];
       invAvatars.innerHTML = '';
       availableAvatars.forEach(avName => {
@@ -1460,4 +1557,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
