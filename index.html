@@ -91,11 +91,13 @@
     .main-menu {
       display: flex; justify-content: space-around; align-items: center;
       padding: 10px 6px; background: #111; border-bottom: 1px solid #222;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .main-menu::-webkit-scrollbar { display: none; }
     .menu-item {
       display: flex; flex-direction: column; align-items: center;
       gap: 3px; color: #666; font-size: 10px; font-weight: 600;
-      min-width: 55px; cursor: pointer;
+      min-width: 50px; cursor: pointer;
     }
     .menu-item.active { color: #fff; }
     .menu-item.active .menu-icon-wrap {
@@ -166,6 +168,12 @@
       background: #2ecc71; color: #000; cursor: pointer; white-space: nowrap;
     }
     .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+    
+    .cosmetic-preview {
+      width: 50px; height: 50px; border-radius: 12px; background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center; font-size: 32px;
+      margin-right: 12px; flex-shrink: 0;
+    }
 
     /* Крипта */
     .crypto-card {
@@ -207,11 +215,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 40px; box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
     }
-    .edit-avatar-btn {
-      position: absolute; bottom: 0; right: -10px;
-      background: #2ecc71; border: none; border-radius: 50%; width: 28px; height: 28px;
-      font-size: 14px; cursor: pointer; color: #000;
-    }
     .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
     .profile-title-badge {
       display: inline-flex; align-items: center; gap: 6px;
@@ -219,9 +222,6 @@
       background: linear-gradient(90deg, #8a2be2, #da70d6);
       font-size: 12px; font-weight: 700; color: #fff;
       box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
-    }
-    .edit-title-btn {
-      background: transparent; border: none; cursor: pointer; color: #fff; font-size: 12px;
     }
     .profile-stats {
       display: flex; justify-content: space-around; margin-top: 16px;
@@ -235,15 +235,20 @@
       background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3);
       border-radius: 14px; padding: 16px; text-align: center;
     }
-    .titles-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .title-item {
-      padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center;
-      cursor: pointer; color: #fff; border: 1px solid transparent;
-    }
-    .title-item.available { background: linear-gradient(90deg, #6a1b9a, #ab47bc); }
-    .title-item.current { border: 2px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
 
-    /* Модалка вибору */
+    /* Інвентар */
+    .inventory-section { margin-bottom: 16px; }
+    .inventory-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #f5a623; }
+    .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .inventory-item {
+      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; text-align: center;
+      cursor: pointer; border: 2px solid transparent; position: relative;
+    }
+    .inventory-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+    .inventory-item-icon { font-size: 24px; }
+    .inventory-item-name { font-size: 10px; margin-top: 4px; color: #aaa; }
+
+    /* Модалки */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.8);
       display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -255,13 +260,18 @@
       padding: 20px; width: 100%; max-width: 340px;
     }
     .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; text-align: center; }
-    .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .avatar-option {
-      font-size: 32px; text-align: center; padding: 8px; cursor: pointer;
-      background: rgba(255,255,255,0.05); border-radius: 8px;
-      border: 1px solid transparent;
+    
+    .preview-box {
+      width: 100px; height: 100px; border-radius: 20px; background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center; font-size: 60px;
+      margin: 0 auto 16px;
     }
-    .avatar-option.selected { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-btn {
+      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .modal-btn.cancel { background: #333; color: #fff; }
+    .modal-btn.confirm { background: #2ecc71; color: #000; }
 
     /* Нижня панель */
     .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
@@ -357,6 +367,10 @@
         <div class="menu-icon-wrap">👤</div>
         <span>Профіль</span>
       </div>
+      <div class="menu-item" data-page="inventory">
+        <div class="menu-icon-wrap">🎒</div>
+        <span>Інвентар</span>
+      </div>
     </div>
 
     <!-- Сторінка ТАП -->
@@ -392,12 +406,10 @@
       <div class="profile-card">
         <div class="profile-avatar-wrap">
           <div class="profile-avatar" id="prof-avatar">🐭</div>
-          <button class="edit-avatar-btn" id="btn-change-avatar">✏️</button>
         </div>
         <div class="profile-name" id="prof-name">Гравець</div>
-        <div class="profile-title-badge" id="prof-title-badge">
+        <div class="profile-title-badge">
           <span id="prof-title">Початківець</span>
-          <button class="edit-title-btn" id="btn-change-title">✏️</button>
         </div>
         
         <div class="profile-stats">
@@ -419,12 +431,18 @@
       <div class="prestige-section">
         <div style="font-size: 18px; font-weight: 800; color: #da70d6;">🌟 Престиж</div>
         <div style="font-size: 12px; color: #aaa; margin-top: 4px;" id="prestige-info">Потрібно 1,000,000 XP</div>
-        <!-- Кнопку прибрано, престиж автоматичний -->
       </div>
+    </div>
 
-      <div style="margin-top: 16px;" id="titles-section">
-        <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Ваші титули</div>
-        <div class="titles-list" id="titles-list"></div>
+    <!-- Сторінка ІНВЕНТАР -->
+    <div class="page scroll-page" id="page-inventory">
+      <div class="inventory-section">
+        <div class="inventory-title">Титули</div>
+        <div class="inventory-grid" id="inv-titles"></div>
+      </div>
+      <div class="inventory-section">
+        <div class="inventory-title">Аватарки</div>
+        <div class="inventory-grid" id="inv-avatars"></div>
       </div>
     </div>
 
@@ -451,19 +469,17 @@
 
   <div id="status"></div>
 
-  <!-- Модалка вибору аватарки -->
-  <div class="modal-overlay" id="modal-avatar">
+  <!-- Модалка прев'ю покупки -->
+  <div class="modal-overlay" id="modal-buy">
     <div class="modal-content">
-      <div class="modal-title">Виберіть аватарку</div>
-      <div class="avatar-grid" id="avatar-grid"></div>
-    </div>
-  </div>
-
-  <!-- Модалка вибору титулу -->
-  <div class="modal-overlay" id="modal-title">
-    <div class="modal-content">
-      <div class="modal-title">Виберіть титул</div>
-      <div class="titles-list" id="modal-titles-list"></div>
+      <div class="modal-title">Підтвердження покупки</div>
+      <div class="preview-box" id="buy-preview-icon"></div>
+      <div style="text-align:center; font-weight:700; margin-bottom:4px;" id="buy-preview-name"></div>
+      <div style="text-align:center; color:#ffd700; font-weight:700;" id="buy-preview-price"></div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="btn-cancel-buy">Скасувати</button>
+        <button class="modal-btn confirm" id="btn-confirm-buy">Купити</button>
+      </div>
     </div>
   </div>
 
@@ -532,12 +548,16 @@
     const profXp = document.getElementById('prof-xp');
     const profPrestige = document.getElementById('prof-prestige');
     const prestigeInfo = document.getElementById('prestige-info');
-    const titlesList = document.getElementById('titles-list');
     
-    const modalAvatar = document.getElementById('modal-avatar');
-    const avatarGrid = document.getElementById('avatar-grid');
-    const modalTitle = document.getElementById('modal-title');
-    const modalTitlesList = document.getElementById('modal-titles-list');
+    const invTitles = document.getElementById('inv-titles');
+    const invAvatars = document.getElementById('inv-avatars');
+
+    const modalBuy = document.getElementById('modal-buy');
+    const buyPreviewIcon = document.getElementById('buy-preview-icon');
+    const buyPreviewName = document.getElementById('buy-preview-name');
+    const buyPreviewPrice = document.getElementById('buy-preview-price');
+    const btnCancelBuy = document.getElementById('btn-cancel-buy');
+    const btnConfirmBuy = document.getElementById('btn-confirm-buy');
 
     const prestigeOverlay = document.getElementById('prestige-overlay');
     const prestigeText = document.getElementById('prestige-text');
@@ -570,6 +590,7 @@
     let cryptoInterval = null;
     let currentUid = null;
     let currentShopTab = 'auto';
+    let pendingCosmeticBuy = null;
 
     // === Рівні (XP) ===
     const LEVELS = [
@@ -589,7 +610,7 @@
       { name: 'gold 3', xp: 900000 }
     ];
 
-    // === Титули (відкриваються за престиж) ===
+    // === Титули ===
     const PRESTIGE_TITLES = [
       { name: 'Початківець', reqPrestige: 0 },
       { name: 'Бронзовий Хом\'як', reqPrestige: 1 },
@@ -599,17 +620,20 @@
       { name: 'Легенда Hamka', reqPrestige: 5 }
     ];
 
-    // === Косметика ===
+    // === Косметика (Аватарки тепер ПЛАТНІ) ===
     const COSMETICS = [
       { id: 'title_crypto_baron', type: 'title', name: 'Крипто-Барон', price: 10000 },
       { id: 'title_tap_god', type: 'title', name: 'Бог Тапів', price: 50000 },
       { id: 'avatar_dog', type: 'avatar', name: '🐶', price: 5000 },
       { id: 'avatar_cat', type: 'avatar', name: '🐱', price: 5000 },
       { id: 'avatar_lion', type: 'avatar', name: '🦁', price: 15000 },
-      { id: 'avatar_unicorn', type: 'avatar', name: '🦄', price: 30000 }
+      { id: 'avatar_panda', type: 'avatar', name: '🐼', price: 20000 },
+      { id: 'avatar_unicorn', type: 'avatar', name: '🦄', price: 30000 },
+      { id: 'avatar_alien', type: 'avatar', name: '👽', price: 40000 }
     ];
 
-    const BASE_AVATARS = ['🐭', '🐹', '🐸', '🐼', '🐨', '🐵', '👽', '👾'];
+    // Безкоштовна тільки стартова 🐭
+    const BASE_AVATARS = ['🐭'];
 
     // === Крипта ===
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
@@ -698,7 +722,7 @@
         'auth/invalid-credential': 'Невірний нікнейм або пароль',
         'auth/too-many-requests': 'Занадто багато спроб',
         'auth/network-request-failed': 'Мережева помилка',
-        'auth/operation-not-allowed': 'Увімкніть Email/Password у Firebase',
+        'auth/operation-not-allowed': 'Увімкніть Email/Password у Firebase Console',
         'auth/unauthorized-domain': 'Домен не авторизований',
         'auth/internal-error': 'Помилка Firebase'
       };
@@ -729,29 +753,37 @@
       }
     });
 
+    // === ВИПРАВЛЕНИЙ ВХІД ЧЕРЕЗ TELEGRAM ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
         authError.innerText = 'Відкрийте гру через Telegram-бота';
         return;
       }
+      
+      // Використовуємо ID для генерації стабільного email та пароля
       const email = `tg_${tgUser.id}@hamka.test`;
-      const password = `tg_${tgUser.id}_secret`;
+      const password = `tg_${tgUser.id}_secure_pass_123!`;
 
       tgLoginBtn.disabled = true;
       authError.innerText = '';
+      
       try {
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-        } catch (e) {
-          if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
+        // Спочатку пробуємо увійти
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (e) {
+        // Якщо акаунта немає, створюємо його
+        if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials') {
+          try {
             await createUserWithEmailAndPassword(auth, email, password);
-          } else {
-            throw e;
+          } catch (createErr) {
+            console.error(createErr);
+            authError.innerText = getAuthErrorMessage(createErr);
           }
+        } else {
+          console.error(e);
+          authError.innerText = getAuthErrorMessage(e);
         }
-      } catch (err) {
-        authError.innerText = getAuthErrorMessage(err);
       } finally {
         tgLoginBtn.disabled = false;
       }
@@ -783,6 +815,7 @@
         document.getElementById('page-' + item.dataset.page).classList.add('active');
         if (item.dataset.page === 'shop') renderShop();
         if (item.dataset.page === 'profile') renderProfile();
+        if (item.dataset.page === 'inventory') renderInventory();
       });
     });
 
@@ -837,12 +870,11 @@
         state.upgrades.energyRate = data.energyRate || 1;
 
         renderUI();
-        
-        // Автоматичний престиж
         checkAutoPrestige();
 
         if (document.getElementById('page-shop').classList.contains('active')) renderShop();
         if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
+        if (document.getElementById('page-inventory').classList.contains('active')) renderInventory();
         renderCryptoList();
       });
 
@@ -980,8 +1012,9 @@
           const card = document.createElement('div');
           card.className = 'shop-card';
           card.innerHTML = `
+            <div class="cosmetic-preview">${item.type === 'avatar' ? item.name : '🏆'}</div>
             <div class="shop-card-info">
-              <div class="shop-card-title">${item.type === 'avatar' ? item.name : item.title || item.name}</div>
+              <div class="shop-card-title">${item.type === 'avatar' ? 'Аватарка' : item.name}</div>
               <div class="shop-card-desc">${item.type === 'title' ? 'Титул' : 'Аватарка'}</div>
               <div class="shop-card-price">${formatNumber(item.price)} 🪙</div>
             </div>
@@ -993,7 +1026,7 @@
         });
 
         shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
-          btn.addEventListener('click', () => buyCosmetic(btn.dataset.cosmeticId));
+          btn.addEventListener('click', () => openBuyModal(btn.dataset.cosmeticId));
         });
         return;
       }
@@ -1031,6 +1064,29 @@
         btn.addEventListener('click', () => buyUpgrade(btn.dataset.id));
       });
     }
+
+    function openBuyModal(cosmeticId) {
+      const item = COSMETICS.find(c => c.id === cosmeticId);
+      if (!item) return;
+      pendingCosmeticBuy = item;
+      
+      buyPreviewIcon.innerText = item.type === 'avatar' ? item.name : '🏆';
+      buyPreviewName.innerText = item.type === 'avatar' ? 'Аватарка' : item.name;
+      buyPreviewPrice.innerText = formatNumber(item.price) + ' 🪙';
+      modalBuy.classList.add('show');
+    }
+
+    btnCancelBuy.addEventListener('click', () => {
+      modalBuy.classList.remove('show');
+      pendingCosmeticBuy = null;
+    });
+
+    btnConfirmBuy.addEventListener('click', async () => {
+      if (!pendingCosmeticBuy || !currentUid) return;
+      modalBuy.classList.remove('show');
+      await buyCosmetic(pendingCosmeticBuy);
+      pendingCosmeticBuy = null;
+    });
 
     async function buyUpgrade(itemId) {
       if (!currentUid) return;
@@ -1090,11 +1146,7 @@
       }
     }
 
-    async function buyCosmetic(cosmeticId) {
-      if (!currentUid) return;
-      const item = COSMETICS.find(c => c.id === cosmeticId);
-      if (!item) return;
-
+    async function buyCosmetic(item) {
       const userRef = ref(db, 'users/' + currentUid);
       try {
         let success = false;
@@ -1119,7 +1171,7 @@
 
         if (!success) { showStatus("❌ " + (errorMsg || "Помилка")); return; }
         
-        showStatus(`✅ Куплено!`);
+        showStatus(`✅ Куплено! Перевірте інвентар.`);
         renderShop();
         try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
       } catch (err) {
@@ -1144,83 +1196,46 @@
       } else {
         prestigeInfo.innerText = `Потрібно ${formatNumber(req)} XP (у вас ${formatNumber(state.xp)})`;
       }
+    }
 
-      // Показуємо тільки відкриті титули
+    // ============================================================
+    // ІНВЕНТАР
+    // ============================================================
+    function renderInventory() {
+      // Титули
       const availableTitles = [
         ...PRESTIGE_TITLES.filter(t => state.prestige >= t.reqPrestige).map(t => t.name),
         ...state.purchasedTitles
       ];
 
-      titlesList.innerHTML = '';
+      invTitles.innerHTML = '';
       availableTitles.forEach(tName => {
-        const isCurrent = state.title === tName;
         const el = document.createElement('div');
-        el.className = `title-item available ${isCurrent ? 'current' : ''}`;
-        el.innerText = tName;
-        if (!isCurrent) {
-          el.addEventListener('click', () => selectTitle(tName));
-        }
-        titlesList.appendChild(el);
-      });
-
-      // Оновлення модалки титулів
-      modalTitlesList.innerHTML = '';
-      availableTitles.forEach(tName => {
-        const isCurrent = state.title === tName;
-        const el = document.createElement('div');
-        el.className = `title-item available ${isCurrent ? 'current' : ''}`;
-        el.innerText = tName;
-        el.addEventListener('click', () => {
-          selectTitle(tName);
-          modalTitle.classList.remove('show');
+        el.className = `inventory-item ${state.title === tName ? 'active' : ''}`;
+        el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name">${tName}</div>`;
+        el.addEventListener('click', async () => {
+          if (!currentUid) return;
+          await update(ref(db, 'users/' + currentUid), { title: tName });
+          showStatus('✅ Титул вдягнуто!');
         });
-        modalTitlesList.appendChild(el);
+        invTitles.appendChild(el);
       });
-    }
 
-    async function selectTitle(newTitle) {
-      if (!currentUid) return;
-      const userRef = ref(db, 'users/' + currentUid);
-      await update(userRef, { title: newTitle });
-      showStatus('✅ Титул змінено!');
-    }
-
-    document.getElementById('btn-change-title').addEventListener('click', () => {
-      renderProfile(); // Оновлюємо список
-      modalTitle.classList.add('show');
-    });
-
-    // Аватарки
-    document.getElementById('btn-change-avatar').addEventListener('click', () => {
-      avatarGrid.innerHTML = '';
-      const allAvatars = [...BASE_AVATARS, ...state.purchasedAvatars];
-      
-      allAvatars.forEach(av => {
+      // Аватарки
+      const availableAvatars = [...BASE_AVATARS, ...state.purchasedAvatars];
+      invAvatars.innerHTML = '';
+      availableAvatars.forEach(avName => {
         const el = document.createElement('div');
-        el.className = `avatar-option ${state.avatar === av ? 'selected' : ''}`;
-        el.innerText = av;
-        el.addEventListener('click', () => {
-          selectAvatar(av);
-          modalAvatar.classList.remove('show');
+        el.className = `inventory-item ${state.avatar === avName ? 'active' : ''}`;
+        el.innerHTML = `<div class="inventory-item-icon">${avName}</div>`;
+        el.addEventListener('click', async () => {
+          if (!currentUid) return;
+          await update(ref(db, 'users/' + currentUid), { avatar: avName });
+          showStatus('✅ Аватарку змінено!');
         });
-        avatarGrid.appendChild(el);
+        invAvatars.appendChild(el);
       });
-      modalAvatar.classList.add('show');
-    });
-
-    async function selectAvatar(newAvatar) {
-      if (!currentUid) return;
-      const userRef = ref(db, 'users/' + currentUid);
-      await update(userRef, { avatar: newAvatar });
-      showStatus('✅ Аватарку змінено!');
     }
-
-    // Закриття модалок при кліку поза ними
-    [modalAvatar, modalTitle].forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('show');
-      });
-    });
 
     // ============================================================
     // КРИПТА
@@ -1445,4 +1460,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
