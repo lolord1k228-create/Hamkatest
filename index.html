@@ -21,8 +21,7 @@
     #auth-screen {
       position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; transition: opacity 0.3s, visibility 0.3s;
-      overflow-y: auto;
+      padding: 24px; transition: opacity 0.3s, visibility 0.3s; overflow-y: auto;
     }
     #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     
@@ -30,36 +29,21 @@
     .auth-title { font-size: 36px; font-weight: 800; color: #2ecc71; margin-bottom: 6px; letter-spacing: -0.5px; }
     .auth-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; text-align: center; }
 
-    /* Перемикач Вхід / Реєстрація */
-    .auth-tabs {
-      display: flex; width: 100%; max-width: 340px; gap: 10px; margin-bottom: 20px;
-    }
+    .auth-tabs { display: flex; width: 100%; max-width: 340px; gap: 10px; margin-bottom: 20px; }
     .auth-tab {
       flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
       text-align: center; cursor: pointer; border: 1px solid #222; color: #aaa;
       background: transparent; transition: 0.2s;
     }
-    .auth-tab.active {
-      background: #0f1f15; color: #fff; border-color: #2ecc71;
-    }
+    .auth-tab.active { background: #0f1f15; color: #fff; border-color: #2ecc71; }
 
-    .auth-hint-top {
-      font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
-    }
-
+    .auth-hint-top { font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
     .auth-form { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; }
     
-    /* Поля вводу */
-    .input-wrap {
-      position: relative; width: 100%;
-    }
-    .input-icon {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 16px; color: #555; pointer-events: none;
-    }
+    .input-wrap { position: relative; width: 100%; }
+    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #555; pointer-events: none; }
     .auth-input {
-      width: 100%; padding: 16px 16px 16px 44px; 
-      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
+      width: 100%; padding: 16px 16px 16px 44px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
       color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
     }
     .auth-input:focus { border-color: #2ecc71; }
@@ -67,7 +51,6 @@
 
     .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 16px; margin-top: 4px; }
 
-    /* Кнопки */
     .auth-btn {
       width: 100%; max-width: 340px; padding: 16px; border: none; border-radius: 12px;
       font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
@@ -78,10 +61,7 @@
     
     .btn-green { background: #2ecc71; color: #000; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
     .btn-blue { background: #2aabee; color: #fff; }
-    .btn-purple { background: #9b59b6; color: #fff; }
-    .btn-orange { background: #f39c12; color: #fff; }
 
-    /* Розділювач */
     .auth-divider {
       display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px; 
       margin: 10px 0; width: 100%; max-width: 340px;
@@ -92,7 +72,6 @@
     #game-screen { display: none; flex-direction: column; height: 100%; }
     #game-screen.visible { display: flex; }
 
-    /* Верхня панель статистики */
     .top-stats {
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 12px; background: #000; font-size: 12px; font-weight: 600;
@@ -109,7 +88,6 @@
       display: flex; align-items: center; gap: 4px; white-space: nowrap;
     }
 
-    /* Головне меню */
     .main-menu {
       display: flex; justify-content: space-around; align-items: center;
       padding: 10px 6px; background: #111; border-bottom: 1px solid #222;
@@ -131,10 +109,7 @@
       font-size: 16px; background: rgba(255,255,255,0.05); color: #888;
     }
 
-    /* Кольорові кнопки */
-    .action-buttons {
-      display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: #000;
-    }
+    .action-buttons { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: #000; }
     .color-btn {
       flex: 1; min-width: 70px; padding: 8px 10px; border: none; border-radius: 20px;
       font-size: 12px; font-weight: 700; color: #fff;
@@ -143,11 +118,7 @@
     .color-btn:active { opacity: 0.8; }
     .btn-tap { background: #2ecc71; color: #000; }
     .btn-crypto { background: #f39c12; }
-    .btn-garage { background: #9b59b6; }
-    .btn-daily { background: #e67e22; }
-    .btn-extra { background: #e91e63; }
 
-    /* Зона тапання */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -185,6 +156,7 @@
     .page.active { display: flex; }
     .crypto-page { padding: 8px 12px 100px; }
 
+    /* Крипта */
     .crypto-card {
       background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px; padding: 12px; margin-bottom: 10px;
@@ -209,7 +181,6 @@
     .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
     .crypto-holdings span { color: #f5a623; font-weight: 600; }
 
-    /* Нижня панель */
     .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
     .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; margin-bottom: 4px; }
     .energy-bar-wrap { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; }
@@ -217,28 +188,24 @@
     .energy-labels { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 2px; }
     .coin-bottom { text-align: center; font-size: 14px; font-weight: 700; color: #ffd700; margin: 6px 0; }
     .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; }
-    .promo-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; margin-top: 6px; }
-    .promo-btn { background: #2ecc71; color: #000; border: none; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
     #status {
       position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.9); padding: 10px 20px; border-radius: 10px;
       font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
       white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.1);
-      max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
     }
     #status.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- ===== АВТОРИЗАЦІЯ (СТИЛЬ ЯК НА СКРІНШОТІ) ===== -->
+  <!-- ===== АВТОРИЗАЦІЯ ===== -->
   <div id="auth-screen">
     <div class="auth-logo-img">🐭</div>
     <div class="auth-title">Hamka</div>
     <div class="auth-subtitle">Крипто-клікер з апгрейдами</div>
 
-    <!-- Вкладки Вхід / Реєстрація -->
     <div class="auth-tabs">
       <div class="auth-tab active" id="tab-login">Вхід</div>
       <div class="auth-tab" id="tab-register">Реєстрація</div>
@@ -247,7 +214,6 @@
     <div class="auth-hint-top">🔒 Виберіть спосіб входу</div>
 
     <div class="auth-form">
-      <!-- Поля вводу -->
       <div class="input-wrap">
         <span class="input-icon">👤</span>
         <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм">
@@ -259,25 +225,15 @@
       
       <div class="auth-error" id="auth-error"></div>
 
-      <!-- Кнопка входу/реєстрації -->
       <button class="auth-btn btn-green" id="auth-submit">👉 Увійти</button>
       
       <div class="auth-divider">або</div>
-
-      <!-- Інші способи -->
       <button class="auth-btn btn-blue" id="tg-login-btn">📱 Увійти через Telegram</button>
-      <div class="auth-divider">або</div>
-      
-      <button class="auth-btn btn-purple" id="guest-login-btn">🎮 Гість</button>
-      <div class="auth-divider">або</div>
-      
-      <button class="auth-btn btn-orange" id="guest-to-account-btn">📝 Гість → Акаунт</button>
     </div>
   </div>
 
   <!-- ===== ГРА ===== -->
   <div id="game-screen">
-    <!-- Верхня панель -->
     <div class="top-stats">
       <div class="top-stats-group">
         <div class="stat-pill"><span class="icon">👥</span> Vi</div>
@@ -290,27 +246,20 @@
       <div class="season-badge">🏆 Сезон 2</div>
     </div>
 
-    <!-- Меню -->
     <div class="main-menu">
       <div class="menu-item active" data-page="tap">
         <div class="menu-icon-wrap">🐭</div>
         <span>Гра</span>
       </div>
-      <div class="menu-item"><div class="menu-icon-wrap">🛒</div><span>Магазин</span></div>
-      <div class="menu-item" data-page="crypto"><div class="menu-icon-wrap">₿</div><span>Крипта</span></div>
-      <div class="menu-item"><div class="menu-icon-wrap">👑</div><span>VIP</span></div>
-      <div class="menu-item"><div class="menu-icon-wrap">👤</div><span>Профіль</span></div>
-      <div class="menu-item"><div class="menu-icon-wrap">🎒</div><span>Інвентар</span></div>
-      <div class="menu-item"><div class="menu-icon-wrap">🏆</div><span>Топ</span></div>
+      <div class="menu-item" data-page="crypto">
+        <div class="menu-icon-wrap">₿</div>
+        <span>Крипта</span>
+      </div>
     </div>
 
-    <!-- Кольорові кнопки -->
     <div class="action-buttons">
-      <button class="color-btn btn-tap">🌿 Тан</button>
-      <button class="color-btn btn-crypto" onclick="document.querySelector('[data-page=crypto]').click()">📊</button>
-      <button class="color-btn btn-garage">🔧</button>
-      <button class="color-btn btn-daily">🐍</button>
-      <button class="color-btn btn-extra">🌸</button>
+      <button class="color-btn btn-tap">Тап</button>
+      <button class="color-btn btn-crypto" onclick="document.querySelector('[data-page=crypto]').click()">Крипта</button>
     </div>
 
     <!-- Сторінка ТАП -->
@@ -348,7 +297,6 @@
       </div>
       <div class="coin-bottom">💰 <span id="bottom-coin-display">0</span></div>
       <div class="xp-row"><span>XP: 0</span><span>Рівень 1</span></div>
-      <div class="promo-row"><span>🎁 Промокод</span><button class="promo-btn">OK</button></div>
     </div>
   </div>
 
@@ -357,7 +305,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, get, set, update, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD1-UDrqRzfUw_32nOzqT2mAozzab5DJZk",
@@ -387,8 +335,6 @@
     const authError = document.getElementById('auth-error');
     const authSubmit = document.getElementById('auth-submit');
     const tgLoginBtn = document.getElementById('tg-login-btn');
-    const guestLoginBtn = document.getElementById('guest-login-btn');
-    const guestToAccountBtn = document.getElementById('guest-to-account-btn');
 
     // === DOM Game ===
     const tapCoinDisplay = document.getElementById('tap-coin-display');
@@ -442,7 +388,6 @@
       return p.toFixed(2);
     }
 
-    // === Перемикання Вхід / Реєстрація ===
     function setAuthMode(loginMode) {
       isLoginMode = loginMode;
       if (loginMode) {
@@ -459,15 +404,11 @@
     tabLogin.addEventListener('click', () => setAuthMode(true));
     tabRegister.addEventListener('click', () => setAuthMode(false));
 
-    // === Допоміжна функція для перетворення нікнейму в email ===
     function nickToEmail(nick) {
-      // Якщо вже є @, залишаємо як є (раптом ввели email)
       if (nick.includes('@')) return nick.trim();
-      // Інакше робимо фейковий email
       return nick.trim().toLowerCase().replace(/[^a-z0-9]/g, '') + '@hamka.game';
     }
 
-    // === Помилки Firebase ===
     function getAuthErrorMessage(err) {
       const messages = {
         'auth/invalid-email': 'Невірний формат',
@@ -478,14 +419,13 @@
         'auth/invalid-credential': 'Невірний нікнейм або пароль',
         'auth/too-many-requests': 'Занадто багато спроб',
         'auth/network-request-failed': 'Мережева помилка',
-        'auth/operation-not-allowed': 'Увімкніть Email/Password та Anonymous у Firebase',
+        'auth/operation-not-allowed': 'Увімкніть Email/Password у Firebase',
         'auth/unauthorized-domain': 'Домен не авторизований',
         'auth/internal-error': 'Помилка Firebase'
       };
       return messages[err.code] || err.message || 'Помилка';
     }
 
-    // === Вхід/Реєстрація ===
     authSubmit.addEventListener('click', async () => {
       const nick = authNickname.value.trim();
       const password = authPassword.value;
@@ -510,7 +450,6 @@
       }
     });
 
-    // === Вхід через Telegram ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
@@ -539,30 +478,6 @@
       }
     });
 
-    // === Гість (Анонімний вхід) ===
-    guestLoginBtn.addEventListener('click', async () => {
-      guestLoginBtn.disabled = true;
-      authError.innerText = '';
-      try {
-        await signInAnonymously(auth);
-      } catch (err) {
-        if (err.code === 'auth/operation-not-allowed') {
-          authError.innerText = 'Увімкніть Anonymous у Firebase Console';
-        } else {
-          authError.innerText = getAuthErrorMessage(err);
-        }
-      } finally {
-        guestLoginBtn.disabled = false;
-      }
-    });
-
-    // === Гість → Акаунт (просто перемикає на реєстрацію) ===
-    guestToAccountBtn.addEventListener('click', () => {
-      setAuthMode(false);
-      authNickname.focus();
-    });
-
-    // === Слухач стану ===
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUid = user.uid;
@@ -888,4 +803,4 @@
     }
   </script>
 </body>
-</html>
+        </html>
