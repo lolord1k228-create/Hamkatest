@@ -117,10 +117,42 @@
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
 
+    /* ===== ТАП ===== */
+    .tap-area {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .coin-counter {
+      display: flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 700;
+      color: #fff; margin-bottom: 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+    .hamster-wrap {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 320px; height: 320px; max-width: 85vw; max-height: 85vw;
+    }
+    .hamster {
+      width: 100%; height: 100%; border-radius: 50%;
+      border: 4px solid #2ecc71;
+      box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), inset 0 0 40px rgba(46, 204, 113, 0.15);
+      background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 140px; cursor: pointer; transition: transform 0.1s ease; position: relative; z-index: 2;
+      background-size: cover; background-position: center;
+    }
+    .hamster:active { transform: scale(0.96); }
+    
+    .tap-effect {
+      position: absolute; font-size: 28px; font-weight: 800; color: #2ecc71;
+      pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
+    }
+
     /* ===== МАГАЗИН ===== */
     .shop-container { display: flex; flex-direction: column; height: 100%; }
-    
-    /* Фіксоване меню магазину */
     .shop-tabs { 
       display: flex; gap: 6px; padding: 8px 12px; background: #0a0a0a; 
       border-bottom: 1px solid #222; flex-shrink: 0;
@@ -134,10 +166,7 @@
     }
     .shop-tab.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
     
-    /* Список товарів (гортається) */
-    .shop-list { 
-      flex: 1; overflow-y: auto; padding: 8px 12px 100px; 
-    }
+    .shop-list { flex: 1; overflow-y: auto; padding: 8px 12px 100px; }
 
     .shop-card {
       background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
@@ -155,12 +184,8 @@
     .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
     /* Сітка для косметики та скінів (2 в ряд) */
-    .shop-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
-    .shop-grid .shop-card {
-      flex-direction: column; text-align: center; padding: 10px 8px;
-    }
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .shop-grid .shop-card { flex-direction: column; text-align: center; padding: 10px 8px; }
     .shop-grid .shop-card-info { padding-right: 0; width: 100%; }
     .shop-grid .shop-card-btn { width: 100%; margin-top: 8px; }
     
@@ -251,6 +276,16 @@
     .inventory-item-name { font-size: 10px; margin-top: 4px; color: #aaa; }
 
     /* ===== ТОП ===== */
+    .top-switch {
+      display: flex; gap: 6px; margin-bottom: 12px;
+    }
+    .top-switch-btn {
+      flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      text-align: center; cursor: pointer; background: rgba(255,255,255,0.05);
+      border: 1px solid transparent; color: #aaa;
+    }
+    .top-switch-btn.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
+
     .leaderboard-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px; background: rgba(255,255,255,0.05); border-radius: 10px;
@@ -258,7 +293,7 @@
     }
     .leaderboard-rank { font-size: 18px; font-weight: 800; color: #f5a623; width: 30px; }
     .leaderboard-name { flex: 1; font-size: 14px; font-weight: 600; }
-    .leaderboard-xp { font-size: 14px; font-weight: 700; color: #2ecc71; }
+    .leaderboard-val { font-size: 14px; font-weight: 700; color: #2ecc71; }
 
     /* ===== МОДАЛКИ ===== */
     .modal-overlay {
@@ -465,7 +500,13 @@
 
     <!-- ТОП -->
     <div class="page scroll-page" id="page-top">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;">🏆 Топ за XP</div>
+      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 12px;">🏆 Топ гравців</div>
+      
+      <div class="top-switch">
+        <button class="top-switch-btn active" id="top-btn-xp">За XP</button>
+        <button class="top-switch-btn" id="top-btn-prestige">За Престижем</button>
+      </div>
+
       <div id="leaderboard-list"></div>
     </div>
 
@@ -632,31 +673,17 @@
     const prestigeOverlay = document.getElementById('prestige-overlay');
     const prestigeText = document.getElementById('prestige-text');
 
+    const topBtnXp = document.getElementById('top-btn-xp');
+    const topBtnPrestige = document.getElementById('top-btn-prestige');
+
     // === Стан ===
     let isLoginMode = true;
     let state = { 
-      coins: 0, 
-      energy: 200, 
-      maxEnergy: 200,
-      xp: 0,
-      prestige: 0,
-      title: 'Початківець',
-      avatar: '🐭',
-      nickname: '',
-      publicId: '',
-      activeSkin: 'default',
-      holdings: {},
-      purchasedTitles: [],
-      purchasedAvatars: [],
-      purchasedSkins: [],
-      upgrades: {
-        tapLevel: 0,
-        tapPower: 1,
-        xpPerTap: 1,
-        autoTapRate: 0,
-        autoXpRate: 0,
-        energyRate: 1
-      }
+      coins: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+      title: 'Початківець', avatar: '🐭', nickname: '', publicId: '',
+      activeSkin: 'default', holdings: {},
+      purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [],
+      upgrades: { tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1 }
     };
     let pendingTap = false;
     let unsubscribeUserData = null;
@@ -666,6 +693,7 @@
     let currentShopTab = 'auto';
     let pendingCosmeticBuy = null;
     let isAdmin = false;
+    let topMode = 'xp'; // 'xp' або 'prestige'
 
     const GITHUB_RAW = "https://raw.githubusercontent.com/lolord1k228-create/Hamkatest/main/skins/";
 
@@ -687,7 +715,6 @@
       { name: 'gold 3', xp: 900000 }
     ];
 
-    // === Титули ===
     const PRESTIGE_TITLES = [
       { name: 'Початківець', reqPrestige: 0 },
       { name: 'Бронзовий Хом\'як', reqPrestige: 1 },
@@ -697,7 +724,6 @@
       { name: 'Легенда Hamka', reqPrestige: 5 }
     ];
 
-    // === Косметика ===
     const COSMETICS = [
       { id: 'title_crypto_baron', type: 'title', name: 'Крипто-Барон', price: 10000 },
       { id: 'title_tap_god', type: 'title', name: 'Бог Тапів', price: 50000 },
@@ -715,17 +741,14 @@
 
     const BASE_AVATARS = ['🐭'];
 
-    // === Скіни (будуть завантажені з Firebase) ===
     let SKINS = [];
 
-    // === Крипта ===
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
     const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
     const PLAYERHOM_BASE = 50;
     const PLAYERHOM_PER_UNIT = 2;
     const CRYPTO_FEE = 0.02;
 
-    // === Магазин ===
     const SHOP_ITEMS = {
       auto: [
         { id: 'autoTap', title: 'Авто тап', desc: '+1 монета/сек', basePrice: 200, multiplier: 2, maxLevel: 999 },
@@ -814,6 +837,9 @@
       return messages[err.code] || err.message || 'Помилка';
     }
 
+    // ============================================================
+    // РЕЄСТРАЦІЯ / ВХІД
+    // ============================================================
     authSubmit.addEventListener('click', async () => {
       const nick = authNickname.value.trim();
       const password = authPassword.value;
@@ -913,7 +939,74 @@
       });
     });
 
-    // === Завантаження даних з Firebase ===
+    // ============================================================
+    // ТОП (XP та ПРЕСТИЖ)
+    // ============================================================
+    topBtnXp.addEventListener('click', () => {
+      topMode = 'xp';
+      topBtnXp.classList.add('active');
+      topBtnPrestige.classList.remove('active');
+      loadLeaderboard();
+    });
+
+    topBtnPrestige.addEventListener('click', () => {
+      topMode = 'prestige';
+      topBtnPrestige.classList.add('active');
+      topBtnXp.classList.remove('active');
+      loadLeaderboard();
+    });
+
+    async function loadLeaderboard() {
+      leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Завантаження...</div>';
+      try {
+        const snap = await get(ref(db, 'users'));
+        const users = snap.val() || {};
+        
+        const arr = [];
+        for (const uid in users) {
+          const u = users[uid];
+          arr.push({ 
+            nickname: u.nickname || 'Гравець', 
+            xp: u.xp || 0,
+            prestige: u.prestige || 0
+          });
+        }
+        
+        // Сортуємо залежно від режиму
+        if (topMode === 'xp') {
+          arr.sort((a, b) => b.xp - a.xp);
+        } else {
+          arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
+        }
+        
+        const top10 = arr.slice(0, 10);
+
+        leaderboardList.innerHTML = '';
+        top10.forEach((u, i) => {
+          const el = document.createElement('div');
+          el.className = 'leaderboard-item';
+          
+          let displayValue = '';
+          if (topMode === 'xp') {
+            displayValue = `${formatNumber(u.xp)} XP`;
+          } else {
+            displayValue = `🌟 ${u.prestige}`;
+          }
+
+          el.innerHTML = `
+            <div class="leaderboard-rank">#${i + 1}</div>
+            <div class="leaderboard-name">${u.nickname}</div>
+            <div class="leaderboard-val">${displayValue}</div>
+          `;
+          leaderboardList.appendChild(el);
+        });
+      } catch (err) {
+        console.error(err);
+        leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#ff5252;">Помилка завантаження</div>';
+      }
+    }
+
+    // === Завантаження даних з Firebase (скіни) ===
     async function loadGameData() {
       try {
         const skinsSnap = await get(ref(db, 'game_data/skins'));
@@ -1207,18 +1300,16 @@
     }
 
     // ============================================================
-    // МАГАЗИН (З ОБ'ЄДНАНОЮ КОСМЕТИКОЮ)
+    // МАГАЗИН
     // ============================================================
     function renderShop() {
       if (!shopListEl) return;
       shopListEl.innerHTML = '';
 
       if (currentShopTab === 'cosmetics') {
-        // Створюємо сітку
         const grid = document.createElement('div');
         grid.className = 'shop-grid';
 
-        // 1. Додаємо титули та аватарки
         COSMETICS.forEach(item => {
           let isOwned = false;
           if (item.type === 'title') isOwned = state.purchasedTitles.includes(item.name);
@@ -1239,7 +1330,6 @@
           grid.appendChild(card);
         });
 
-        // 2. Додаємо скіни (якщо є)
         SKINS.forEach(item => {
           const isOwned = state.purchasedSkins.includes(item.id);
 
@@ -1260,7 +1350,6 @@
 
         shopListEl.appendChild(grid);
 
-        // Обробники
         shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
           if (btn.dataset.cosmeticId) {
             btn.addEventListener('click', () => openBuyModal(btn.dataset.cosmeticId));
@@ -1271,7 +1360,6 @@
         return;
       }
 
-      // Інші вкладки (Авто, Прокачка)
       const items = SHOP_ITEMS[currentShopTab] || [];
       items.forEach(item => {
         let currentLevel = 0;
@@ -1518,7 +1606,6 @@
         invAvatars.appendChild(el);
       });
 
-      // Скіни
       invSkins.innerHTML = '';
       const defaultEl = document.createElement('div');
       defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
@@ -1542,41 +1629,6 @@
         });
         invSkins.appendChild(el);
       });
-    }
-
-    // ============================================================
-    // ТОП
-    // ============================================================
-    async function loadLeaderboard() {
-      leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Завантаження...</div>';
-      try {
-        const snap = await get(ref(db, 'users'));
-        const users = snap.val() || {};
-        
-        const arr = [];
-        for (const uid in users) {
-          const u = users[uid];
-          arr.push({ nickname: u.nickname || 'Гравець', xp: u.xp || 0 });
-        }
-        
-        arr.sort((a, b) => b.xp - a.xp);
-        const top10 = arr.slice(0, 10);
-
-        leaderboardList.innerHTML = '';
-        top10.forEach((u, i) => {
-          const el = document.createElement('div');
-          el.className = 'leaderboard-item';
-          el.innerHTML = `
-            <div class="leaderboard-rank">#${i + 1}</div>
-            <div class="leaderboard-name">${u.nickname}</div>
-            <div class="leaderboard-xp">${formatNumber(u.xp)} XP</div>
-          `;
-          leaderboardList.appendChild(el);
-        });
-      } catch (err) {
-        console.error(err);
-        leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#ff5252;">Помилка завантаження</div>';
-      }
     }
 
     // ============================================================
@@ -1797,119 +1849,9 @@
         try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
       } catch (err) {
         console.error(err);
-        showStatusfrom base_plugin import BasePlugin
-from ui.settings import Header, Text
-import time
-
-# ===== ОБОВ'ЯЗКОВІ МЕТАДАНІ =====
-__id__ = "empty_spammer"
-__name__ = "lol"
-__description__ = "Creates empty messages (ghost messages)"
-__author__ = "You"
-__version__ = "1.0.0"
-# ================================
-
-# Невидимий символ (Hangul Filler). Telegram не видаляє його, на відміну від звичайного пробілу.
-INVISIBLE_CHAR = "\u3164"
-
-class EmptySpammerPlugin(BasePlugin):
-    def create_settings(self):
-        return [
-            Header("lol"),
-            Text(
-                text="Send one empty message",
-                subtext="Tap to send a ghost message to the current chat",
-                on_click=lambda ctx: self.send_one_empty()
-            ),
-            Text(
-                text="Spam x10 empty messages",
-                subtext="Sends 10 ghost messages with a small delay",
-                on_click=lambda ctx: self.spam_empty()
-            ),
-        ]
-
-    def send_one_empty(self):
-        try:
-            from client_utils import get_current_chat, send_text
-            chat = get_current_chat()
-            if chat and chat.get('id'):
-                send_text(chat['id'], INVISIBLE_CHAR)
-                self.show_toast("Ghost message sent!")
-            else:
-                self.show_toast("Open a chat first")
-        except Exception as e:
-            self.show_toast("Error: " + str(e))
-
-    def spam_empty(self):
-        try:
-            from client_utils import get_current_chat, send_text
-            chat = get_current_chat()
-            if not chat or not chat.get('id'):
-                self.show_toast("Open a chat first")
-                return
-            for i in range(10):
-                send_text(chat['id'], INVISIBLE_CHAR)
-                time.sleep(0.4)
-            self.show_toast("10 ghost messages sent!")
-        except Exception as e:
-            self.show_toast("Error: " + str(e))from base_plugin import BasePlugin
-from ui.settings import Header, Text
-import time
-
-# ===== ОБОВ'ЯЗКОВІ МЕТАДАНІ =====
-__id__ = "empty_spammer"
-__name__ = "lol"
-__description__ = "Creates empty messages (ghost messages)"
-__author__ = "You"
-__version__ = "1.0.0"
-# ================================
-
-# Невидимий символ (Hangul Filler). Telegram не видаляє його, на відміну від звичайного пробілу.
-INVISIBLE_CHAR = "\u3164"
-
-class EmptySpammerPlugin(BasePlugin):
-    def create_settings(self):
-        return [
-            Header("lol"),
-            Text(
-                text="Send one empty message",
-                subtext="Tap to send a ghost message to the current chat",
-                on_click=lambda ctx: self.send_one_empty()
-            ),
-            Text(
-                text="Spam x10 empty messages",
-                subtext="Sends 10 ghost messages with a small delay",
-                on_click=lambda ctx: self.spam_empty()
-            ),
-        ]
-
-    def send_one_empty(self):
-        try:
-            from client_utils import get_current_chat, send_text
-            chat = get_current_chat()
-            if chat and chat.get('id'):
-                send_text(chat['id'], INVISIBLE_CHAR)
-                self.show_toast("Ghost message sent!")
-            else:
-                self.show_toast("Open a chat first")
-        except Exception as e:
-            self.show_toast("Error: " + str(e))
-
-    def spam_empty(self):
-        try:
-            from client_utils import get_current_chat, send_text
-            chat = get_current_chat()
-            if not chat or not chat.get('id'):
-                self.show_toast("Open a chat first")
-                return
-            for i in range(10):
-                send_text(chat['id'], INVISIBLE_CHAR)
-                time.sleep(0.4)
-            self.show_toast("10 ghost messages sent!")
-        except Exception as e:
-            self.show_toast("Error: " + str(e))("❌ Помилка транзакції");
+        showStatus("❌ Помилка транзакції");
       }
     }
   </script>
 </body>
-          </html>
+  </html>
