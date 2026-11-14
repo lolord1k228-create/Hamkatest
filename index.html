@@ -370,7 +370,7 @@
     <div class="auth-form">
       <div class="input-wrap">
         <span class="input-icon">👤</span>
-        <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм" autocomplete="username">
+        <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм (латиниця)" autocomplete="username">
       </div>
       <div class="input-wrap">
         <span class="input-icon">🔑</span>
@@ -740,7 +740,7 @@
       { name: 'Легенда Hamka', reqPrestige: 5 }
     ];
 
-    // === Косметика (Аватарки) ===
+    // === Косметика ===
     const COSMETICS = [
       { id: 'title_crypto_baron', type: 'title', name: 'Крипто-Барон', price: 10000 },
       { id: 'title_tap_god', type: 'title', name: 'Бог Тапів', price: 50000 },
@@ -845,24 +845,28 @@
     tabLogin.addEventListener('click', () => setAuthMode(true));
     tabRegister.addEventListener('click', () => setAuthMode(false));
 
+    // === Коректне перетворення нікнейму в Email ===
     function nickToEmail(nick) {
-      if (nick.includes('@')) return nick.trim();
+      // Видаляємо всі символи, крім латиниці та цифр
       const cleanNick = nick.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      // Якщо після очищення залишилось менше 3 символів — це помилка
       if (cleanNick.length < 3) return null;
+      
       return cleanNick + '@hamka.game';
     }
 
     function getAuthErrorMessage(err) {
       const messages = {
-        'auth/invalid-email': 'Невірний формат нікнейму (мін. 3 символи)',
-        'auth/user-not-found': 'Акаунт не знайдено',
+        'auth/invalid-email': 'Невірний формат нікнейму (мін. 3 латинські літери/цифри)',
+        'auth/user-not-found': 'Акаунт не знайдено. Перевірте нікнейм або зареєструйтесь.',
         'auth/wrong-password': 'Невірний пароль',
-        'auth/email-already-in-use': 'Цей нікнейм вже зайнятий',
+        'auth/email-already-in-use': 'Цей нікнейм вже зайнятий. Спробуйте інший або увійдіть.',
         'auth/weak-password': 'Пароль має бути мінімум 6 символів',
         'auth/invalid-credential': 'Невірний нікнейм або пароль',
-        'auth/too-many-requests': 'Занадто багато спроб',
-        'auth/network-request-failed': 'Мережева помилка',
-        'auth/operation-not-allowed': 'Увімкніть Email/Password у Firebase',
+        'auth/too-many-requests': 'Занадто багато спроб. Зачекайте хвилину.',
+        'auth/network-request-failed': 'Мережева помилка. Перевірте інтернет.',
+        'auth/operation-not-allowed': 'Увімкніть Email/Password у Firebase Console',
         'auth/unauthorized-domain': 'Домен не авторизований',
         'auth/internal-error': 'Помилка Firebase'
       };
@@ -877,7 +881,7 @@
       if (password.length < 6) { authError.innerText = 'Пароль має бути мінімум 6 символів'; return; }
 
       const email = nickToEmail(nick);
-      if (!email) { authError.innerText = 'Нікнейм має містити мінімум 3 літери/цифри'; return; }
+      if (!email) { authError.innerText = 'Нікнейм має містити мінімум 3 латинські літери/цифри'; return; }
 
       authSubmit.disabled = true;
       authError.innerText = '';
@@ -895,6 +899,7 @@
       }
     });
 
+    // === Виправлений вхід через Telegram ===
     tgLoginBtn.addEventListener('click', async () => {
       const tgUser = tg.initDataUnsafe?.user;
       if (!tgUser) {
@@ -902,15 +907,18 @@
         return;
       }
       
+      // Генеруємо надійний email та пароль, які Firebase точно прийме
       const email = `tg_${tgUser.id}@hamka.test`;
-      const password = `tg_${tgUser.id}_secure_pass_123!`;
+      const password = `Tg_${tgUser.id}_SecurePass!`;
 
       tgLoginBtn.disabled = true;
       authError.innerText = '';
       
       try {
+        // Спочатку пробуємо увійти
         await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
+        // Якщо помилка "не знайдено" або "неправильні дані", створюємо новий акаунт
         if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials') {
           try {
             await createUserWithEmailAndPassword(auth, email, password);
@@ -1011,10 +1019,8 @@
       usedPromos.push(code);
       await update(ref(db, 'users/' + currentUid), { usedPromos: usedPromos });
 
-      // Видаляємо використаний промокод
       PROMOS.splice(promoIndex, 1);
 
-      // Якщо залишилось менше 5 промокодів, генеруємо нові
       if (PROMOS.length < 5) {
         generateNewPromos(5 - PROMOS.length);
       }
@@ -1032,7 +1038,6 @@
                         suffixes[Math.floor(Math.random() * suffixes.length)] + 
                         Math.floor(Math.random() * 100);
         
-        // Перевіряємо, чи немає вже такого коду
         if (!PROMOS.find(p => p.code === newCode)) {
           PROMOS.push({
             code: newCode,
@@ -1344,7 +1349,6 @@
       }
 
       if (currentShopTab === 'skins') {
-        // Якщо менше 5 скінів, генеруємо нові
         if (SKINS.length < 5) {
           const names = ['Neon', 'Retro', 'Galaxy', 'Shadow', 'Toxic', 'Royal'];
           const prices = [300000, 750000, 1500000, 3000000, 5000000];
@@ -1352,7 +1356,7 @@
             SKINS.push({
               id: 'skin_gen_' + Date.now() + i,
               name: names[Math.floor(Math.random() * names.length)],
-              file: 'default.png', // Буде показувати емодзі, якщо файлу немає
+              file: 'default.png',
               price: prices[Math.floor(Math.random() * prices.length)]
             });
           }
@@ -1631,7 +1635,6 @@
 
       // Скіни
       invSkins.innerHTML = '';
-      // Додаємо дефолтний
       const defaultEl = document.createElement('div');
       defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
       defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">Стандарт</div>`;
@@ -1914,541 +1917,4 @@
     }
   </script>
 </body>
-  </html><!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hamka Game</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body {
-      height: 100%; overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #000; color: #fff; user-select: none;
-    }
-    body {
-      display: flex; flex-direction: column; position: relative;
-      background: radial-gradient(circle at 50% 30%, #111 0%, #000 80%);
-    }
-
-    /* ===== ЕКРАН АВТОРИЗАЦІЇ ===== */
-    #auth-screen {
-      position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; transition: opacity 0.3s, visibility 0.3s; overflow-y: auto;
-    }
-    #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    
-    .auth-logo-img { font-size: 80px; margin-bottom: 10px; line-height: 1; }
-    .auth-title { font-size: 36px; font-weight: 800; color: #2ecc71; margin-bottom: 6px; letter-spacing: -0.5px; }
-    .auth-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; text-align: center; }
-
-    .auth-tabs { display: flex; width: 100%; max-width: 340px; gap: 10px; margin-bottom: 20px; }
-    .auth-tab {
-      flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
-      text-align: center; cursor: pointer; border: 1px solid #222; color: #aaa;
-      background: transparent; transition: 0.2s;
-    }
-    .auth-tab.active { background: #0f1f15; color: #fff; border-color: #2ecc71; }
-
-    .auth-hint-top { font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
-    .auth-form { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; }
-    
-    .input-wrap { position: relative; width: 100%; }
-    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #555; pointer-events: none; }
-    .auth-input {
-      width: 100%; padding: 16px 16px 16px 44px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
-      color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
-    }
-    .auth-input:focus { border-color: #2ecc71; }
-    .auth-input::placeholder { color: #555; }
-
-    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 16px; margin-top: 4px; }
-
-    .auth-btn {
-      width: 100%; max-width: 340px; padding: 16px; border: none; border-radius: 12px;
-      font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
-    }
-    .auth-btn:active { transform: scale(0.97); }
-    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .btn-green { background: #2ecc71; color: #000; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
-    .btn-blue { background: #2aabee; color: #fff; }
-
-    .auth-divider {
-      display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px; 
-      margin: 10px 0; width: 100%; max-width: 340px;
-    }
-    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
-
-    /* ===== ГРА ===== */
-    #game-screen { display: none; flex-direction: column; height: 100%; }
-    #game-screen.visible { display: flex; }
-
-    .top-stats {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 12px; background: #000; font-size: 12px; font-weight: 600;
-      border-bottom: 1px solid #222;
-    }
-    .top-stats-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .stat-pill {
-      display: flex; align-items: center; gap: 4px;
-      background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px;
-    }
-    .season-badge {
-      background: #f5a623; color: #000; padding: 4px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      display: flex; align-items: center; gap: 4px; white-space: nowrap;
-    }
-    .admin-btn-badge {
-      background: #ff3333; color: #fff; padding: 4px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      cursor: pointer; display: none; align-items: center; gap: 4px;
-    }
-
-    .main-menu {
-      display: flex; justify-content: space-around; align-items: center;
-      padding: 10px 6px; background: #111; border-bottom: 1px solid #222;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .main-menu::-webkit-scrollbar { display: none; }
-    .menu-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 3px; color: #666; font-size: 10px; font-weight: 600;
-      min-width: 50px; cursor: pointer;
-    }
-    .menu-item.active { color: #fff; }
-    .menu-item.active .menu-icon-wrap {
-      background: #2ecc71; color: #000; box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
-    }
-    .menu-icon-wrap {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; background: rgba(255,255,255,0.05); color: #888;
-    }
-
-    .tap-area {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .coin-counter {
-      display: flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 700;
-      color: #fff; margin-bottom: 20px; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-    }
-    .hamster-wrap {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      width: 320px; height: 320px; max-width: 85vw; max-height: 85vw;
-    }
-    .hamster {
-      width: 100%; height: 100%; border-radius: 50%;
-      border: 4px solid #2ecc71;
-      box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), inset 0 0 40px rgba(46, 204, 113, 0.15);
-      background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 140px; cursor: pointer; transition: transform 0.1s ease; position: relative; z-index: 2;
-    }
-    .hamster:active { transform: scale(0.96); }
-    
-    .tap-effect {
-      position: absolute; font-size: 28px; font-weight: 800; color: #2ecc71;
-      pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
-    }
-
-    .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
-    .page.active { display: flex; }
-    .scroll-page { padding: 8px 12px 100px; }
-
-    /* Магазин */
-    .shop-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .shop-tab {
-      flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 700;
-      background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; color: #aaa;
-      border: 1px solid transparent;
-    }
-    .shop-tab.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
-
-    .shop-card {
-      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px; padding: 12px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .shop-card-info { flex: 1; padding-right: 10px; }
-    .shop-card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .shop-card-desc { font-size: 11px; color: #888; }
-    .shop-card-price { font-size: 13px; font-weight: 700; color: #ffd700; margin-top: 4px; }
-    .shop-card-btn {
-      padding: 10px 14px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
-      background: #2ecc71; color: #000; cursor: pointer; white-space: nowrap;
-    }
-    .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
-    
-    .cosmetic-preview {
-      width: 50px; height: 50px; border-radius: 12px; background: rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center; font-size: 32px;
-      margin-right: 12px; flex-shrink: 0;
-    }
-
-    /* Крипта */
-    .crypto-card {
-      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px; padding: 12px; margin-bottom: 10px;
-    }
-    .crypto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .crypto-symbol { font-size: 16px; font-weight: 700; color: #f5a623; }
-    .crypto-price { font-size: 15px; font-weight: 700; }
-    .crypto-price.up { color: #2ecc71; }
-    .crypto-price.down { color: #ff5252; }
-    .crypto-chart { width: 100%; height: 60px; display: block; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; }
-    .crypto-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .crypto-input {
-      width: 60px; flex-shrink: 0; padding: 8px; background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; outline: none;
-      -moz-appearance: textfield;
-    }
-    .crypto-input::-webkit-outer-spin-button,
-    .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .crypto-btn { flex: 1; min-width: 0; padding: 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-    .crypto-btn.buy { background: #2ecc71; color: #000; }
-    .crypto-btn.sell { background: #ff5252; color: #fff; }
-    .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
-    .crypto-holdings span { color: #f5a623; font-weight: 600; }
-
-    /* Профіль */
-    .profile-card {
-      background: linear-gradient(145deg, #1a1a24, #0f0f15);
-      border: 1px solid #333; border-radius: 20px; padding: 20px;
-      text-align: center; margin-bottom: 16px; position: relative;
-    }
-    .profile-avatar-wrap {
-      position: relative; display: inline-block; margin-bottom: 12px;
-    }
-    .profile-avatar {
-      width: 80px; height: 80px; border-radius: 50%;
-      background: linear-gradient(135deg, #f5a623, #d4891a);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 40px; box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
-    }
-    .profile-name-wrap {
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
-    }
-    .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
-    .edit-name-btn {
-      background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
-      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; cursor: pointer; color: #fff;
-    }
-    .profile-id { font-size: 12px; color: #666; margin-top: 2px; }
-    
-    .profile-title-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 8px; padding: 4px 16px; border-radius: 20px;
-      background: linear-gradient(90deg, #8a2be2, #da70d6);
-      font-size: 12px; font-weight: 700; color: #fff;
-      box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
-    }
-    .profile-stats {
-      display: flex; justify-content: space-around; margin-top: 16px;
-      background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px;
-    }
-    .profile-stat-item { text-align: center; }
-    .profile-stat-val { font-size: 16px; font-weight: 700; color: #f5a623; }
-    .profile-stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; }
-
-    .prestige-section {
-      background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3);
-      border-radius: 14px; padding: 16px; text-align: center;
-    }
-
-    /* Інвентар */
-    .inventory-section { margin-bottom: 16px; }
-    .inventory-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #f5a623; }
-    .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .inventory-item {
-      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; text-align: center;
-      cursor: pointer; border: 2px solid transparent; position: relative;
-    }
-    .inventory-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
-    .inventory-item-icon { font-size: 24px; }
-    .inventory-item-name { font-size: 10px; margin-top: 4px; color: #aaa; }
-
-    /* Модалки */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.8);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-content {
-      background: #1a1a1a; border: 1px solid #333; border-radius: 16px;
-      padding: 20px; width: 100%; max-width: 340px;
-    }
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; text-align: center; }
-    
-    .preview-box {
-      width: 100px; height: 100px; border-radius: 20px; background: rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center; font-size: 60px;
-      margin: 0 auto 16px;
-    }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-    .modal-btn {
-      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
-    }
-    .modal-btn.cancel { background: #333; color: #fff; }
-    .modal-btn.confirm { background: #2ecc71; color: #000; }
-
-    /* Адмінка */
-    .admin-input-group { margin-bottom: 12px; text-align: left; }
-    .admin-input-group label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
-    .admin-input {
-      width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333;
-      border-radius: 8px; color: #fff; font-size: 14px; outline: none;
-    }
-
-    /* Нижня панель */
-    .bottom-panel { background: #0a0a0a; border-top: 1px solid #222; padding: 6px 12px 10px; }
-    .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; margin-bottom: 4px; }
-    .energy-bar-wrap { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; }
-    .energy-bar { height: 100%; background: linear-gradient(90deg, #f5a623, #ffd700); width: 100%; transition: width 0.3s; }
-    .energy-labels { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 2px; }
-    .coin-bottom { text-align: center; font-size: 14px; font-weight: 700; color: #ffd700; margin: 6px 0; }
-    .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
-    .xp-bar-wrap { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
-    .xp-bar { height: 100%; background: linear-gradient(90deg, #00bcd4, #2196f3); width: 0%; transition: width 0.3s; }
-
-    #status {
-      position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.9); padding: 10px 20px; border-radius: 10px;
-      font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
-      white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    #status.show { opacity: 1; }
-
-    /* Анімація престижу */
-    .prestige-overlay {
-      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.5s;
-    }
-    .prestige-overlay.show { opacity: 1; pointer-events: all; }
-    .prestige-glow { font-size: 80px; animation: prestigePop 1s ease-out infinite alternate; }
-    @keyframes prestigePop {
-      0% { transform: scale(1); filter: drop-shadow(0 0 10px #8a2be2); }
-      100% { transform: scale(1.2); filter: drop-shadow(0 0 30px #da70d6); }
-    }
-    .prestige-text { font-size: 32px; font-weight: 900; margin-top: 20px; background: linear-gradient(90deg, #8a2be2, #da70d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  </style>
-</head>
-<body>
-
-  <!-- ===== АВТОРИЗАЦІЯ ===== -->
-  <div id="auth-screen">
-    <div class="auth-logo-img">🐭</div>
-    <div class="auth-title">Hamka</div>
-    <div class="auth-subtitle">Крипто-клікер з апгрейдами</div>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login">Вхід</div>
-      <div class="auth-tab" id="tab-register">Реєстрація</div>
-    </div>
-
-    <div class="auth-hint-top">🔒 Виберіть спосіб входу</div>
-
-    <div class="auth-form">
-      <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм">
-      </div>
-      <div class="input-wrap">
-        <span class="input-icon">🔑</span>
-        <input type="password" id="auth-password" class="auth-input" placeholder="Пароль (мін. 4)">
-      </div>
-      
-      <div class="auth-error" id="auth-error"></div>
-
-      <button class="auth-btn btn-green" id="auth-submit">👉 Увійти</button>
-      
-      <div class="auth-divider">або</div>
-      <button class="auth-btn btn-blue" id="tg-login-btn">📱 Увійти через Telegram</button>
-    </div>
-  </div>
-
-  <!-- ===== ГРА ===== -->
-  <div id="game-screen">
-    <div class="top-stats">
-      <div class="top-stats-group">
-        <div class="stat-pill"><span class="icon">🪙</span> <span id="top-coins">0</span></div>
-      </div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <div class="admin-btn-badge" id="admin-btn-badge" onclick="document.getElementById('modal-admin').classList.add('show')">🛠 Адмін</div>
-        <div class="season-badge">🏆 Сезон 1</div>
-      </div>
-    </div>
-
-    <div class="main-menu">
-      <div class="menu-item active" data-page="tap">
-        <div class="menu-icon-wrap">🐭</div>
-        <span>Гра</span>
-      </div>
-      <div class="menu-item" data-page="shop">
-        <div class="menu-icon-wrap">🛒</div>
-        <span>Магазин</span>
-      </div>
-      <div class="menu-item" data-page="crypto">
-        <div class="menu-icon-wrap">₿</div>
-        <span>Крипта</span>
-      </div>
-      <div class="menu-item" data-page="profile">
-        <div class="menu-icon-wrap">👤</div>
-        <span>Профіль</span>
-      </div>
-      <div class="menu-item" data-page="inventory">
-        <div class="menu-icon-wrap">🎒</div>
-        <span>Інвентар</span>
-      </div>
-    </div>
-
-    <!-- Сторінка ТАП -->
-    <div class="page active" id="page-tap">
-      <div class="tap-area" id="tap-area">
-        <div class="coin-counter">
-          <span class="coin-icon">🪙</span>
-          <span id="tap-coin-display">0</span>
-        </div>
-        <div class="hamster-wrap">
-          <div class="hamster" id="hamster">🐭</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Сторінка МАГАЗИН -->
-    <div class="page scroll-page" id="page-shop">
-      <div class="shop-tabs">
-        <div class="shop-tab active" data-shop-tab="auto">Авто</div>
-        <div class="shop-tab" data-shop-tab="upgrade">Прокачка</div>
-        <div class="shop-tab" data-shop-tab="cosmetics">Косметика</div>
-      </div>
-      <div id="shop-list"></div>
-    </div>
-
-    <!-- Сторінка КРИПТА -->
-    <div class="page scroll-page" id="page-crypto">
-      <div id="crypto-list"></div>
-    </div>
-
-    <!-- Сторінка ПРОФІЛЬ -->
-    <div class="page scroll-page" id="page-profile">
-      <div class="profile-card">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="prof-avatar">🐭</div>
-        </div>
-        
-        <div class="profile-name-wrap">
-          <div class="profile-name" id="prof-nickname">Гравець</div>
-          <button class="edit-name-btn" id="btn-change-nickname">✏️</button>
-        </div>
-        <div class="profile-id" id="prof-public-id">ID: 000000</div>
-
-        <div class="profile-title-badge">
-          <span id="prof-title">Початківець</span>
-        </div>
-        
-        <div class="profile-stats">
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-coins">0</div>
-            <div class="profile-stat-lbl">Монети</div>
-          </div>
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-xp">0</div>
-            <div class="profile-stat-lbl">XP</div>
-          </div>
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-prestige">0</div>
-            <div class="profile-stat-lbl">Престиж</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="prestige-section">
-        <div style="font-size: 18px; font-weight: 800; color: #da70d6;">🌟 Престиж</div>
-        <div style="font-size: 12px; color: #aaa; margin-top: 4px;" id="prestige-info">Потрібно 1,000,000 XP</div>
-      </div>
-    </div>
-
-    <!-- Сторінка ІНВЕНТАР -->
-    <div class="page scroll-page" id="page-inventory">
-      <div class="inventory-section">
-        <div class="inventory-title">Титули</div>
-        <div class="inventory-grid" id="inv-titles"></div>
-      </div>
-      <div class="inventory-section">
-        <div class="inventory-title">Аватарки</div>
-        <div class="inventory-grid" id="inv-avatars"></div>
-      </div>
-    </div>
-
-    <!-- Нижня панель -->
-    <div class="bottom-panel">
-      <div class="bottom-stats">
-        <span>⚡ <span id="energy-label-text">200/200</span></span>
-        <span>+1 ⚡/сек</span>
-        <span>+<span id="auto-tap-label">0</span> 🪙/сек</span>
-        <span>🪙 <span id="bottom-coins">0</span></span>
-      </div>
-      <div class="energy-bar-wrap"><div class="energy-bar" id="energy-bar" style="width: 100%;"></div></div>
-      <div class="energy-labels">
-        <span>Енергія</span>
-        <span id="energy-label-bottom">200/200</span>
-      </div>
-      <div class="xp-row">
-        <span id="level-name">0 початківець</span>
-        <span><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
-      </div>
-      <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar"></div></div>
-    </div>
-  </div>
-
-  <div id="status"></div>
-
-  <!-- Модалка прев'ю покупки -->
-  <div class="modal-overlay" id="modal-buy">
-    <div class="modal-content">
-      <div class="modal-title">Підтвердження покупки</div>
-      <div class="preview-box" id="buy-preview-icon"></div>
-      <div style="text-align:center; font-weight:700; margin-bottom:4px;" id="buy-preview-name"></div>
-      <div style="text-align:center; color:#ffd700; font-weight:700;" id="buy-preview-price"></div>
-      <div class="modal-actions">
-        <button class="modal-btn cancel" id="btn-cancel-buy">Скасувати</button>
-        <button class="modal-btn confirm" id="btn-confirm-buy">Купити</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Модалка редагування нікнейму -->
-  <div class="modal-overlay" id="modal-nickname">
-    <div class="modal-content">
-      <div class="modal-title">Змінити нікнейм</div>
-      <input type="text" class="admin-input" id="new-nickname-input" placeholder="Новий нікнейм">
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-nickname').classList.remove('show')">Скасувати</button>
-        <button class="modal-btn confirm" id="btn-save-nickname">Зберегти</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Модалка Адмінки -->
-  <div class="modal-overlay" id="modal-admin">
-    <div class="modal-content">
-      <div class="modal-title">🛠 Адмін Панель</div>
-      
-      <div class="admin-input-group">
-        <label>Додати монет:</label>
-        <input type="number" class="admin-input" id="admin-coins-input" placeholder="Кількість">
-        <button class="modal-btn confirm" style="width:100%; margin-top:8px;" onclick="adminAddCoins()">Нарахувати</button>
+  </html>
