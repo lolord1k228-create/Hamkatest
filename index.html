@@ -183,7 +183,6 @@
     }
     .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-    /* Сітка для косметики та скінів (2 в ряд) */
     .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .shop-grid .shop-card { flex-direction: column; text-align: center; padding: 10px 8px; }
     .shop-grid .shop-card-info { padding-right: 0; width: 100%; }
@@ -234,6 +233,7 @@
       background: linear-gradient(135deg, #f5a623, #d4891a);
       display: flex; align-items: center; justify-content: center;
       font-size: 40px; box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
+      background-size: cover; background-position: center;
     }
     .profile-name-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
     .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
@@ -258,6 +258,14 @@
     .profile-stat-val { font-size: 16px; font-weight: 700; color: #f5a623; }
     .profile-stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; }
 
+    .change-skin-btn {
+      width: 100%; padding: 10px; margin-top: 12px;
+      background: rgba(138, 43, 226, 0.2); border: 1px solid rgba(138, 43, 226, 0.5);
+      border-radius: 12px; color: #da70d6; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: 0.2s;
+    }
+    .change-skin-btn:active { transform: scale(0.97); }
+
     .prestige-section {
       background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3);
       border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px;
@@ -272,28 +280,31 @@
       cursor: pointer; border: 2px solid transparent; position: relative;
     }
     .inventory-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
-    .inventory-item-icon { font-size: 24px; height: 30px; display: flex; align-items: center; justify-content: center; }
+    .inventory-item-icon { font-size: 24px; height: 30px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
     .inventory-item-name { font-size: 10px; margin-top: 4px; color: #aaa; }
 
     /* ===== ТОП ===== */
-    .top-switch {
-      display: flex; gap: 6px; margin-bottom: 12px;
-    }
-    .top-switch-btn {
-      flex: 1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;
-      text-align: center; cursor: pointer; background: rgba(255,255,255,0.05);
-      border: 1px solid transparent; color: #aaa;
-    }
-    .top-switch-btn.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
-
     .leaderboard-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px; background: rgba(255,255,255,0.05); border-radius: 10px;
-      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;
+      margin-bottom: 8px; cursor: pointer;
     }
-    .leaderboard-rank { font-size: 18px; font-weight: 800; color: #f5a623; width: 30px; }
-    .leaderboard-name { flex: 1; font-size: 14px; font-weight: 600; }
-    .leaderboard-val { font-size: 14px; font-weight: 700; color: #2ecc71; }
+    .leaderboard-item:active { background: rgba(255,255,255,0.1); }
+    
+    .lb-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #333;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      flex-shrink: 0; background-size: cover; background-position: center;
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-title { 
+      display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 4px;
+      background: linear-gradient(90deg, #8a2be2, #da70d6); color: #fff; margin-top: 2px;
+    }
+    .lb-stats { text-align: right; flex-shrink: 0; }
+    .lb-xp { font-size: 13px; font-weight: 700; color: #2ecc71; }
+    .lb-prestige { font-size: 11px; font-weight: 700; color: #da70d6; }
 
     /* ===== МОДАЛКИ ===== */
     .modal-overlay {
@@ -474,6 +485,8 @@
             <div class="profile-stat-lbl">Престиж</div>
           </div>
         </div>
+
+        <button class="change-skin-btn" id="btn-open-skin-menu">🎨 Змінити скін</button>
       </div>
 
       <div class="prestige-section">
@@ -501,12 +514,6 @@
     <!-- ТОП -->
     <div class="page scroll-page" id="page-top">
       <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 12px;">🏆 Топ гравців</div>
-      
-      <div class="top-switch">
-        <button class="top-switch-btn active" id="top-btn-xp">За XP</button>
-        <button class="top-switch-btn" id="top-btn-prestige">За Престижем</button>
-      </div>
-
       <div id="leaderboard-list"></div>
     </div>
 
@@ -547,6 +554,35 @@
     </div>
   </div>
 
+  <!-- Модалка перегляду профілю (з топу) -->
+  <div class="modal-overlay" id="modal-view-profile">
+    <div class="modal-content">
+      <div class="modal-title">Профіль гравця</div>
+      <div class="preview-box" id="view-prof-avatar" style="font-size: 50px;">🐭</div>
+      <div style="text-align:center; font-size: 20px; font-weight: 800; margin-bottom: 4px;" id="view-prof-nick">Гравець</div>
+      <div style="text-align:center; font-size: 12px; color: #666; margin-bottom: 8px;" id="view-prof-id">ID: 000000</div>
+      
+      <div style="text-align:center; margin-bottom:12px;">
+        <span class="profile-title-badge" id="view-prof-title" style="margin-top:0;">Початківець</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-around; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:12px;">
+        <div style="text-align:center;">
+          <div style="font-weight:700; color:#f5a623;" id="view-prof-xp">0</div>
+          <div style="font-size:10px; color:#888;">XP</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-weight:700; color:#da70d6;" id="view-prof-prestige">0</div>
+          <div style="font-size:10px; color:#888;">Престиж</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="document.getElementById('modal-view-profile').classList.remove('show')">Закрити</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modal-nickname">
     <div class="modal-content">
       <div class="modal-title">Змінити нікнейм</div>
@@ -554,6 +590,17 @@
       <div class="modal-actions">
         <button class="modal-btn cancel" onclick="document.getElementById('modal-nickname').classList.remove('show')">Скасувати</button>
         <button class="modal-btn confirm" id="btn-save-nickname">Зберегти</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка вибору скіна -->
+  <div class="modal-overlay" id="modal-skin-select">
+    <div class="modal-content">
+      <div class="modal-title">🎨 Виберіть скін</div>
+      <div class="inventory-grid" id="modal-skins-grid"></div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="document.getElementById('modal-skin-select').classList.remove('show')">Закрити</button>
       </div>
     </div>
   </div>
@@ -665,16 +712,25 @@
     const btnCancelBuy = document.getElementById('btn-cancel-buy');
     const btnConfirmBuy = document.getElementById('btn-confirm-buy');
 
+    const modalViewProfile = document.getElementById('modal-view-profile');
+    const viewProfAvatar = document.getElementById('view-prof-avatar');
+    const viewProfNick = document.getElementById('view-prof-nick');
+    const viewProfId = document.getElementById('view-prof-id');
+    const viewProfTitle = document.getElementById('view-prof-title');
+    const viewProfXp = document.getElementById('view-prof-xp');
+    const viewProfPrestige = document.getElementById('view-prof-prestige');
+
     const modalNickname = document.getElementById('modal-nickname');
     const newNicknameInput = document.getElementById('new-nickname-input');
     const btnSaveNickname = document.getElementById('btn-save-nickname');
     const btnChangeNickname = document.getElementById('btn-change-nickname');
+    
+    const btnOpenSkinMenu = document.getElementById('btn-open-skin-menu');
+    const modalSkinSelect = document.getElementById('modal-skin-select');
+    const modalSkinsGrid = document.getElementById('modal-skins-grid');
 
     const prestigeOverlay = document.getElementById('prestige-overlay');
     const prestigeText = document.getElementById('prestige-text');
-
-    const topBtnXp = document.getElementById('top-btn-xp');
-    const topBtnPrestige = document.getElementById('top-btn-prestige');
 
     // === Стан ===
     let isLoginMode = true;
@@ -693,7 +749,6 @@
     let currentShopTab = 'auto';
     let pendingCosmeticBuy = null;
     let isAdmin = false;
-    let topMode = 'xp'; // 'xp' або 'prestige'
 
     const GITHUB_RAW = "https://raw.githubusercontent.com/lolord1k228-create/Hamkatest/main/skins/";
 
@@ -837,9 +892,6 @@
       return messages[err.code] || err.message || 'Помилка';
     }
 
-    // ============================================================
-    // РЕЄСТРАЦІЯ / ВХІД
-    // ============================================================
     authSubmit.addEventListener('click', async () => {
       const nick = authNickname.value.trim();
       const password = authPassword.value;
@@ -940,22 +992,8 @@
     });
 
     // ============================================================
-    // ТОП (XP та ПРЕСТИЖ)
+    // ТОП
     // ============================================================
-    topBtnXp.addEventListener('click', () => {
-      topMode = 'xp';
-      topBtnXp.classList.add('active');
-      topBtnPrestige.classList.remove('active');
-      loadLeaderboard();
-    });
-
-    topBtnPrestige.addEventListener('click', () => {
-      topMode = 'prestige';
-      topBtnPrestige.classList.add('active');
-      topBtnXp.classList.remove('active');
-      loadLeaderboard();
-    });
-
     async function loadLeaderboard() {
       leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Завантаження...</div>';
       try {
@@ -966,19 +1004,18 @@
         for (const uid in users) {
           const u = users[uid];
           arr.push({ 
+            uid: uid,
             nickname: u.nickname || 'Гравець', 
+            avatar: u.avatar || '🐭',
+            title: u.title || 'Початківець',
+            activeSkin: u.activeSkin || 'default',
+            publicId: u.publicId || '000000',
             xp: u.xp || 0,
             prestige: u.prestige || 0
           });
         }
         
-        // Сортуємо залежно від режиму
-        if (topMode === 'xp') {
-          arr.sort((a, b) => b.xp - a.xp);
-        } else {
-          arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
-        }
-        
+        arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
         const top10 = arr.slice(0, 10);
 
         leaderboardList.innerHTML = '';
@@ -986,18 +1023,53 @@
           const el = document.createElement('div');
           el.className = 'leaderboard-item';
           
-          let displayValue = '';
-          if (topMode === 'xp') {
-            displayValue = `${formatNumber(u.xp)} XP`;
-          } else {
-            displayValue = `🌟 ${u.prestige}`;
+          // Визначаємо аватарку
+          let avatarHtml = `<div class="lb-avatar">${u.avatar}</div>`;
+          if (u.activeSkin !== 'default') {
+            const skinObj = SKINS.find(s => s.id === u.activeSkin);
+            if (skinObj) {
+              avatarHtml = `<div class="lb-avatar" style="background-image: url('${GITHUB_RAW}${skinObj.file}');"></div>`;
+            }
           }
 
           el.innerHTML = `
-            <div class="leaderboard-rank">#${i + 1}</div>
-            <div class="leaderboard-name">${u.nickname}</div>
-            <div class="leaderboard-val">${displayValue}</div>
+            <div class="leaderboard-rank" style="font-size:16px; font-weight:800; color:#f5a623; width:25px;">#${i + 1}</div>
+            ${avatarHtml}
+            <div class="lb-info">
+              <div class="lb-name">${u.nickname}</div>
+              <div class="lb-title">${u.title}</div>
+            </div>
+            <div class="lb-stats">
+              <div class="lb-xp">${formatNumber(u.xp)} XP</div>
+              <div class="lb-prestige">🌟 ${u.prestige}</div>
+            </div>
           `;
+          
+          el.addEventListener('click', () => {
+            viewProfNick.innerText = u.nickname;
+            viewProfId.innerText = 'ID: ' + u.publicId;
+            viewProfTitle.innerText = u.title;
+            viewProfXp.innerText = formatNumber(u.xp);
+            viewProfPrestige.innerText = u.prestige;
+            
+            // Встановлюємо аватарку в модалці
+            if (u.activeSkin !== 'default') {
+              const skinObj = SKINS.find(s => s.id === u.activeSkin);
+              if (skinObj) {
+                viewProfAvatar.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
+                viewProfAvatar.innerText = '';
+              } else {
+                viewProfAvatar.style.backgroundImage = 'none';
+                viewProfAvatar.innerText = u.avatar;
+              }
+            } else {
+              viewProfAvatar.style.backgroundImage = 'none';
+              viewProfAvatar.innerText = u.avatar;
+            }
+
+            modalViewProfile.classList.add('show');
+          });
+
           leaderboardList.appendChild(el);
         });
       } catch (err) {
@@ -1038,6 +1110,40 @@
       await update(ref(db, 'users/' + currentUid), { nickname: newNick });
       modalNickname.classList.remove('show');
       showStatus('✅ Нікнейм змінено!');
+    });
+
+    // === Вибір скіна з профілю ===
+    btnOpenSkinMenu.addEventListener('click', () => {
+      modalSkinsGrid.innerHTML = '';
+      
+      // Додаємо дефолтний
+      const defEl = document.createElement('div');
+      defEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
+      defEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">Стандарт</div>`;
+      defEl.addEventListener('click', async () => {
+        await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
+        modalSkinSelect.classList.remove('show');
+        showStatus('✅ Скін змінено!');
+      });
+      modalSkinsGrid.appendChild(defEl);
+
+      // Додаємо куплені
+      state.purchasedSkins.forEach(skinId => {
+        const skinObj = SKINS.find(s => s.id === skinId);
+        if (!skinObj) return;
+
+        const el = document.createElement('div');
+        el.className = `inventory-item ${state.activeSkin === skinId ? 'active' : ''}`;
+        el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${skinObj.name}</div>`;
+        el.addEventListener('click', async () => {
+          await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
+          modalSkinSelect.classList.remove('show');
+          showStatus('✅ Скін змінено!');
+        });
+        modalSkinsGrid.appendChild(el);
+      });
+
+      modalSkinSelect.classList.add('show');
     });
 
     // === АДМІНКА ===
@@ -1235,6 +1341,9 @@
         if (skinObj) {
           hamster.innerText = '';
           hamster.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
+        } else {
+          hamster.style.backgroundImage = 'none';
+          hamster.innerText = '🐭';
         }
       }
     }
@@ -1558,9 +1667,23 @@
       profXp.innerText = formatNumber(state.xp);
       profPrestige.innerText = state.prestige;
       profTitle.innerText = state.title;
-      profAvatar.innerText = state.avatar;
       profNickname.innerText = state.nickname;
       profPublicId.innerText = 'ID: ' + state.publicId;
+      
+      // Відображення аватарки (скіна) в профілі
+      if (state.activeSkin !== 'default') {
+        const skinObj = SKINS.find(s => s.id === state.activeSkin);
+        if (skinObj) {
+          profAvatar.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
+          profAvatar.innerText = '';
+        } else {
+          profAvatar.style.backgroundImage = 'none';
+          profAvatar.innerText = state.avatar;
+        }
+      } else {
+        profAvatar.style.backgroundImage = 'none';
+        profAvatar.innerText = state.avatar;
+      }
 
       const req = getPrestigeReq(state.prestige);
       if (state.xp >= req) {
@@ -1854,4 +1977,4 @@
     }
   </script>
 </body>
-  </html>
+        </html>
