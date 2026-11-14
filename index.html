@@ -243,13 +243,15 @@
       font-size: 12px; cursor: pointer; color: #fff;
     }
     .profile-id { font-size: 12px; color: #666; margin-top: 2px; }
+    
     .profile-title-badge {
       display: inline-flex; align-items: center; gap: 6px;
       margin-top: 8px; padding: 4px 16px; border-radius: 20px;
-      background: linear-gradient(90deg, #8a2be2, #da70d6);
       font-size: 12px; font-weight: 700; color: #fff;
       box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+      /* Колір задається через JS */
     }
+    
     .profile-stats {
       display: flex; justify-content: space-around; margin-top: 16px;
       background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px;
@@ -300,7 +302,8 @@
     .lb-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-title { 
       display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 4px;
-      background: linear-gradient(90deg, #8a2be2, #da70d6); color: #fff; margin-top: 2px;
+      color: #fff; margin-top: 2px;
+      /* Колір задається через JS */
     }
     .lb-stats { text-align: right; flex-shrink: 0; }
     .lb-xp { font-size: 13px; font-weight: 700; color: #2ecc71; }
@@ -467,7 +470,7 @@
         </div>
         <div class="profile-id" id="prof-public-id">ID: 000000</div>
 
-        <div class="profile-title-badge">
+        <div class="profile-title-badge" id="prof-title-badge">
           <span id="prof-title">Початківець</span>
         </div>
         
@@ -554,7 +557,7 @@
     </div>
   </div>
 
-  <!-- Модалка перегляду профілю (з топу) -->
+  <!-- Модалка перегляду профілю -->
   <div class="modal-overlay" id="modal-view-profile">
     <div class="modal-content">
       <div class="modal-title">Профіль гравця</div>
@@ -696,6 +699,7 @@
     const profNickname = document.getElementById('prof-nickname');
     const profPublicId = document.getElementById('prof-public-id');
     const profTitle = document.getElementById('prof-title');
+    const profTitleBadge = document.getElementById('prof-title-badge');
     const profCoins = document.getElementById('prof-coins');
     const profXp = document.getElementById('prof-xp');
     const profPrestige = document.getElementById('prof-prestige');
@@ -752,6 +756,11 @@
 
     const GITHUB_RAW = "https://raw.githubusercontent.com/lolord1k228-create/Hamkatest/main/skins/";
 
+    // === Глобальні дані (завантажуються з Firebase) ===
+    let TITLES = [];
+    let AVATARS = [];
+    let SKINS = [];
+
     // === Рівні ===
     const LEVELS = [
       { name: '0 початківець', xp: 0 },
@@ -769,34 +778,6 @@
       { name: 'gold 2', xp: 600000 },
       { name: 'gold 3', xp: 900000 }
     ];
-
-    const PRESTIGE_TITLES = [
-      { name: 'Початківець', reqPrestige: 0 },
-      { name: 'Бронзовий Хом\'як', reqPrestige: 1 },
-      { name: 'Срібний Хом\'як', reqPrestige: 2 },
-      { name: 'Золотий Хом\'як', reqPrestige: 3 },
-      { name: 'Крипто-Магнат', reqPrestige: 4 },
-      { name: 'Легенда Hamka', reqPrestige: 5 }
-    ];
-
-    const COSMETICS = [
-      { id: 'title_crypto_baron', type: 'title', name: 'Крипто-Барон', price: 10000 },
-      { id: 'title_tap_god', type: 'title', name: 'Бог Тапів', price: 50000 },
-      { id: 'title_hamka_master', type: 'title', name: 'Майстер Hamka', price: 100000 },
-      { id: 'title_crypto_king', type: 'title', name: 'Король Крипти', price: 250000 },
-      { id: 'title_emperor', type: 'title', name: 'Імператор', price: 500000 },
-      { id: 'avatar_dog', type: 'avatar', name: '🐶', price: 5000 },
-      { id: 'avatar_cat', type: 'avatar', name: '🐱', price: 5000 },
-      { id: 'avatar_lion', type: 'avatar', name: '🦁', price: 15000 },
-      { id: 'avatar_panda', type: 'avatar', name: '🐼', price: 20000 },
-      { id: 'avatar_unicorn', type: 'avatar', name: '🦄', price: 30000 },
-      { id: 'avatar_alien', type: 'avatar', name: '👽', price: 40000 },
-      { id: 'avatar_robot', type: 'avatar', name: '🤖', price: 60000 }
-    ];
-
-    const BASE_AVATARS = ['🐭'];
-
-    let SKINS = [];
 
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
     const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
@@ -955,10 +936,13 @@
         currentUid = user.uid;
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
-        initGame(user.uid);
-        initCryptoSystem();
-        loadGameData();
-        checkAdminStatus(user.uid);
+        
+        // Спочатку завантажуємо глобальні дані (титули, аватарки, скіни), потім ініціалізуємо гру
+        loadGameData().then(() => {
+          initGame(user.uid);
+          initCryptoSystem();
+          checkAdminStatus(user.uid);
+        });
       } else {
         currentUid = null;
         authScreen.classList.remove('hidden');
@@ -992,6 +976,71 @@
     });
 
     // ============================================================
+    // ЗАВАНТАЖЕННЯ ДАНИХ З FIREBASE
+    // ============================================================
+    async function loadGameData() {
+      try {
+        // Завантажуємо титули
+        const titlesSnap = await get(ref(db, 'game_data/titles'));
+        if (titlesSnap.exists()) {
+          const data = titlesSnap.val();
+          TITLES = Object.keys(data).map(id => ({
+            id: id,
+            name: data[id].name,
+            price: data[id].price || 0,
+            color: data[id].color || 'linear-gradient(90deg, #8a2be2, #da70d6)',
+            reqPrestige: data[id].reqPrestige || 0
+          }));
+        } else {
+          // Якщо в базі пусто, ставимо дефолтні
+          TITLES = [
+            { id: 'beg', name: 'Початківець', price: 0, color: 'linear-gradient(90deg, #555, #777)', reqPrestige: 0 },
+            { id: 'brnz', name: 'Бронзовий Хом\'як', price: 0, color: 'linear-gradient(90deg, #cd7f32, #8b4513)', reqPrestige: 1 },
+            { id: 'slvr', name: 'Срібний Хом\'як', price: 0, color: 'linear-gradient(90deg, #c0c0c0, #808080)', reqPrestige: 2 },
+            { id: 'gld', name: 'Золотий Хом\'як', price: 0, color: 'linear-gradient(90deg, #ffd700, #b8860b)', reqPrestige: 3 },
+            { id: 'crypto_baron', name: 'Крипто-Барон', price: 10000, color: 'linear-gradient(90deg, #ff9800, #ff5722)', reqPrestige: 0 },
+            { id: 'tap_god', name: 'Бог Тапів', price: 50000, color: 'linear-gradient(90deg, #00bcd4, #2196f3)', reqPrestige: 0 },
+            { id: 'emperor', name: 'Імператор', price: 500000, color: 'linear-gradient(90deg, #e91e63, #9c27b0)', reqPrestige: 0 }
+          ];
+        }
+
+        // Завантажуємо аватарки
+        const avatarsSnap = await get(ref(db, 'game_data/avatars'));
+        if (avatarsSnap.exists()) {
+          const data = avatarsSnap.val();
+          AVATARS = Object.keys(data).map(id => ({
+            id: id,
+            name: data[id].name,
+            price: data[id].price || 0
+          }));
+        } else {
+          AVATARS = [
+            { id: 'dog', name: '🐶', price: 5000 },
+            { id: 'cat', name: '🐱', price: 5000 },
+            { id: 'lion', name: '🦁', price: 15000 },
+            { id: 'panda', name: '🐼', price: 20000 },
+            { id: 'unicorn', name: '🦄', price: 30000 },
+            { id: 'alien', name: '👽', price: 40000 }
+          ];
+        }
+
+        // Завантажуємо скіни
+        const skinsSnap = await get(ref(db, 'game_data/skins'));
+        if (skinsSnap.exists()) {
+          const data = skinsSnap.val();
+          SKINS = Object.keys(data).map(id => ({
+            id: id,
+            name: data[id].name,
+            file: data[id].file,
+            price: data[id].price
+          }));
+        }
+      } catch (err) {
+        console.error("Load game data error:", err);
+      }
+    }
+
+    // ============================================================
     // ТОП
     // ============================================================
     async function loadLeaderboard() {
@@ -1023,6 +1072,10 @@
           const el = document.createElement('div');
           el.className = 'leaderboard-item';
           
+          // Знаходимо колір титулу
+          const titleObj = TITLES.find(t => t.name === u.title);
+          const titleColor = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
+
           // Визначаємо аватарку
           let avatarHtml = `<div class="lb-avatar">${u.avatar}</div>`;
           if (u.activeSkin !== 'default') {
@@ -1037,7 +1090,7 @@
             ${avatarHtml}
             <div class="lb-info">
               <div class="lb-name">${u.nickname}</div>
-              <div class="lb-title">${u.title}</div>
+              <div class="lb-title" style="background:${titleColor};">${u.title}</div>
             </div>
             <div class="lb-stats">
               <div class="lb-xp">${formatNumber(u.xp)} XP</div>
@@ -1049,10 +1102,10 @@
             viewProfNick.innerText = u.nickname;
             viewProfId.innerText = 'ID: ' + u.publicId;
             viewProfTitle.innerText = u.title;
+            viewProfTitle.style.background = titleColor;
             viewProfXp.innerText = formatNumber(u.xp);
             viewProfPrestige.innerText = u.prestige;
             
-            // Встановлюємо аватарку в модалці
             if (u.activeSkin !== 'default') {
               const skinObj = SKINS.find(s => s.id === u.activeSkin);
               if (skinObj) {
@@ -1075,24 +1128,6 @@
       } catch (err) {
         console.error(err);
         leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#ff5252;">Помилка завантаження</div>';
-      }
-    }
-
-    // === Завантаження даних з Firebase (скіни) ===
-    async function loadGameData() {
-      try {
-        const skinsSnap = await get(ref(db, 'game_data/skins'));
-        if (skinsSnap.exists()) {
-          const data = skinsSnap.val();
-          SKINS = Object.keys(data).map(id => ({
-            id: id,
-            name: data[id].name,
-            file: data[id].file,
-            price: data[id].price
-          }));
-        }
-      } catch (err) {
-        console.error("Load game data error:", err);
       }
     }
 
@@ -1419,26 +1454,46 @@
         const grid = document.createElement('div');
         grid.className = 'shop-grid';
 
-        COSMETICS.forEach(item => {
-          let isOwned = false;
-          if (item.type === 'title') isOwned = state.purchasedTitles.includes(item.name);
-          if (item.type === 'avatar') isOwned = state.purchasedAvatars.includes(item.name);
+        // Додаємо титули
+        TITLES.forEach(item => {
+          if (item.price <= 0) return; // Безкоштовні (за престиж) не продаються
+          const isOwned = state.purchasedTitles.includes(item.name);
 
           const card = document.createElement('div');
           card.className = 'shop-card';
           card.innerHTML = `
-            <div class="grid-preview">${item.type === 'avatar' ? item.name : '🏆'}</div>
+            <div class="grid-preview" style="font-size:24px; background:${item.color};">🏆</div>
             <div class="shop-card-info">
-              <div class="shop-card-title">${item.type === 'avatar' ? 'Аватарка' : item.name}</div>
+              <div class="shop-card-title" style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${item.name}</div>
               <div class="shop-card-price">${formatNumber(item.price)} 🪙</div>
             </div>
-            <button class="shop-card-btn" data-cosmetic-id="${item.id}" ${isOwned ? 'disabled' : ''}>
+            <button class="shop-card-btn" data-title-name="${item.name}" ${isOwned ? 'disabled' : ''}>
               ${isOwned ? 'Куплено' : 'Купити'}
             </button>
           `;
           grid.appendChild(card);
         });
 
+        // Додаємо аватарки
+        AVATARS.forEach(item => {
+          const isOwned = state.purchasedAvatars.includes(item.name);
+
+          const card = document.createElement('div');
+          card.className = 'shop-card';
+          card.innerHTML = `
+            <div class="grid-preview">${item.name}</div>
+            <div class="shop-card-info">
+              <div class="shop-card-title">Аватарка</div>
+              <div class="shop-card-price">${formatNumber(item.price)} 🪙</div>
+            </div>
+            <button class="shop-card-btn" data-avatar-name="${item.name}" ${isOwned ? 'disabled' : ''}>
+              ${isOwned ? 'Куплено' : 'Купити'}
+            </button>
+          `;
+          grid.appendChild(card);
+        });
+
+        // Додаємо скіни
         SKINS.forEach(item => {
           const isOwned = state.purchasedSkins.includes(item.id);
 
@@ -1460,8 +1515,10 @@
         shopListEl.appendChild(grid);
 
         shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
-          if (btn.dataset.cosmeticId) {
-            btn.addEventListener('click', () => openBuyModal(btn.dataset.cosmeticId));
+          if (btn.dataset.titleName) {
+            btn.addEventListener('click', () => openBuyTitleModal(btn.dataset.titleName));
+          } else if (btn.dataset.avatarName) {
+            btn.addEventListener('click', () => openBuyAvatarModal(btn.dataset.avatarName));
           } else if (btn.dataset.skinId) {
             btn.addEventListener('click', () => openBuySkinModal(btn.dataset.skinId));
           }
@@ -1503,6 +1560,30 @@
       });
     }
 
+    function openBuyTitleModal(titleName) {
+      const item = TITLES.find(t => t.name === titleName);
+      if (!item) return;
+      pendingCosmeticBuy = { ...item, type: 'title' };
+      
+      buyPreviewIcon.style.backgroundImage = 'none';
+      buyPreviewIcon.innerText = '🏆';
+      buyPreviewName.innerHTML = `<span style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${item.name}</span>`;
+      buyPreviewPrice.innerText = formatNumber(item.price) + ' 🪙';
+      modalBuy.classList.add('show');
+    }
+
+    function openBuyAvatarModal(avatarName) {
+      const item = AVATARS.find(a => a.name === avatarName);
+      if (!item) return;
+      pendingCosmeticBuy = { ...item, type: 'avatar' };
+      
+      buyPreviewIcon.style.backgroundImage = 'none';
+      buyPreviewIcon.innerText = item.name;
+      buyPreviewName.innerText = 'Аватарка';
+      buyPreviewPrice.innerText = formatNumber(item.price) + ' 🪙';
+      modalBuy.classList.add('show');
+    }
+
     function openBuySkinModal(skinId) {
       const item = SKINS.find(s => s.id === skinId);
       if (!item) return;
@@ -1511,18 +1592,6 @@
       buyPreviewIcon.style.backgroundImage = `url('${GITHUB_RAW}${item.file}')`;
       buyPreviewIcon.innerText = '';
       buyPreviewName.innerText = `Скін: ${item.name}`;
-      buyPreviewPrice.innerText = formatNumber(item.price) + ' 🪙';
-      modalBuy.classList.add('show');
-    }
-
-    function openBuyModal(cosmeticId) {
-      const item = COSMETICS.find(c => c.id === cosmeticId);
-      if (!item) return;
-      pendingCosmeticBuy = item;
-      
-      buyPreviewIcon.style.backgroundImage = 'none';
-      buyPreviewIcon.innerText = item.type === 'avatar' ? item.name : '🏆';
-      buyPreviewName.innerText = item.type === 'avatar' ? 'Аватарка' : item.name;
       buyPreviewPrice.innerText = formatNumber(item.price) + ' 🪙';
       modalBuy.classList.add('show');
     }
@@ -1666,7 +1735,6 @@
       profCoins.innerText = formatNumber(state.coins);
       profXp.innerText = formatNumber(state.xp);
       profPrestige.innerText = state.prestige;
-      profTitle.innerText = state.title;
       profNickname.innerText = state.nickname;
       profPublicId.innerText = 'ID: ' + state.publicId;
       
@@ -1685,6 +1753,16 @@
         profAvatar.innerText = state.avatar;
       }
 
+      // Відображення титулу з кольором
+      const titleObj = TITLES.find(t => t.name === state.title);
+      if (titleObj) {
+        profTitle.innerText = titleObj.name;
+        profTitleBadge.style.background = titleObj.color;
+      } else {
+        profTitle.innerText = state.title;
+        profTitleBadge.style.background = 'linear-gradient(90deg, #8a2be2, #da70d6)';
+      }
+
       const req = getPrestigeReq(state.prestige);
       if (state.xp >= req) {
         prestigeInfo.innerText = `Доступно! Престиж активується автоматично.`;
@@ -1697,25 +1775,27 @@
     // ІНВЕНТАР
     // ============================================================
     function renderInventory() {
-      const availableTitles = [
-        ...PRESTIGE_TITLES.filter(t => state.prestige >= t.reqPrestige).map(t => t.name),
-        ...state.purchasedTitles
-      ];
+      // Титули
+      const availableTitles = TITLES.filter(t => {
+        if (t.reqPrestige > 0) return state.prestige >= t.reqPrestige;
+        return state.purchasedTitles.includes(t.name);
+      });
 
       invTitles.innerHTML = '';
-      availableTitles.forEach(tName => {
+      availableTitles.forEach(tItem => {
         const el = document.createElement('div');
-        el.className = `inventory-item ${state.title === tName ? 'active' : ''}`;
-        el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name">${tName}</div>`;
+        el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
+        el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${tItem.name}</div>`;
         el.addEventListener('click', async () => {
           if (!currentUid) return;
-          await update(ref(db, 'users/' + currentUid), { title: tName });
+          await update(ref(db, 'users/' + currentUid), { title: tItem.name });
           showStatus('✅ Титул вдягнуто!');
         });
         invTitles.appendChild(el);
       });
 
-      const availableAvatars = [...BASE_AVATARS, ...state.purchasedAvatars];
+      // Аватарки
+      const availableAvatars = ['🐭', ...state.purchasedAvatars];
       invAvatars.innerHTML = '';
       availableAvatars.forEach(avName => {
         const el = document.createElement('div');
@@ -1729,6 +1809,7 @@
         invAvatars.appendChild(el);
       });
 
+      // Скіни
       invSkins.innerHTML = '';
       const defaultEl = document.createElement('div');
       defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
@@ -1977,4 +2058,4 @@
     }
   </script>
 </body>
-        </html>
+    </html>
