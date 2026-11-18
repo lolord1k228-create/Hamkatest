@@ -20,7 +20,7 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* ===== ЕКРАН ЗАВАНТАЖЕННЯ ===== */
+    /* ЗАВАНТАЖЕННЯ */
     #loading-screen {
       position: fixed; inset: 0; z-index: 2000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -33,7 +33,7 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loading-text { font-size: 16px; font-weight: 600; color: #fff; }
 
-    /* ===== АВТОРИЗАЦІЯ ===== */
+    /* АВТОРИЗАЦІЯ */
     #auth-screen {
       position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -84,7 +84,7 @@
     }
     .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
 
-    /* ===== ГРА ===== */
+    /* ГРА */
     #game-screen { display: none; flex-direction: column; height: 100%; max-width: 500px; width: 100%; margin: 0 auto; }
     #game-screen.visible { display: flex; }
 
@@ -133,7 +133,7 @@
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
 
-    /* ===== ТАП (Адаптив під 6.1" - 6.9") ===== */
+    /* ТАП (Адаптив під 6.1" - 6.9") */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -170,7 +170,7 @@
       100% { opacity: 0; transform: translateY(-85px) scale(1.3); }
     }
 
-    /* ===== МАГАЗИН ===== */
+    /* МАГАЗИН */
     .shop-container { display: flex; flex-direction: column; height: 100%; }
     .shop-tabs { 
       display: flex; gap: 6px; padding: 10px 12px; background: #0a0a0a; 
@@ -232,7 +232,7 @@
     }
     .promo-input:focus { border-color: #2ecc71; }
 
-    /* ===== КРИПТА / МІНІ-ІГРИ ===== */
+    /* КРИПТА / МІНІ-ІГРИ */
     .crypto-page { padding: 10px 12px 40px; }
     .crypto-card {
       background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
@@ -258,7 +258,7 @@
     .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
     .crypto-holdings span { color: #f5a623; font-weight: 600; }
 
-    /* ===== ПРОФІЛЬ ===== */
+    /* ПРОФІЛЬ */
     .scroll-page { padding: 10px 12px 40px; }
     .profile-card {
       background: linear-gradient(145deg, #1a1a24, #0f0f15);
@@ -302,7 +302,7 @@
       border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px;
     }
 
-    /* ===== ІНВЕНТАР ===== */
+    /* ІНВЕНТАР */
     .inventory-section { margin-bottom: 16px; }
     .inventory-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #f5a623; }
     .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -335,7 +335,7 @@
       font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
     }
 
-    /* ===== ТОП ===== */
+    /* ТОП */
     .leaderboard-item {
       display: flex; align-items: center; gap: 10px;
       padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px;
@@ -358,7 +358,7 @@
     .lb-xp { font-size: 13px; font-weight: 700; color: #2ecc71; }
     .lb-prestige { font-size: 11px; font-weight: 700; color: #da70d6; }
 
-    /* ===== НАЛАШТУВАННЯ ===== */
+    /* НАЛАШТУВАННЯ */
     .settings-group {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -384,7 +384,7 @@
     input:checked + .toggle-slider { background-color: #2ecc71; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
 
-    /* ===== МОДАЛКИ ===== */
+    /* МОДАЛКИ */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.8);
       display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -450,7 +450,7 @@
       border-radius: 8px; color: #fff; font-size: 14px; outline: none; margin-bottom: 8px;
     }
 
-    /* ===== НИЖНЯ ПАНЕЛЬ (з safe-area для 6.1" - 6.9") ===== */
+    /* НИЖНЯ ПАНЕЛЬ (з safe-area для 6.1" - 6.9") */
     .bottom-panel {
       background: #0a0a0a; border-top: 1px solid #222;
       padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
@@ -494,7 +494,7 @@
     <div class="loading-text" data-i18n="loading">Loading...</div>
   </div>
 
-  <!-- ===== АВТОРИЗАЦІЯ ===== -->
+  <!-- АВТОРИЗАЦІЯ -->
   <div id="auth-screen" class="hidden">
     <div class="auth-logo-img">🐭</div>
     <div class="auth-title">Hamka</div>
@@ -526,7 +526,7 @@
     </div>
   </div>
 
-  <!-- ===== ГРА ===== -->
+  <!-- ГРА -->
   <div id="game-screen">
     <div class="top-stats">
       <div class="top-stats-group">
@@ -726,7 +726,7 @@
 
   <div id="status"></div>
 
-  <!-- Модалка вибору кількості кейсів -->
+  <!-- Модалки -->
   <div class="modal-overlay" id="modal-case-qty">
     <div class="modal-content">
       <div class="modal-title" id="case-modal-title" data-i18n="open_case">Open Case</div>
@@ -743,7 +743,6 @@
     </div>
   </div>
 
-  <!-- Модалка перегляду профілю -->
   <div class="modal-overlay" id="modal-view-profile">
     <div class="modal-content">
       <div class="modal-title" data-i18n="player_profile">Player Profile</div>
@@ -783,7 +782,6 @@
     </div>
   </div>
 
-  <!-- Модалка Адмінки -->
   <div class="modal-overlay" id="modal-admin">
     <div class="modal-content">
       <div class="modal-title">🛠 Admin Panel</div>
@@ -804,7 +802,6 @@
     </div>
   </div>
 
-  <!-- Анімація відкриття кейса -->
   <div class="case-open-overlay" id="case-open-overlay">
     <div class="case-opening-box" id="case-opening-box">📦</div>
     <div class="case-reward-text" id="case-reward-text"></div>
@@ -1039,7 +1036,6 @@
       if (langSelect) langSelect.value = lang;
     }
 
-    // DOM елементи
     const loadingScreen = document.getElementById('loading-screen');
     const authScreen = document.getElementById('auth-screen');
     const gameScreen = document.getElementById('game-screen');
@@ -1122,7 +1118,6 @@
     const miniContentCrypto = document.getElementById('mini-content-crypto');
     const miniContentRoulette = document.getElementById('mini-content-roulette');
 
-    // Стан гри
     let isLoginMode = true;
     let state = { 
       coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
@@ -1922,7 +1917,6 @@
                 return;
               }
 
-              // Нараховуємо тому, хто ввів код: 1 Базовий кейс і блокуємо повторне введення
               await runTransaction(ref(db, 'users/' + currentUid), (data) => {
                 if (!data || data.usedReferralCode) return;
                 data.usedReferralCode = true;
@@ -1931,7 +1925,6 @@
                 return data;
               });
 
-              // Нараховуємо власнику коду: 1 Легендарний кейс
               await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
                 if (!data) return data;
                 data.legendaryCases = (data.legendaryCases || 0) + 1;
