@@ -133,7 +133,7 @@
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
 
-    /* ТАП (Адаптив під 6.1" - 6.9") */
+    /* ТАП */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -450,7 +450,7 @@
       border-radius: 8px; color: #fff; font-size: 14px; outline: none; margin-bottom: 8px;
     }
 
-    /* НИЖНЯ ПАНЕЛЬ (з safe-area для 6.1" - 6.9") */
+    /* НИЖНЯ ПАНЕЛЬ */
     .bottom-panel {
       background: #0a0a0a; border-top: 1px solid #222;
       padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
@@ -1218,7 +1218,7 @@
       statusEl.innerText = text;
       statusEl.classList.add('show');
       clearTimeout(showStatus._t);
-      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2200);
+      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2500);
     }
 
     function formatNumber(num) {
@@ -1895,46 +1895,70 @@
         if (btnActivate) {
           btnActivate.addEventListener('click', async () => {
             const code = document.getElementById('ref-promo-input').value.trim();
-            if (!code) { showStatus('❌ Enter code'); return; }
-            if (code === state.publicId || code === currentUid) { showStatus('❌ Cannot use own code'); return; }
-            if (state.usedReferralCode) { showStatus('❌ Already activated'); return; }
+            if (!code) { showStatus('❌ [ERR_1] Enter code'); return; }
+            if (code === state.publicId || code === currentUid) { showStatus('❌ [ERR_3] Own code'); return; }
+            if (state.usedReferralCode) { showStatus('❌ [ERR_4] Already activated'); return; }
 
             btnActivate.disabled = true;
+            showStatus('⏳ Searching...');
             try {
               const usersSnap = await get(ref(db, 'users'));
-              const users = usersSnap.val() || {};
+              if (!usersSnap.exists()) {
+                showStatus('❌ [ERR_5] Database empty');
+                btnActivate.disabled = false;
+                return;
+              }
+
+              const users = usersSnap.val();
               let referrerUid = null;
               for (const uId in users) {
-                if (users[uId].publicId === code || uId === code) {
+                const uData = users[uId];
+                if (String(uData.publicId) === code || uId === code) {
                   referrerUid = uId;
                   break;
                 }
               }
 
               if (!referrerUid) {
-                showStatus('❌ Invalid promo code');
+                showStatus('❌ [ERR_6] Code not found');
                 btnActivate.disabled = false;
                 return;
               }
 
-              await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-                if (!data || data.usedReferralCode) return;
+              // 1. Нараховуємо гравцю (+1 Базовий кейс)
+              const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+                if (!data) return data;
+                if (data.usedReferralCode) return;
                 data.usedReferralCode = true;
                 if (!data.cases) data.cases = {};
                 data.cases.basic = (data.cases.basic || 0) + 1;
                 return data;
               });
 
-              await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
+              if (!res1.committed) {
+                showStatus('❌ [ERR_7] User tx failed (Rules)');
+                btnActivate.disabled = false;
+                return;
+              }
+
+              // 2. Нараховуємо власнику коду (+1 Легендарний кейс)
+              const res2 = await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
                 if (!data) return data;
                 data.legendaryCases = (data.legendaryCases || 0) + 1;
                 return data;
               });
 
+              if (!res2.committed) {
+                showStatus('❌ [ERR_8] Referrer tx failed (Rules)');
+                btnActivate.disabled = false;
+                return;
+              }
+
               showStatus('🎁 Promo activated! +1 Basic Case!');
               try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
             } catch (err) {
-              showStatus('❌ Error');
+              alert(`Firebase Error:\n${err.code || ''}\n${err.message}`);
+              showStatus('❌ [ERR_SYS] ' + (err.code || err.message));
               btnActivate.disabled = false;
             }
           });
