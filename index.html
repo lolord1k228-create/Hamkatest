@@ -18,6 +18,29 @@
     }
 
     :root {
+      --bg-main: #000000;
+      --bg-card: #0c0e12;
+      --bg-surface: #050608;
+      --bg-elevated: #171a21;
+      --border-color: #1c2029;
+      --border-strong: #2a303d;
+      --text-main: #ffffff;
+      --text-muted: #9aa2b1;
+      --accent: #f5b400;
+      --accent-2: #ff8c00;
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --btn-pad-y: 8px;
+      --btn-pad-x: 11px;
+      --btn-font: 12px;
+      --card-pad: 12px;
+      --card-shadow: none;
+      --hamster-size: 320px;
+      --hamster-max: 76vw;
+      --hamster-emoji-size: clamp(92px, 22vw, 150px);
+    }
+
+    body.theme-new {
       --bg-main: #0d1117;
       --bg-card: #161b22;
       --bg-surface: #0d1117;
@@ -40,30 +63,6 @@
       --hamster-emoji-size: clamp(96px, 24vw, 180px);
     }
 
-    /* Повна "стара тема": інші кольори, скруглення, розміри кнопок/карток і кнопка тапу */
-    body.theme-classic {
-      --bg-main: #1b1524;
-      --bg-card: #292036;
-      --bg-surface: #140f1c;
-      --bg-elevated: #382c4a;
-      --border-color: #46375c;
-      --border-strong: #5d4978;
-      --text-main: #fff9ed;
-      --text-muted: #c8b8de;
-      --accent: #ffbe0b;
-      --accent-2: #fb5607;
-      --radius-card: 8px;
-      --radius-btn: 6px;
-      --btn-pad-y: 7px;
-      --btn-pad-x: 10px;
-      --btn-font: 12px;
-      --card-pad: 10px;
-      --card-shadow: 0 3px 0 #120d19;
-      --hamster-size: 190px;
-      --hamster-max: 52vw;
-      --hamster-emoji-size: 72px;
-    }
-
     body {
       margin: 0;
       padding: 0;
@@ -72,38 +71,6 @@
       color: var(--text-main);
       min-height: 100vh;
       overflow-x: hidden;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-
-    body.theme-classic {
-      font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
-    }
-
-    body.theme-classic .top-bar {
-      padding: 9px 12px;
-    }
-
-    body.theme-classic .page {
-      padding: 12px;
-    }
-
-    body.theme-classic .shop-grid {
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-
-    body.theme-classic .inv-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-    }
-
-    body.theme-classic .bottom-menu {
-      height: 50px;
-      padding: 4px 2px;
-    }
-
-    body.theme-classic .bottom-tap-hud {
-      bottom: 50px;
     }
 
     .hidden {
@@ -141,11 +108,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: radial-gradient(circle at top, #1b2432 0%, var(--bg-main) 70%);
-    }
-
-    body.theme-classic #auth-screen {
-      background: radial-gradient(circle at top, #3d2a57 0%, var(--bg-main) 70%);
+      background: radial-gradient(circle at top, #141a24 0%, var(--bg-main) 72%);
     }
 
     .auth-card {
@@ -154,7 +117,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: 24px;
     }
 
@@ -220,10 +182,9 @@
       border: none;
       border-radius: var(--radius-btn);
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: #0d1117;
+      color: #000000;
       font-weight: 800;
       font-size: 14px;
-      box-shadow: var(--card-shadow);
       cursor: pointer;
       margin-top: 4px;
     }
@@ -268,69 +229,64 @@
 
     #game-screen {
       display: none;
-      padding-bottom: 76px;
+      padding-bottom: 24px;
       min-height: 100vh;
     }
 
     body.on-tap-page #game-screen {
-      padding-bottom: 152px;
+      padding-bottom: 118px;
     }
 
     #game-screen.visible {
       display: block;
     }
 
+    /* Верхня шапка як на скріншоті: зліва монети й хоми, справа Сезон 1 */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-color);
+      padding: 10px 14px 6px;
+      background: var(--bg-main);
       position: sticky;
       top: 0;
-      z-index: 20;
-    }
-
-    .season-badge {
-      font-size: 12px;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: rgba(245, 166, 35, 0.15);
-      color: var(--accent);
-    }
-
-    body.theme-classic .season-badge {
-      border-radius: 6px;
+      z-index: 25;
     }
 
     .top-balances {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .balance-chip {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-strong);
-      padding: 5px 10px;
+      background: #14161b;
+      border: 1px solid #232731;
+      padding: 5px 11px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    body.theme-classic .balance-chip {
-      border-radius: 6px;
+    .season-badge {
       font-size: 12px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: #1d180c;
+      border: 1px solid rgba(245, 180, 0, 0.35);
+      color: var(--accent);
     }
 
     .boost-badge {
       display: none;
-      background: rgba(46, 204, 113, 0.18);
+      background: rgba(46, 204, 113, 0.16);
       border: 1px solid #2ecc71;
       color: #2ecc71;
-      padding: 4px 9px;
+      padding: 4px 8px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
@@ -341,9 +297,58 @@
       align-items: center;
     }
 
+    /* Горизонтальна навігація вкладок під шапкою як на скріншоті */
+    .top-nav-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      padding: 6px 8px 10px;
+      background: var(--bg-main);
+      border-bottom: 1px solid #14171f;
+      position: sticky;
+      top: 44px;
+      z-index: 24;
+    }
+
+    .menu-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 2px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .menu-item.active {
+      color: #ffffff;
+      background: rgba(34, 197, 94, 0.16);
+    }
+
+    .menu-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #14171e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .menu-item.active .menu-icon {
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.45);
+    }
+
     .page {
       display: none;
-      padding: 16px;
+      padding: 14px;
       max-width: 560px;
       margin: 0 auto;
     }
@@ -352,69 +357,32 @@
       display: block;
     }
 
-    .xp-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
-      padding: var(--card-pad) 14px;
-      margin-bottom: 14px;
-    }
-
-    .xp-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 10px;
-      background: var(--bg-surface);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    body.theme-classic .progress-track {
-      border-radius: 4px;
-      height: 8px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      transition: width 0.2s ease;
-    }
-
-    .xp-fill {
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
-    }
-
-    .energy-fill {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    }
-
     .coin-hero {
       text-align: center;
-      margin: 8px 0 12px;
+      margin: 14px 0 18px;
     }
 
     .coin-main-value {
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    body.theme-classic .coin-main-value {
-      font-size: 28px;
-    }
-
-    .auto-tap-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
+    .coin-hero-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffe066, #d98200);
+      color: #2b1800;
+      font-size: 16px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px rgba(245, 180, 0, 0.35);
     }
 
     #tap-area {
@@ -422,8 +390,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 12px auto 24px;
-      min-height: 200px;
+      margin: 10px auto 24px;
+      min-height: 220px;
     }
 
     #hamster {
@@ -433,11 +401,11 @@
       max-height: var(--hamster-max);
       aspect-ratio: 1 / 1;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #2b3545, var(--bg-card));
+      background: radial-gradient(circle at 30% 30%, #1d262b, #090c0e);
       background-size: cover;
       background-position: center;
-      border: 5px solid rgba(245, 166, 35, 0.5);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+      border: 4px solid #22c55e;
+      box-shadow: 0 0 28px rgba(34, 197, 94, 0.35), inset 0 0 18px rgba(0, 0, 0, 0.75);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -445,11 +413,6 @@
       cursor: pointer;
       transition: transform 0.08s ease;
       flex-shrink: 0;
-    }
-
-    body.theme-classic #hamster {
-      border-width: 3px;
-      box-shadow: 0 6px 0 #120d19;
     }
 
     #hamster:active {
@@ -472,18 +435,17 @@
       100% { opacity: 0; transform: translateY(-70px); }
     }
 
-    /* Енергія і монети над нижнім меню показуються ТІЛЬКИ на вкладці Tap */
+    /* Нижня панель як на фото: рядок метрик + смуга енергії + смуга рівня/XP (ТІЛЬКИ на вкладці Tap) */
     .bottom-tap-hud {
       display: none;
       position: fixed;
-      bottom: 54px;
+      bottom: 0;
       left: 0;
       right: 0;
-      background: var(--bg-card);
-      border-top: 1px solid var(--border-strong);
-      padding: 8px 14px 10px;
+      background: #050608;
+      border-top: 1px solid #161922;
+      padding: 8px 14px 12px;
       z-index: 25;
-      box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.35);
     }
 
     body.on-tap-page .bottom-tap-hud {
@@ -496,12 +458,73 @@
     }
 
     .bottom-tap-stats {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr 1fr;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .hud-stat-energy {
+      color: var(--accent);
+      text-align: left;
+    }
+
+    .hud-stat-auto-e {
+      color: #facc15;
+      text-align: center;
+    }
+
+    .hud-stat-auto-c {
+      color: #f5b400;
+      text-align: center;
+    }
+
+    .hud-stat-coins {
+      color: #ffffff;
+      text-align: right;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #171a22;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .energy-fill {
+      background: linear-gradient(90deg, #facc15, #f59e0b);
+    }
+
+    .xp-fill {
+      background: linear-gradient(90deg, #38bdf8, #3b82f6);
+    }
+
+    .bottom-level-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
-      font-weight: 800;
-      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 8px;
+      margin-bottom: 5px;
+    }
+
+    .bottom-level-name {
+      color: #e2e8f0;
+    }
+
+    .bottom-xp-text {
+      color: #cbd5e1;
     }
 
     .tabs-row {
@@ -528,7 +551,7 @@
     .shop-tab.active,
     .mini-tab.active {
       background: var(--accent);
-      color: #0d1117;
+      color: #000000;
       border-color: var(--accent);
     }
 
@@ -542,7 +565,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: var(--card-pad);
       display: flex;
       flex-direction: column;
@@ -572,10 +594,6 @@
       font-weight: 800;
     }
 
-    body.theme-classic .shop-card-title {
-      font-size: 13px;
-    }
-
     .shop-card-desc {
       font-size: 12px;
       color: var(--text-muted);
@@ -596,29 +614,21 @@
       padding: var(--btn-pad-y) var(--btn-pad-x);
       font-weight: 700;
       font-size: var(--btn-font);
-      box-shadow: var(--card-shadow);
       cursor: pointer;
-      background: #238636;
-      color: #ffffff;
-    }
-
-    body.theme-classic .shop-card-btn,
-    body.theme-classic .invite-friend-btn {
-      background: #2b9348;
+      background: #22c55e;
+      color: #051108;
     }
 
     .shop-card-btn:disabled {
       background: var(--bg-elevated);
       color: #6e7681;
       cursor: not-allowed;
-      box-shadow: none;
     }
 
     .promo-box {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: 14px;
       margin-bottom: 12px;
     }
@@ -640,17 +650,17 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: 16px;
       margin-bottom: 14px;
     }
 
+    /* Світліший банер у профілі та топі */
     .profile-banner-bg {
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center;
-      opacity: 0.25;
+      opacity: 0.62;
       pointer-events: none;
     }
 
@@ -677,13 +687,6 @@
       flex-shrink: 0;
     }
 
-    body.theme-classic .profile-avatar {
-      border-radius: 10px;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-    }
-
     .profile-title-badge {
       display: inline-block;
       padding: 2px 8px;
@@ -704,15 +707,10 @@
     }
 
     .stat-box {
-      background: rgba(13, 17, 23, 0.85);
+      background: rgba(12, 14, 18, 0.72);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-btn);
       padding: 10px;
-    }
-
-    body.theme-classic .stat-box {
-      background: rgba(20, 15, 28, 0.85);
-      padding: 8px;
     }
 
     .stat-label {
@@ -749,7 +747,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
       border-radius: var(--radius-btn);
-      box-shadow: var(--card-shadow);
       padding: 10px 8px;
       text-align: center;
       cursor: pointer;
@@ -766,7 +763,7 @@
       top: 6px;
       right: 6px;
       background: var(--accent);
-      color: #0d1117;
+      color: #000000;
       font-size: 11px;
       font-weight: 900;
       padding: 1px 6px;
@@ -806,7 +803,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-btn);
-      box-shadow: var(--card-shadow);
       padding: 10px 12px;
       margin-bottom: 8px;
       cursor: pointer;
@@ -855,7 +851,7 @@
     }
 
     .lb-xp {
-      color: #4facfe;
+      color: #38bdf8;
     }
 
     .lb-prestige {
@@ -866,7 +862,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: var(--card-pad);
       margin-bottom: 10px;
     }
@@ -910,11 +905,10 @@
       padding: var(--btn-pad-y) var(--btn-pad-x);
       font-size: var(--btn-font);
       font-weight: 700;
-      box-shadow: var(--card-shadow);
       cursor: pointer;
     }
 
-    .crypto-btn.buy { background: #2ecc71; color: #0d1117; }
+    .crypto-btn.buy { background: #2ecc71; color: #000000; }
     .crypto-btn.sell { background: #e74c3c; color: #ffffff; }
 
     .crypto-holdings {
@@ -946,46 +940,9 @@
       font-size: 30px;
     }
 
-    .bottom-menu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 54px;
-      background: var(--bg-card);
-      border-top: 1px solid var(--border-color);
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      padding: 6px 2px;
-      z-index: 30;
-    }
-
-    .menu-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      padding: 4px 2px;
-      border-radius: var(--radius-btn);
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .menu-item.active {
-      color: var(--accent);
-      background: rgba(245, 166, 35, 0.1);
-    }
-
-    .menu-icon {
-      font-size: 16px;
-    }
-
     .status-toast {
       position: fixed;
-      top: 62px;
+      top: 104px;
       left: 50%;
       transform: translateX(-50%) translateY(-16px);
       background: var(--bg-elevated);
@@ -1012,7 +969,7 @@
     .overlay-screen {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.78);
       display: none;
       align-items: center;
       justify-content: center;
@@ -1031,7 +988,6 @@
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
       border-radius: var(--radius-card);
-      box-shadow: var(--card-shadow);
       padding: 18px;
       text-align: center;
     }
@@ -1075,31 +1031,54 @@
 
   <div id="game-screen">
     <header class="top-bar">
-      <div class="season-badge" data-i18n="season">🏆 Season 1</div>
       <div class="top-balances">
-        <div id="active-boost-badge" class="boost-badge">⚡ <span id="active-boost-text"></span></div>
         <div class="balance-chip">🪙 <span id="top-coins">0</span></div>
         <div class="balance-chip">🐹 <span id="top-homs">0</span></div>
+        <div id="active-boost-badge" class="boost-badge">⚡ <span id="active-boost-text"></span></div>
       </div>
+      <div class="season-badge" data-i18n="season">🏆 Сезон 1</div>
     </header>
+
+    <nav class="top-nav-strip">
+      <div class="menu-item active" data-page="tap">
+        <span class="menu-icon">🐹</span>
+        <span data-i18n="menu_tap">Гра</span>
+      </div>
+      <div class="menu-item" data-page="shop">
+        <span class="menu-icon">🛒</span>
+        <span data-i18n="menu_shop">Магазин</span>
+      </div>
+      <div class="menu-item" data-page="minigames">
+        <span class="menu-icon">🎲</span>
+        <span data-i18n="menu_games">Ігри</span>
+      </div>
+      <div class="menu-item" data-page="profile">
+        <span class="menu-icon">👤</span>
+        <span data-i18n="menu_profile">Профіль</span>
+      </div>
+      <div class="menu-item" data-page="inventory">
+        <span class="menu-icon">🎒</span>
+        <span data-i18n="menu_inventory">Інвентар</span>
+      </div>
+      <div class="menu-item" data-page="top">
+        <span class="menu-icon">🏆</span>
+        <span data-i18n="menu_top">Топ</span>
+      </div>
+      <div class="menu-item" data-page="settings">
+        <span class="menu-icon">⚙️</span>
+        <span data-i18n="menu_settings">Налаштування</span>
+      </div>
+    </nav>
 
     <div id="status" class="status-toast"></div>
 
     <!-- Page: Tap -->
     <section id="page-tap" class="page active">
-      <div class="xp-card">
-        <div class="xp-header">
-          <span id="level-name">0 beginner</span>
-          <span><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
-        </div>
-        <div class="progress-track">
-          <div id="xp-bar" class="progress-fill xp-fill"></div>
-        </div>
-      </div>
-
       <div class="coin-hero">
-        <div id="tap-coin-display" class="coin-main-value">0</div>
-        <div class="auto-tap-sub">⚡ Auto: +<span id="auto-tap-label">0</span> / sec</div>
+        <div class="coin-main-value">
+          <span class="coin-hero-icon">1</span>
+          <span id="tap-coin-display">0</span>
+        </div>
       </div>
 
       <div id="tap-area">
@@ -1250,16 +1229,16 @@
       <div class="shop-card">
         <label for="theme-select" class="shop-card-title" data-i18n="theme_label">Theme / Тема / Тема</label>
         <select id="theme-select" class="auth-input" style="margin-bottom: 0;">
-          <option value="new" data-i18n="theme_new">New Dark (Нова)</option>
           <option value="classic" data-i18n="theme_classic">Classic (Стара)</option>
+          <option value="new" data-i18n="theme_new">New Dark (Нова)</option>
         </select>
       </div>
 
       <div class="shop-card">
         <label for="language-select" class="shop-card-title" data-i18n="lang_label">Language / Мова / Язык</label>
         <select id="language-select" class="auth-input" style="margin-bottom: 0;">
-          <option value="en">English</option>
           <option value="uk">Українська</option>
+          <option value="en">English</option>
           <option value="ru">Русский</option>
         </select>
       </div>
@@ -1274,50 +1253,27 @@
       <button type="button" id="btn-logout" class="crypto-btn sell" style="width: 100%; padding: 12px;" data-i18n="logout_btn">🚪 Log out</button>
     </section>
 
-    <!-- Fixed Coins & Energy HUD above Bottom Menu (visible only on Tap tab) -->
+    <!-- Fixed Bottom HUD like screenshot (visible only on Tap tab) -->
     <div class="bottom-tap-hud">
       <div class="bottom-tap-hud-inner">
         <div class="bottom-tap-stats">
-          <div>🪙 <span id="bottom-coins">0</span></div>
-          <div>⚡ <span id="energy-label-text">200/200</span> (<span id="energy-label-bottom">200/200</span>)</div>
+          <div class="hud-stat-energy">⚡ <span id="energy-label-text">250/250</span></div>
+          <div class="hud-stat-auto-e">+<span id="auto-energy-label">1</span> ⚡/s</div>
+          <div class="hud-stat-auto-c">+<span id="auto-tap-label">0</span> 🪙/s</div>
+          <div class="hud-stat-coins">🪙 <span id="bottom-coins">0</span></div>
         </div>
         <div class="progress-track">
           <div id="energy-bar" class="progress-fill energy-fill"></div>
         </div>
+        <div class="bottom-level-row">
+          <span id="level-name" class="bottom-level-name">0 beginner</span>
+          <span class="bottom-xp-text"><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
+        </div>
+        <div class="progress-track">
+          <div id="xp-bar" class="progress-fill xp-fill"></div>
+        </div>
       </div>
     </div>
-
-    <!-- Bottom Menu -->
-    <nav class="bottom-menu">
-      <div class="menu-item active" data-page="tap">
-        <span class="menu-icon">👆</span>
-        <span data-i18n="menu_tap">Tap</span>
-      </div>
-      <div class="menu-item" data-page="shop">
-        <span class="menu-icon">🛒</span>
-        <span data-i18n="menu_shop">Shop</span>
-      </div>
-      <div class="menu-item" data-page="minigames">
-        <span class="menu-icon">🎮</span>
-        <span data-i18n="menu_games">Games</span>
-      </div>
-      <div class="menu-item" data-page="profile">
-        <span class="menu-icon">👤</span>
-        <span data-i18n="menu_profile">Profile</span>
-      </div>
-      <div class="menu-item" data-page="inventory">
-        <span class="menu-icon">🎒</span>
-        <span data-i18n="menu_inventory">Inventory</span>
-      </div>
-      <div class="menu-item" data-page="top">
-        <span class="menu-icon">🏆</span>
-        <span data-i18n="menu_top">Top</span>
-      </div>
-      <div class="menu-item" data-page="settings">
-        <span class="menu-icon">⚙️</span>
-        <span data-i18n="menu_settings">Settings</span>
-      </div>
-    </nav>
   </div>
 
   <!-- Modal: Change Nickname -->
