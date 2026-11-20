@@ -23,6 +23,48 @@ try { tg?.expand(); tg?.ready(); } catch(e) {}
 let AdController = null;
 const BOT_LINK = "https://t.me/hamka_game_bot";
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function isValidNickname(nick) {
+  if (typeof nick !== 'string') return false;
+  const trimmed = nick.trim();
+  if (trimmed.length < 3 || trimmed.length > 16) return false;
+  return /^[a-zA-Zа-яА-ЯёЁіІїЇєЄґҐ0-9_.\- ]{3,16}$/.test(trimmed);
+}
+
+function encodeNickToSlug(nick) {
+  const bytes = new TextEncoder().encode(nick.trim().toLowerCase());
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) {
+    hex += bytes[i].toString(16).padStart(2, '0');
+  }
+  return 'u_' + hex;
+}
+
+function getRegisterEmail(nick) {
+  return `${encodeNickToSlug(nick)}@hamka.game`;
+}
+
+function getLegacyEmailCandidates(nick) {
+  const candidates = [];
+  const trimmed = nick.trim();
+  if (trimmed.includes('@')) {
+    candidates.push(trimmed);
+  }
+  const cleanNick = trimmed.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (cleanNick.length >= 3) {
+    candidates.push(cleanNick + '@hamka.game');
+  }
+  return candidates;
+}
+
 const gameDataEl = document.getElementById('game-data');
 let GAME_DATA = {};
 if (gameDataEl && gameDataEl.textContent) {
@@ -425,7 +467,7 @@ const TOP_TITLES = [
   { name: '🥉 Top 3', color: 'linear-gradient(90deg, #cd7f32, #8b4513)' }
 ];
 
-const LEVELS = GAME_DATA.LEVELS || [
+const LEVELS = [
   { name: '0 beginner', xp: 0 },
   { name: '1 beginner', xp: 50 },
   { name: '2 beginner', xp: 200 },
@@ -435,7 +477,7 @@ const LEVELS = GAME_DATA.LEVELS || [
   { name: 'bronze 2', xp: 10000 },
   { name: 'bronze 3', xp: 15000 },
   { name: 'silver 1', xp: 50000 },
-  { name: 'silver 2', xp: 1000000 },
+  { name: 'silver 2', xp: 100000 },
   { name: 'silver 3', xp: 150000 },
   { name: 'gold 1', xp: 300000 },
   { name: 'gold 2', xp: 600000 },
@@ -582,13 +624,6 @@ function setAuthMode(loginMode) {
 tabLogin.addEventListener('click', () => setAuthMode(true));
 tabRegister.addEventListener('click', () => setAuthMode(false));
 
-function nickToEmail(nick) {
-  if (nick.includes('@')) return nick.trim();
-  const cleanNick = nick.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (cleanNick.length < 3) return null;
-  return cleanNick + '@hamka.game';
-}
-
 async function autoLoginTelegram() {
   const tgUser = tg?.initDataUnsafe?.user;
   if (!tgUser) {
@@ -615,17 +650,40 @@ autoLoginTelegram();
 authSubmit.addEventListener('click', async () => {
   const nick = authNickname.value.trim();
   const password = authPassword.value;
-  if (!nick) { authError.innerText = 'Enter nickname'; return; }
-  if (password.length < 6) { authError.innerText = 'Password min 6 chars'; return; }
-  const email = nickToEmail(nick);
-  if (!email) { authError.innerText = 'Invalid nickname'; return; }
+  if (!isValidNickname(nick)) {
+    authError.innerText = 'Nickname: 3-16 chars (letters, numbers, _, ., -)';
+    return;
+  }
+  if (password.length < 6) {
+    authError.innerText = 'Password min 6 chars';
+    return;
+  }
 
   authSubmit.disabled = true;
+  authError.innerText = '';
   try {
     if (isLoginMode) {
-      await signInWithEmailAndPassword(auth, email, password);
+      const legacyCandidates = getLegacyEmailCandidates(nick);
+      let loggedIn = false;
+      let lastErr = null;
+      for (const legacyEmail of legacyCandidates) {
+        try {
+          await signInWithEmailAndPassword(auth, legacyEmail, password);
+          loggedIn = true;
+          break;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      if (!loggedIn) {
+        try {
+          await signInWithEmailAndPassword(auth, getRegisterEmail(nick), password);
+        } catch (err) {
+          throw lastErr || err;
+        }
+      }
     } else {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, getRegisterEmail(nick), password);
     }
   } catch (err) {
     authError.innerText = err.message;
@@ -712,9 +770,9 @@ minitabRoulette.addEventListener('click', () => {
   miniContentRoulette.style.display = 'block';
 });
 
-document.querySelectorAll('.shop-tab').forEach(tab => {
+document.querySelectorAll('.shop-tab[data-shop-tab]').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.shop-tab[data-shop-tab]').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentShopTab = tab.dataset.shopTab;
     renderShop();
@@ -816,10 +874,15 @@ async function loadLeaderboard() {
       const titleObj = TITLES.find(t => t.name === u.title) || CASE_TITLES.find(t => t.name === u.title) || TOP_TITLES.find(t => t.name === u.title);
       const titleColor = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
 
-      let avatarHtml = `<div class="lb-avatar">${u.avatar}</div>`;
+      const safeNick = escapeHtml(u.nickname);
+      const safeTitle = escapeHtml(u.title);
+      const safeAvatar = escapeHtml(u.avatar);
+      const safeId = escapeHtml(u.publicId);
+
+      let avatarHtml = `<div class="lb-avatar">${safeAvatar}</div>`;
       if (u.activeSkin !== 'default') {
         const skinObj = SKINS.find(s => s.id === u.activeSkin);
-        if (skinObj && skinObj.file) avatarHtml = `<div class="lb-avatar" style="background-image: url('${GITHUB_RAW}${skinObj.file}');"></div>`;
+        if (skinObj && skinObj.file) avatarHtml = `<div class="lb-avatar" style="background-image: url('${GITHUB_RAW}${escapeHtml(skinObj.file)}');"></div>`;
       }
 
       if (u.activeBanner && u.activeBanner !== 'default') {
@@ -829,7 +892,7 @@ async function loadLeaderboard() {
           bgDiv.className = 'profile-banner-bg';
           bgDiv.style.height = '100%';
           bgDiv.style.opacity = '0.35';
-          bgDiv.style.backgroundImage = `url('${GITHUB_BANNERS}${bObj.file}')`;
+          bgDiv.style.backgroundImage = `url('${GITHUB_BANNERS}${escapeHtml(bObj.file)}')`;
           el.appendChild(bgDiv);
         }
       }
@@ -845,8 +908,8 @@ async function loadLeaderboard() {
         <div style="font-size:16px; font-weight:800; color:#f5a623; width:25px;">#${i + 1}</div>
         ${avatarHtml}
         <div class="lb-info">
-          <div class="lb-name">${u.nickname}</div>
-          <div class="lb-title" style="background:${titleColor};">${u.title}</div>
+          <div class="lb-name">${safeNick}</div>
+          <div class="lb-title" style="background:${titleColor};">${safeTitle}</div>
         </div>
         <div class="lb-stats">
           <div class="lb-xp">${formatNumber(u.xp)} XP</div>
@@ -857,7 +920,7 @@ async function loadLeaderboard() {
 
       el.addEventListener('click', () => {
         viewProfNick.innerText = u.nickname;
-        viewProfId.innerText = 'ID: ' + u.publicId;
+        viewProfId.innerText = 'ID: ' + safeId;
         viewProfTitle.innerText = u.title;
         viewProfTitle.style.background = titleColor;
         viewProfXp.innerText = formatNumber(u.xp);
@@ -1074,7 +1137,10 @@ btnChangeNickname.addEventListener('click', () => {
 
 btnSaveNickname.addEventListener('click', async () => {
   const newNick = newNicknameInput.value.trim();
-  if (newNick.length < 3) { showStatus('❌ Too short'); return; }
+  if (!isValidNickname(newNick)) {
+    showStatus('❌ 3-16 символів (літери, цифри, _, ., -)');
+    return;
+  }
   await update(ref(db, 'users/' + currentUid), { nickname: newNick });
   modalNickname.classList.remove('show');
   showStatus('✅ Saved!');
@@ -1130,7 +1196,7 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
 
   const code = extractReferralCode(rawCode);
   if (!code) return false;
-  if (code.length < 3 || code.length > 12) return false;
+  if (code.length < 3 || code.length > 24) return false;
   if (code === state.publicId || code === currentUid) return false;
   if (state.usedReferralCode) return false;
   if (referralProcessing) return false;
@@ -1267,7 +1333,8 @@ function initGame(uid) {
     if (!snap.exists()) {
       const tgUser = tg?.initDataUnsafe?.user;
       const generatedId = tgUser ? 'tg_' + tgUser.id : Math.floor(100000 + Math.random() * 900000).toString();
-      const defaultNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
+      const rawNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
+      const defaultNick = isValidNickname(rawNick) ? rawNick.trim() : ('Player_' + generatedId).slice(0, 16);
 
       await set(userRef, {
         ...initialData,
@@ -1969,10 +2036,10 @@ window.openCasesBatch = async function(qty) {
 
   setTimeout(async () => {
     caseOpeningBox.style.display = 'none';
-    let summaryRewards = [];
+    const summaryRewards = [];
     const multiplier = isLegendary ? 10 : (isEpic ? 5 : 1);
 
-    await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+    const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
       if (!data) return data;
       if (isLegendary) {
         if ((data.legendaryCases || 0) < openNum) return;
@@ -1987,6 +2054,8 @@ window.openCasesBatch = async function(qty) {
       if (!data.purchasedAvatars) data.purchasedAvatars = [];
       if (!data.purchasedSkins) data.purchasedSkins = [];
       if (!data.purchasedBanners) data.purchasedBanners = [];
+
+      summaryRewards.length = 0;
 
       for (let i = 0; i < openNum; i++) {
         if (isLegendary && Math.random() < 0.25) {
@@ -2043,6 +2112,12 @@ window.openCasesBatch = async function(qty) {
       }
       return data;
     });
+
+    if (!res.committed) {
+      caseRewardText.innerText = '❌ Не вдалося відкрити кейс (онови дані та спробуй ще раз)';
+      btnCloseCase.style.display = 'block';
+      return;
+    }
 
     caseRewardText.innerText = summaryRewards.join('\n');
     btnCloseCase.style.display = 'block';
