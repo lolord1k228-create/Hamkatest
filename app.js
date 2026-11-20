@@ -993,7 +993,9 @@ function initGame(uid) {
     renderCryptoList();
 
     if (pendingStartParam && !state.usedReferralCode && !referralProcessing) {
-      applyReferralCode(pendingStartParam, false);
+      const sp = pendingStartParam;
+      pendingStartParam = null;
+      applyReferralCode(sp, false);
     }
   });
 
