@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Hamka Game</title>
+  <meta name="theme-color" content="#2ecc71">
+  <title>Hamka — кликер про хомяка</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Hamka — кликер про хомяка">
+  <meta property="og:description" content="Кликер про хомяка в Telegram: тапай, открывай кейсы, торгуй на крипто-рынке и качай престиж в игре в телеграме.">
+  <meta property="og:image" content="https://lolord1k228-create.github.io/hamka-game/assets/og-image.png">
+  <meta property="og:url" content="https://lolord1k228-create.github.io/hamka-game/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hamka — кликер про хомяка">
+  <meta name="twitter:description" content="Кликер про хомяка в Telegram: тапай, открывай кейсы, торгуй на крипто-рынке и качай престиж в игре в телеграме.">
+  <meta name="twitter:image" content="https://lolord1k228-create.github.io/hamka-game/assets/og-image.png">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="preload" href="assets/skins/ai_hamster.png" as="image">
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <style>
@@ -20,7 +35,6 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* ЗАВАНТАЖЕННЯ */
     #loading-screen {
       position: fixed; inset: 0; z-index: 2000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -33,33 +47,32 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loading-text { font-size: 16px; font-weight: 600; color: #fff; }
 
-    /* АВТОРИЗАЦІЯ */
     #auth-screen {
       position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; overflow-y: auto;
     }
     #auth-screen.hidden { display: none; }
-    
+
     .auth-logo-img { font-size: clamp(64px, 18vw, 88px); margin-bottom: 10px; line-height: 1; }
     .auth-title { font-size: clamp(30px, 8vw, 38px); font-weight: 800; color: #2ecc71; margin-bottom: 6px; letter-spacing: -0.5px; }
     .auth-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; text-align: center; }
 
     .auth-tabs { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 20px; }
     .auth-tab {
-      flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
+      flex: 1; padding: 12px; min-height: 44px; border-radius: 10px; font-size: 15px; font-weight: 700;
       text-align: center; cursor: pointer; border: 1px solid #222; color: #aaa;
-      background: transparent; transition: 0.2s;
+      background: transparent; transition: 0.2s; display: flex; align-items: center; justify-content: center;
     }
     .auth-tab.active { background: #0f1f15; color: #fff; border-color: #2ecc71; }
 
     .auth-hint-top { font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
     .auth-form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
-    
+
     .input-wrap { position: relative; width: 100%; }
     .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #555; pointer-events: none; }
     .auth-input {
-      width: 100%; padding: 15px 15px 15px 44px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
+      width: 100%; padding: 15px 15px 15px 44px; min-height: 44px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
       color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
     }
     .auth-input:focus { border-color: #2ecc71; }
@@ -68,23 +81,23 @@
     .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 16px; margin-top: 4px; }
 
     .auth-btn {
-      width: 100%; max-width: 360px; padding: 15px; border: none; border-radius: 12px;
+      width: 100%; max-width: 360px; padding: 15px; min-height: 44px; border: none; border-radius: 12px;
       font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
     }
     .auth-btn:active { transform: scale(0.97); }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
+
     .btn-green { background: #2ecc71; color: #000; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
     .btn-blue { background: #2aabee; color: #fff; }
+    .btn-gold { background: linear-gradient(90deg, #f5a623, #ffd700); color: #000; }
 
     .auth-divider {
-      display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px; 
+      display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px;
       margin: 10px 0; width: 100%; max-width: 360px;
     }
     .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
 
-    /* ГРА */
     #game-screen { display: none; flex-direction: column; height: 100%; max-width: 500px; width: 100%; margin: 0 auto; }
     #game-screen.visible { display: flex; }
 
@@ -104,7 +117,7 @@
       display: flex; align-items: center; gap: 4px; white-space: nowrap;
     }
     .admin-btn-badge {
-      background: #ff3333; color: #fff; padding: 4px 10px;
+      background: #ff3333; color: #fff; padding: 4px 10px; min-height: 44px;
       border-radius: 20px; font-size: 11px; font-weight: 700;
       cursor: pointer; display: none; align-items: center; gap: 4px;
     }
@@ -116,16 +129,16 @@
     }
     .main-menu::-webkit-scrollbar { display: none; }
     .menu-item {
-      display: flex; flex-direction: column; align-items: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 4px; color: #666; font-size: clamp(10px, 2.6vw, 11px); font-weight: 600;
-      min-width: 48px; cursor: pointer;
+      min-width: 48px; min-height: 44px; cursor: pointer;
     }
     .menu-item.active { color: #fff; }
     .menu-item.active .menu-icon-wrap {
       background: #2ecc71; color: #000; box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
     }
     .menu-icon-wrap {
-      width: clamp(32px, 8.5vw, 38px); height: clamp(32px, 8.5vw, 38px); border-radius: 10px;
+      width: clamp(34px, 8.5vw, 38px); height: clamp(34px, 8.5vw, 38px); border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       font-size: clamp(16px, 4.2vw, 19px); background: rgba(255,255,255,0.05); color: #888;
     }
@@ -133,22 +146,21 @@
     .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .page.active { display: flex; }
 
-    /* ТАП */
     .tap-area {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      position: relative; overflow: hidden; padding: 10px;
+      position: relative; overflow: hidden; padding: 10px; gap: 10px;
     }
     .coin-counter {
       display: flex; align-items: center; gap: 8px; font-size: clamp(24px, 7vw, 34px); font-weight: 800;
-      color: #fff; margin-bottom: clamp(16px, 3.5vh, 32px); text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      color: #fff; margin-bottom: clamp(6px, 1.5vh, 14px); text-shadow: 0 2px 10px rgba(0,0,0,0.8);
     }
     .hamster-wrap {
       position: relative; display: flex; align-items: center; justify-content: center;
-      width: clamp(240px, 68vw, 340px);
-      height: clamp(240px, 68vw, 340px);
-      max-height: 44dvh;
-      max-width: 44dvh;
+      width: clamp(220px, 64vw, 320px);
+      height: clamp(220px, 64vw, 320px);
+      max-height: 40dvh;
+      max-width: 40dvh;
     }
     .hamster {
       width: 100%; height: 100%; border-radius: 50%;
@@ -160,7 +172,34 @@
       background-size: cover; background-position: center;
     }
     .hamster:active { transform: scale(0.96); }
-    
+
+    .tap-prompt {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #f5a623; font-size: 13px; font-weight: 800;
+      animation: pulseArrow 1.1s ease-in-out infinite;
+    }
+    @keyframes pulseArrow {
+      0%, 100% { transform: translateY(0); opacity: 1; }
+      50% { transform: translateY(-5px); opacity: 0.75; }
+    }
+
+    .tap-hint-banner {
+      background: rgba(46, 204, 113, 0.14); border: 1px solid #2ecc71;
+      color: #fff; border-radius: 12px; padding: 8px 14px; font-size: 12px; font-weight: 700;
+      text-align: center; max-width: 340px; cursor: pointer; min-height: 44px;
+      display: none; align-items: center; justify-content: center;
+    }
+
+    .invite-hero-btn {
+      width: 100%; max-width: 340px; min-height: 46px; padding: 12px 16px;
+      border-radius: 14px; border: none; background: linear-gradient(90deg, #2ecc71, #27ae60);
+      color: #000; font-size: 15px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(46, 204, 113, 0.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.1s;
+    }
+    .invite-hero-btn:active { transform: scale(0.97); }
+
     .tap-effect {
       position: absolute; font-size: clamp(24px, 6vw, 32px); font-weight: 800; color: #2ecc71;
       pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
@@ -170,21 +209,20 @@
       100% { opacity: 0; transform: translateY(-85px) scale(1.3); }
     }
 
-    /* МАГАЗИН */
     .shop-container { display: flex; flex-direction: column; height: 100%; }
-    .shop-tabs { 
-      display: flex; gap: 6px; padding: 10px 12px; background: #0a0a0a; 
+    .shop-tabs {
+      display: flex; gap: 6px; padding: 10px 12px; background: #0a0a0a;
       border-bottom: 1px solid #222; flex-shrink: 0;
       overflow-x: auto; scrollbar-width: none;
     }
     .shop-tabs::-webkit-scrollbar { display: none; }
     .shop-tab {
-      flex: 1; padding: 9px 6px; text-align: center; font-size: clamp(11px, 3vw, 13px); font-weight: 700;
+      flex: 1; padding: 9px 6px; min-height: 44px; text-align: center; font-size: clamp(11px, 3vw, 13px); font-weight: 700;
       background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; color: #aaa;
-      border: 1px solid transparent; white-space: nowrap;
+      border: 1px solid transparent; white-space: nowrap; display: flex; align-items: center; justify-content: center;
     }
     .shop-tab.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
-    
+
     .shop-list { flex: 1; overflow-y: auto; padding: 10px 12px 40px; }
 
     .shop-card {
@@ -192,13 +230,18 @@
       border-radius: 14px; padding: 12px; margin-bottom: 10px;
       display: flex; justify-content: space-between; align-items: center;
     }
+    .shop-card.highlighted {
+      border-color: #2ecc71; box-shadow: 0 0 14px rgba(46, 204, 113, 0.35);
+      background: rgba(46, 204, 113, 0.08);
+    }
     .shop-card-info { flex: 1; padding-right: 10px; }
     .shop-card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
     .shop-card-desc { font-size: 11px; color: #888; line-height: 1.35; }
     .shop-card-price { font-size: 13px; font-weight: 700; color: #ffd700; margin-top: 5px; }
     .shop-card-btn {
-      padding: 9px 14px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
+      padding: 9px 14px; min-height: 44px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
       background: #2ecc71; color: #000; cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
     }
     .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
@@ -206,14 +249,13 @@
     .shop-grid .shop-card { flex-direction: column; text-align: center; padding: 12px 8px; margin-bottom: 0; }
     .shop-grid .shop-card-info { padding-right: 0; width: 100%; }
     .shop-grid .shop-card-btn { width: 100%; margin-top: 8px; }
-    
+
     .grid-preview {
       width: 64px; height: 64px; border-radius: 14px; background: rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center; font-size: 36px;
       margin: 0 auto 8px; background-size: cover; background-position: center;
     }
 
-    /* Промокод блок */
     .promo-box {
       background: linear-gradient(145deg, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0.03));
       border: 1px solid rgba(46, 204, 113, 0.3);
@@ -227,12 +269,11 @@
     .promo-code-text { font-family: monospace; font-size: 16px; font-weight: 800; color: #2ecc71; letter-spacing: 1px; }
     .promo-input-row { display: flex; gap: 8px; margin-top: 10px; }
     .promo-input {
-      flex: 1; padding: 11px 12px; background: #141414; border: 1px solid #333;
+      flex: 1; padding: 11px 12px; min-height: 44px; background: #141414; border: 1px solid #333;
       border-radius: 10px; color: #fff; font-size: 14px; outline: none; font-family: monospace;
     }
     .promo-input:focus { border-color: #2ecc71; }
 
-    /* КРИПТА / МІНІ-ІГРИ */
     .crypto-page { padding: 10px 12px 40px; }
     .crypto-card {
       background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
@@ -246,19 +287,18 @@
     .crypto-chart { width: 100%; height: 60px; display: block; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; }
     .crypto-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .crypto-input {
-      width: 65px; flex-shrink: 0; padding: 9px; background: rgba(255, 255, 255, 0.06);
+      width: 65px; min-height: 44px; flex-shrink: 0; padding: 9px; background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; outline: none;
       -moz-appearance: textfield;
     }
     .crypto-input::-webkit-outer-spin-button,
     .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .crypto-btn { flex: 1; min-width: 0; padding: 9px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .crypto-btn { flex: 1; min-width: 0; min-height: 44px; padding: 9px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .crypto-btn.buy { background: #2ecc71; color: #000; }
     .crypto-btn.sell { background: #ff5252; color: #fff; }
     .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
     .crypto-holdings span { color: #f5a623; font-weight: 600; }
 
-    /* ПРОФІЛЬ */
     .scroll-page { padding: 10px 12px 40px; }
     .profile-card {
       background: linear-gradient(145deg, #1a1a24, #0f0f15);
@@ -277,18 +317,32 @@
     .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
     .edit-name-btn {
       background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
-      width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; cursor: pointer; color: #fff;
+      width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; cursor: pointer; color: #fff;
     }
     .profile-id { font-size: 12px; color: #666; margin-top: 2px; }
-    
+
+    .profile-prestige-showcase {
+      margin-top: 12px; padding: 12px; border-radius: 14px;
+      background: rgba(245, 166, 35, 0.08); border: 1px solid rgba(245, 166, 35, 0.35);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .profile-prestige-big {
+      font-size: 26px; font-weight: 900; color: #f5a623;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .profile-rank-badge {
+      padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      background: rgba(46, 204, 113, 0.16); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.4);
+    }
+
     .profile-title-badge {
       display: inline-flex; align-items: center; gap: 6px;
       margin-top: 8px; padding: 5px 16px; border-radius: 20px;
       font-size: 12px; font-weight: 700; color: #fff;
       box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
     }
-    
+
     .profile-stats {
       display: flex; justify-content: space-around; margin-top: 16px;
       background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px;
@@ -302,12 +356,11 @@
       border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px;
     }
 
-    /* ІНВЕНТАР */
     .inventory-section { margin-bottom: 16px; }
     .inventory-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #f5a623; }
     .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .inventory-item {
-      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 6px; text-align: center;
+      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 6px; min-height: 44px; text-align: center;
       cursor: pointer; border: 2px solid transparent; position: relative;
     }
     .inventory-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
@@ -317,7 +370,7 @@
     .case-item {
       background: linear-gradient(135deg, #2a1b3d, #1a1a24);
       border: 2px solid #8a2be2;
-      border-radius: 12px; padding: 14px 8px; text-align: center;
+      border-radius: 12px; padding: 14px 8px; min-height: 44px; text-align: center;
       cursor: pointer; box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
       transition: transform 0.2s; position: relative;
     }
@@ -335,14 +388,13 @@
       font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
     }
 
-    /* ТОП */
     .leaderboard-item {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 10px; min-height: 44px;
       padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px;
       margin-bottom: 8px; cursor: pointer;
     }
     .leaderboard-item:active { background: rgba(255,255,255,0.1); }
-    
+
     .lb-avatar {
       width: 42px; height: 42px; border-radius: 50%; background: #333;
       display: flex; align-items: center; justify-content: center; font-size: 20px;
@@ -350,7 +402,7 @@
     }
     .lb-info { flex: 1; min-width: 0; }
     .lb-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lb-title { 
+    .lb-title {
       display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 4px;
       color: #fff; margin-top: 2px;
     }
@@ -358,23 +410,22 @@
     .lb-xp { font-size: 13px; font-weight: 700; color: #2ecc71; }
     .lb-prestige { font-size: 11px; font-weight: 700; color: #da70d6; }
 
-    /* НАЛАШТУВАННЯ */
     .settings-group {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
     }
     .settings-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; color: #fff; }
     .settings-select, .settings-btn {
-      width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333;
+      width: 100%; padding: 12px; min-height: 44px; background: #1a1a1a; border: 1px solid #333;
       border-radius: 10px; color: #fff; font-size: 14px; outline: none; cursor: pointer;
     }
-    .settings-toggle-row { display: flex; justify-content: space-between; align-items: center; }
+    .settings-toggle-row { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
     .toggle-switch {
-      position: relative; display: inline-block; width: 50px; height: 26px;
+      position: relative; display: inline-block; width: 50px; height: 44px;
     }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
-      position: absolute; cursor: pointer; inset: 0; background-color: #333;
+      position: absolute; cursor: pointer; top: 9px; left: 0; right: 0; bottom: 9px; background-color: #333;
       transition: .3s; border-radius: 26px;
     }
     .toggle-slider:before {
@@ -384,35 +435,42 @@
     input:checked + .toggle-slider { background-color: #2ecc71; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
 
-    /* МОДАЛКИ */
     .modal-overlay {
-      position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.8);
+      position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.82);
       display: flex; align-items: center; justify-content: center; padding: 20px;
       opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
     .modal-overlay.show { opacity: 1; pointer-events: all; }
     .modal-content {
       background: #1a1a1a; border: 1px solid #333; border-radius: 16px;
-      padding: 20px; width: 100%; max-width: 340px; text-align: center;
+      padding: 20px; width: 100%; max-width: 340px; text-align: center; max-height: 88dvh; overflow-y: auto;
     }
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #f5a623; }
     .preview-box {
       width: 100px; height: 100px; border-radius: 20px; background: rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center; font-size: 60px;
       margin: 0 auto 16px; background-size: cover; background-position: center;
     }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
     .modal-btn {
-      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+      flex: 1; padding: 12px; min-height: 44px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
     }
     .modal-btn.cancel { background: #333; color: #fff; }
     .modal-btn.confirm { background: #2ecc71; color: #000; }
+    .modal-btn.gold { background: #f5a623; color: #000; }
 
-    /* Кейс відкриття */
+    .daily-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+    .daily-day {
+      background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 10px;
+      padding: 8px 4px; font-size: 11px;
+    }
+    .daily-day.claimed { border-color: #2ecc71; background: rgba(46, 204, 113, 0.12); color: #2ecc71; }
+    .daily-day.today { border-color: #f5a623; background: rgba(245, 166, 35, 0.16); color: #ffd700; font-weight: 700; }
+
     .case-open-overlay {
       position: fixed; inset: 0; z-index: 2500; background: rgba(0,0,0,0.95);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
     }
     .case-open-overlay.show { opacity: 1; pointer-events: all; }
     .case-opening-box { font-size: 100px; animation: shake 0.5s infinite; }
@@ -432,7 +490,6 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Рулетка */
     .roulette-container {
       width: 100%; overflow: hidden; background: #222; border-radius: 10px;
       margin-top: 15px; position: relative; height: 60px;
@@ -446,11 +503,10 @@
     }
 
     .admin-input {
-      width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333;
+      width: 100%; padding: 10px; min-height: 44px; background: rgba(255,255,255,0.05); border: 1px solid #333;
       border-radius: 8px; color: #fff; font-size: 14px; outline: none; margin-bottom: 8px;
     }
 
-    /* НИЖНЯ ПАНЕЛЬ */
     .bottom-panel {
       background: #0a0a0a; border-top: 1px solid #222;
       padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
@@ -468,33 +524,32 @@
       position: fixed; bottom: calc(115px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.92); padding: 10px 20px; border-radius: 10px;
       font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
-      white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.12);
+      max-width: 90vw; text-align: center; z-index: 3000; border: 1px solid rgba(255, 255, 255, 0.12);
     }
     #status.show { opacity: 1; }
 
     .prestige-overlay {
-      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.5s;
+      position: fixed; inset: 0; z-index: 2600; background: rgba(0,0,0,0.94);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
     }
-    .prestige-overlay.show { opacity: 1; pointer-events: all; }
+    .prestige-overlay.show { display: flex; }
     .prestige-glow { font-size: 80px; animation: prestigePop 1s ease-out infinite alternate; }
     @keyframes prestigePop {
       0% { transform: scale(1); filter: drop-shadow(0 0 10px #8a2be2); }
       100% { transform: scale(1.2); filter: drop-shadow(0 0 30px #da70d6); }
     }
-    .prestige-text { font-size: 32px; font-weight: 900; margin-top: 20px; background: linear-gradient(90deg, #8a2be2, #da70d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .prestige-text { font-size: 30px; font-weight: 900; margin-top: 16px; background: linear-gradient(90deg, #f5a623, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .prestige-sub { font-size: 16px; font-weight: 700; color: #fff; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <!-- Екран завантаження -->
   <div id="loading-screen">
     <div class="loader"></div>
     <div class="loading-text" data-i18n="loading">Loading...</div>
   </div>
 
-  <!-- АВТОРИЗАЦІЯ -->
   <div id="auth-screen" class="hidden">
     <div class="auth-logo-img">🐭</div>
     <div class="auth-title">Hamka</div>
@@ -510,23 +565,22 @@
     <div class="auth-form">
       <div class="input-wrap">
         <span class="input-icon">👤</span>
-        <input type="text" id="auth-nickname" class="auth-input" placeholder="Nickname (latin)" autocomplete="username">
+        <input type="text" id="auth-nickname" class="auth-input" data-i18n-placeholder="ph_nickname" placeholder="Nickname (latin)" autocomplete="username">
       </div>
       <div class="input-wrap">
         <span class="input-icon">🔑</span>
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password (min. 6)" autocomplete="current-password">
+        <input type="password" id="auth-password" class="auth-input" data-i18n-placeholder="ph_password" placeholder="Password (min. 6)" autocomplete="current-password">
       </div>
-      
+
       <div class="auth-error" id="auth-error"></div>
 
       <button class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Login</button>
-      
+
       <div class="auth-divider" data-i18n="or">or</div>
       <button class="auth-btn btn-blue" id="tg-login-btn" data-i18n="btn_tg">📱 Login via Telegram</button>
     </div>
   </div>
 
-  <!-- ГРА -->
   <div id="game-screen">
     <div class="top-stats">
       <div class="top-stats-group">
@@ -534,7 +588,7 @@
         <div class="stat-pill"><span class="icon">🐹</span> <span id="top-homs">0</span></div>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <div class="admin-btn-badge" id="admin-btn-badge" onclick="document.getElementById('modal-admin').classList.add('show')">🛠 Admin</div>
+        <div class="admin-btn-badge" id="admin-btn-badge" data-i18n="admin_btn">🛠 Admin</div>
         <div class="season-badge" data-i18n="season">🏆 Season 1</div>
       </div>
     </div>
@@ -549,7 +603,6 @@
       <div class="menu-item" data-page="settings"><div class="menu-icon-wrap">⚙️</div><span data-i18n="menu_settings">Settings</span></div>
     </div>
 
-    <!-- ТАП -->
     <div class="page active" id="page-tap">
       <div class="tap-area" id="tap-area">
         <div class="coin-counter">
@@ -559,10 +612,18 @@
         <div class="hamster-wrap">
           <div class="hamster" id="hamster">🐭</div>
         </div>
+        <div class="tap-prompt" id="tap-prompt">
+          <span>⬆️</span>
+          <span data-i18n="tap_here">Тапай</span>
+        </div>
+        <div class="tap-hint-banner" id="tap-hint-30" data-i18n="hint_open_shop">Открой магазин и прокачайся</div>
+        <button class="invite-hero-btn" id="btn-invite-friend">
+          <span>👥</span>
+          <span data-i18n="invite_friend">Пригласить друга</span>
+        </button>
       </div>
     </div>
 
-    <!-- МАГАЗИН -->
     <div class="page" id="page-shop">
       <div class="shop-container">
         <div class="shop-tabs">
@@ -575,26 +636,23 @@
       </div>
     </div>
 
-    <!-- МІНІ-ІГРИ -->
     <div class="page crypto-page" id="page-minigames">
       <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="menu_games">🎲 Mini-games</div>
-      
+
       <div class="shop-tabs" style="margin-bottom: 16px;">
-        <div class="shop-tab active" id="minitab-crypto">₿ Crypto</div>
+        <div class="shop-tab active" id="minitab-crypto" data-i18n="tab_crypto">₿ Crypto</div>
         <div class="shop-tab" id="minitab-roulette" data-i18n="roulette">🎰 Roulette</div>
       </div>
 
-      <!-- Крипта -->
       <div id="mini-content-crypto">
         <div id="crypto-list"></div>
       </div>
 
-      <!-- Рулетка -->
       <div id="mini-content-roulette" style="display:none; text-align: center;">
         <div class="crypto-card">
           <div style="font-size: 18px; font-weight: 700; color: #f5a623; margin-bottom: 8px;" data-i18n="roulette_title">Roulette for Ad</div>
           <div style="font-size: 12px; color: #aaa; margin-bottom: 16px;" data-i18n="roulette_desc">Spin and get coins, XP, Homs or exclusive items!</div>
-          
+
           <div class="roulette-container" style="margin-bottom: 16px;">
             <div class="roulette-pointer"></div>
             <div class="roulette-strip" id="roulette-strip"></div>
@@ -605,23 +663,32 @@
       </div>
     </div>
 
-    <!-- ПРОФІЛЬ -->
     <div class="page scroll-page" id="page-profile">
       <div class="profile-card">
         <div class="profile-avatar-wrap">
           <div class="profile-avatar" id="prof-avatar">🐭</div>
         </div>
-        
+
         <div class="profile-name-wrap">
           <div class="profile-name" id="prof-nickname">Player</div>
           <button class="edit-name-btn" id="btn-change-nickname">✏️</button>
         </div>
         <div class="profile-id" id="prof-public-id">ID: 000000</div>
 
+        <div class="profile-prestige-showcase">
+          <div class="profile-prestige-big">
+            <span>🌟</span>
+            <span data-i18n="prestige">Престиж</span>
+            <span id="prof-prestige-big-val">0</span>
+          </div>
+          <div class="profile-rank-badge" id="prof-rank-badge">Novice</div>
+          <div style="font-size:12px; color:#2ecc71; font-weight:700;" id="prof-coin-mult">+0% 🪙</div>
+        </div>
+
         <div class="profile-title-badge" id="prof-title-badge">
           <span id="prof-title">Beginner</span>
         </div>
-        
+
         <div class="profile-stats">
           <div class="profile-stat-item">
             <div class="profile-stat-val" id="prof-coins">0</div>
@@ -636,10 +703,12 @@
             <div class="profile-stat-lbl">XP</div>
           </div>
           <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-prestige">0</div>
-            <div class="profile-stat-lbl" data-i18n="prestige">Prestige</div>
+            <div class="profile-stat-val" id="prof-invited">0</div>
+            <div class="profile-stat-lbl" data-i18n="invited_lbl">Invited</div>
           </div>
         </div>
+
+        <button class="auth-btn btn-gold" id="btn-brag-profile" style="width:100%; max-width:none; margin-top:14px;" data-i18n="brag_btn">📣 Похвастаться</button>
       </div>
 
       <div class="prestige-section">
@@ -648,7 +717,6 @@
       </div>
     </div>
 
-    <!-- ІНВЕНТАР -->
     <div class="page scroll-page" id="page-inventory">
       <div class="inventory-section" id="cases-section" style="display:none;">
         <div class="inventory-title" data-i18n="cases_title">📦 Cases</div>
@@ -669,16 +737,18 @@
       </div>
     </div>
 
-    <!-- ТОП -->
     <div class="page scroll-page" id="page-top">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 12px;" data-i18n="top_title">🏆 Leaderboard</div>
+      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 10px;" data-i18n="top_title">🏆 Leaderboard</div>
+      <div class="shop-tabs" style="margin-bottom: 12px; padding: 0;">
+        <div class="shop-tab active" id="toptab-alltime" data-i18n="top_alltime">За всё время</div>
+        <div class="shop-tab" id="toptab-weekly" data-i18n="top_weekly">За неделю</div>
+      </div>
       <div id="leaderboard-list"></div>
     </div>
 
-    <!-- НАЛАШТУВАННЯ -->
     <div class="page scroll-page" id="page-settings">
       <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="settings_title">⚙️ Settings</div>
-      
+
       <div class="settings-group">
         <span class="settings-label" data-i18n="lang_label">Language / Мова / Язык</span>
         <select class="settings-select" id="language-select">
@@ -703,11 +773,10 @@
       </div>
     </div>
 
-    <!-- НИЖНЯ ПАНЕЛЬ -->
     <div class="bottom-panel">
       <div class="bottom-stats">
         <span>⚡ <span id="energy-label-text">200/200</span></span>
-        <span>+1 ⚡/s</span>
+        <span>+<span id="energy-regen-label">1</span> ⚡/s</span>
         <span>+<span id="auto-tap-label">0</span> 🪙/s</span>
         <span>🪙 <span id="bottom-coins">0</span></span>
       </div>
@@ -726,19 +795,39 @@
 
   <div id="status"></div>
 
-  <!-- Модалки -->
+  <!-- Онбординг первых 90 секунд -->
+  <div class="modal-overlay" id="modal-onboarding">
+    <div class="modal-content">
+      <div class="modal-title" data-i18n="onboard_title">Добро пожаловать в Hamka!</div>
+      <div class="preview-box" style="background-image: url('assets/skins/ai_hamster.png');"></div>
+      <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:8px;" data-i18n="onboard_desc">Тапай по хомяку и собирай монеты</div>
+      <div style="font-size:12px; color:#aaa; margin-bottom:14px;" data-i18n="onboard_starter">Стартовый бонус: 500 монет, 1 базовый кейс и 1 XP уже начислены!</div>
+      <button class="modal-btn confirm" style="width:100%;" id="btn-onboarding-ok" data-i18n="onboard_btn">Понятно</button>
+    </div>
+  </div>
+
+  <!-- Дейли-бонус -->
+  <div class="modal-overlay" id="modal-daily">
+    <div class="modal-content">
+      <div class="modal-title" data-i18n="daily_title">🎁 Ежедневный бонус</div>
+      <div style="font-size:12px; color:#aaa; margin-bottom:8px;" id="daily-streak-info">Серия: 0 дн.</div>
+      <div class="daily-grid" id="daily-grid"></div>
+      <div class="modal-actions" id="daily-actions"></div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modal-case-qty">
     <div class="modal-content">
       <div class="modal-title" id="case-modal-title" data-i18n="open_case">Open Case</div>
       <div style="font-size: 14px; color: #aaa; margin-bottom: 16px;" id="case-modal-count">Available: 0</div>
       <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <button class="modal-btn confirm" onclick="openCasesBatch(1)">1</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch(5)">5</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch(10)">10</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch('all')" data-i18n="all">All</button>
+        <button class="modal-btn confirm" id="btn-case-1">1</button>
+        <button class="modal-btn confirm" id="btn-case-5">5</button>
+        <button class="modal-btn confirm" id="btn-case-10">10</button>
+        <button class="modal-btn confirm" id="btn-case-all" data-i18n="all">All</button>
       </div>
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-case-qty').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn cancel" id="btn-case-cancel" data-i18n="cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -749,7 +838,7 @@
       <div class="preview-box" id="view-prof-avatar" style="font-size: 50px;">🐭</div>
       <div style="text-align:center; font-size: 20px; font-weight: 800; margin-bottom: 4px;" id="view-prof-nick">Player</div>
       <div style="text-align:center; font-size: 12px; color: #666; margin-bottom: 8px;" id="view-prof-id">ID: 000000</div>
-      
+
       <div style="text-align:center; margin-bottom:12px;">
         <span class="profile-title-badge" id="view-prof-title" style="margin-top:0;">Beginner</span>
       </div>
@@ -766,7 +855,7 @@
       </div>
 
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-view-profile').classList.remove('show')" data-i18n="close">Close</button>
+        <button class="modal-btn cancel" id="btn-close-view-profile" data-i18n="close">Close</button>
       </div>
     </div>
   </div>
@@ -774,9 +863,9 @@
   <div class="modal-overlay" id="modal-nickname">
     <div class="modal-content">
       <div class="modal-title" data-i18n="change_nickname">Change Nickname</div>
-      <input type="text" class="admin-input" id="new-nickname-input" placeholder="New nickname">
+      <input type="text" class="admin-input" id="new-nickname-input" data-i18n-placeholder="ph_new_nickname" placeholder="New nickname">
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-nickname').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn cancel" id="btn-cancel-nickname" data-i18n="cancel">Cancel</button>
         <button class="modal-btn confirm" id="btn-save-nickname" data-i18n="save">Save</button>
       </div>
     </div>
@@ -784,20 +873,20 @@
 
   <div class="modal-overlay" id="modal-admin">
     <div class="modal-content">
-      <div class="modal-title">🛠 Admin Panel</div>
-      <input type="number" class="admin-input" id="admin-coins-input" placeholder="Coins amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCoins()">Add Coins</button>
+      <div class="modal-title" data-i18n="admin_title">🛠 Admin Panel</div>
+      <input type="number" class="admin-input" id="admin-coins-input" data-i18n-placeholder="ph_coins_amount" placeholder="Coins amount">
+      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" id="btn-admin-coins" data-i18n="admin_add_coins">Add Coins</button>
 
-      <input type="number" class="admin-input" id="admin-homs-input" placeholder="Homs amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddHoms()">Add Homs</button>
+      <input type="number" class="admin-input" id="admin-homs-input" data-i18n-placeholder="ph_homs_amount" placeholder="Homs amount">
+      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" id="btn-admin-homs" data-i18n="admin_add_homs">Add Homs</button>
 
-      <input type="number" class="admin-input" id="admin-xp-input" placeholder="XP amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddXp()">Add XP</button>
+      <input type="number" class="admin-input" id="admin-xp-input" data-i18n-placeholder="ph_xp_amount" placeholder="XP amount">
+      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" id="btn-admin-xp" data-i18n="admin_add_xp">Add XP</button>
 
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCase()">Add Case</button>
+      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" id="btn-admin-case" data-i18n="admin_add_case">Add Case</button>
 
       <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-admin').classList.remove('show')">Close</button>
+        <button class="modal-btn cancel" id="btn-admin-close" data-i18n="close">Close</button>
       </div>
     </div>
   </div>
@@ -805,19 +894,25 @@
   <div class="case-open-overlay" id="case-open-overlay">
     <div class="case-opening-box" id="case-opening-box">📦</div>
     <div class="case-reward-text" id="case-reward-text"></div>
-    <div class="modal-actions" style="width: 100%; max-width: 300px; margin-top: 30px;">
+    <div class="modal-actions" style="width: 100%; max-width: 320px; margin-top: 24px;">
+      <button class="modal-btn gold" id="btn-brag-case" data-i18n="brag_btn">📣 Похвастаться</button>
       <button class="modal-btn confirm" id="btn-close-case" data-i18n="take">Take</button>
     </div>
   </div>
 
   <div class="prestige-overlay" id="prestige-overlay">
     <div class="prestige-glow">🌟</div>
-    <div class="prestige-text" id="prestige-text">PRESTIGE 1</div>
+    <div class="prestige-text" id="prestige-text">Престиж 1</div>
+    <div class="prestige-sub" id="prestige-mult-text">множитель x1.1</div>
+    <div class="modal-actions" style="width: 100%; max-width: 320px; margin-top: 24px;">
+      <button class="modal-btn gold" id="btn-brag-prestige" data-i18n="brag_btn">📣 Похвастаться</button>
+      <button class="modal-btn confirm" id="btn-prestige-continue" data-i18n="continue_btn">Продолжить</button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, get, set, update, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, get, set, update, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -836,10 +931,12 @@
     const auth = getAuth(app);
 
     const tg = window.Telegram?.WebApp;
-    try { tg?.expand(); tg?.ready(); } catch(e) {}
+    try { tg?.expand(); } catch(e) {}
+    try { tg?.ready(); } catch(e) {}
 
     let AdController = null;
     const BOT_LINK = "https://t.me/hamka_game_bot";
+    const ASSETS_SKINS = "assets/skins/";
 
     const translations = {
       en: {
@@ -847,6 +944,7 @@
         auth_subtitle: "Crypto clicker with upgrades",
         login: "Login",
         register: "Register",
+        btn_register: "📝 Register",
         auth_hint: "🔒 Choose login method",
         btn_login: "👉 Login",
         or: "or",
@@ -863,12 +961,14 @@
         shop_upgrade: "Upgrades",
         shop_cases: "Cases",
         shop_cosmetics: "Cosmetics",
+        tab_crypto: "₿ Crypto",
         roulette: "🎰 Roulette",
         roulette_title: "Roulette for Ad",
         roulette_desc: "Spin and get coins, XP, Homs or exclusive items!",
         spin_btn: "🎬 Spin for Ad",
         coins: "Coins",
         homs: "Homs",
+        invited_lbl: "Invited",
         prestige: "Prestige",
         prestige_title: "🌟 Prestige",
         cases_title: "📦 Cases",
@@ -876,6 +976,8 @@
         avatars_title: "Avatars",
         skins_title: "Skins",
         top_title: "🏆 Leaderboard",
+        top_alltime: "За всё время",
+        top_weekly: "За неделю",
         settings_title: "⚙️ Settings",
         lang_label: "Language / Мова / Язык",
         hide_top_label: "Hide me from Leaderboard",
@@ -887,24 +989,101 @@
         change_nickname: "Change Nickname",
         save: "Save",
         take: "Take",
+        continue_btn: "Продолжить",
         energy: "Energy",
         buy: "Buy",
         sell: "Sell",
         owned: "Owned",
         max: "MAX",
         open_case: "Open Case",
+        open_legendary: "Open Legendary Case",
         promo_title: "🎟 Referral Promo Code",
         promo_desc: "Share your code! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
         promo_enter_placeholder: "Enter friend's promo code",
         promo_activate: "Activate",
         promo_share: "Share",
-        promo_already_used: "✅ You have already activated a referral promo code"
+        promo_already_used: "✅ Referral bonus already claimed",
+        invite_friend: "Пригласить друга",
+        invited_by_toast: "Тебя пригласил {nick}",
+        tap_here: "Тапай",
+        hint_open_shop: "Открой магазин и прокачайся",
+        onboard_title: "Welcome to Hamka!",
+        onboard_desc: "Тапай по хомяку и собирай монеты",
+        onboard_starter: "Starter pack granted: 500 coins, 1 Basic Case & 1 XP!",
+        onboard_btn: "Понятно",
+        daily_title: "🎁 Daily Bonus",
+        daily_streak: "Streak: {days} d.",
+        daily_claim: "Claim Day {day}",
+        daily_restore: "🎬 Restore Streak (Ad)",
+        daily_claimed_today: "Come back tomorrow!",
+        daily_reward_day7: "1 Leg. Case",
+        brag_btn: "Похвастаться",
+        prestige_banner: "Престиж {n}, множитель x{mult}",
+        prestige_ready: "Ready!",
+        prestige_req: "Required {xp} XP",
+        no_energy: "❌ No energy!",
+        copied_link: "✅ Invite link copied!",
+        err_enter_nick: "Enter nickname",
+        err_pass_len: "Password min 6 chars",
+        err_bad_nick: "Invalid nickname",
+        err_open_tg: "Open via Telegram bot",
+        err_short_nick: "❌ Too short",
+        saved_ok: "✅ Saved!",
+        updated_settings: "✅ Updated settings",
+        logged_out: "Logged out",
+        err_code_not_found: "❌ Code not found",
+        err_own_code: "❌ Cannot use own code",
+        promo_ok: "🎁 Promo activated! +1 Basic Case!",
+        claim_btn: "Claim",
+        watch_btn: "Watch",
+        case_claimed: "✅ Case received!",
+        ad_not_avail: "❌ Ad not available",
+        ad_credited: "✅ Ad credited! ({n}/5)",
+        ad_not_done: "❌ Ad not completed",
+        upgrade_ok: "✅ Upgrade purchased!",
+        skin_ok: "✅ Skin bought!",
+        cosmetic_ok: "✅ Purchased!",
+        title_ok: "✅ Title equipped!",
+        avatar_ok: "✅ Avatar changed!",
+        skin_eq_ok: "✅ Skin changed!",
+        trade_ok: "✅ Trade successful!",
+        reward_toast: "🎁 Reward: {text}",
+        ph_nickname: "Nickname (latin)",
+        ph_password: "Password (min. 6)",
+        ph_new_nickname: "New nickname",
+        ph_coins_amount: "Coins amount",
+        ph_homs_amount: "Homs amount",
+        ph_xp_amount: "XP amount",
+        admin_btn: "🛠 Admin",
+        admin_title: "🛠 Admin Panel",
+        admin_add_coins: "Add Coins",
+        admin_add_homs: "Add Homs",
+        admin_add_xp: "Add XP",
+        admin_add_case: "Add Case",
+        admin_ok: "✅ Added",
+        you_have: "You have: {n} {sym}",
+        dup_homs: "+{n} Homs ({kind} Duplicate)",
+        reward_skin: "Skin: {name}",
+        reward_avatar: "Avatar: {name}",
+        reward_title: "Title: {name}",
+        reward_xp: "+{n} XP",
+        reward_coins: "+{n} Coins",
+        reward_homs: "+{n} Homs",
+        reward_basic: "+1 Basic Case",
+        reward_leg: "+1 Legendary Case",
+        rank_0: "Novice",
+        rank_1: "Bronze Hamster",
+        rank_2: "Silver Hamster",
+        rank_3: "Gold Hamster",
+        rank_4: "Diamond Hamster",
+        rank_5: "Mythic Hamster"
       },
       uk: {
         loading: "Завантаження...",
         auth_subtitle: "Крипто-клікер з апгрейдами",
         login: "Вхід",
         register: "Реєстрація",
+        btn_register: "📝 Реєстрація",
         auth_hint: "🔒 Виберіть спосіб входу",
         btn_login: "👉 Увійти",
         or: "або",
@@ -921,12 +1100,14 @@
         shop_upgrade: "Прокачка",
         shop_cases: "Кейси",
         shop_cosmetics: "Косметика",
+        tab_crypto: "₿ Крипта",
         roulette: "🎰 Рулетка",
         roulette_title: "Рулетка за рекламу",
         roulette_desc: "Крути та отримуй монети, XP, Хоми або ексклюзиви!",
         spin_btn: "🎬 Крутити за рекламу",
         coins: "Монети",
         homs: "Хоми",
+        invited_lbl: "Запрошено",
         prestige: "Престиж",
         prestige_title: "🌟 Престиж",
         cases_title: "📦 Кейси",
@@ -934,6 +1115,8 @@
         avatars_title: "Аватарки",
         skins_title: "Скіни",
         top_title: "🏆 Топ гравців",
+        top_alltime: "За весь час",
+        top_weekly: "За тиждень",
         settings_title: "⚙️ Налаштування",
         lang_label: "Мова / Language / Язык",
         hide_top_label: "Не показувати мене в топі",
@@ -945,24 +1128,101 @@
         change_nickname: "Змінити нікнейм",
         save: "Зберегти",
         take: "Забрати",
+        continue_btn: "Продовжити",
         energy: "Енергія",
         buy: "Купити",
         sell: "Продати",
         owned: "Куплено",
         max: "МАКС",
         open_case: "Відкрити кейс",
+        open_legendary: "Відкрити Легендарний кейс",
         promo_title: "🎟 Реферальний промокод",
         promo_desc: "Ділися кодом! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
         promo_enter_placeholder: "Введіть промокод друга",
         promo_activate: "Активувати",
         promo_share: "Поділитися",
-        promo_already_used: "✅ Ви вже активували реферальний промокод"
+        promo_already_used: "✅ Реферальний бонус вже активовано",
+        invite_friend: "Запросити друга",
+        invited_by_toast: "Тебе запросив {nick}",
+        tap_here: "Тапай",
+        hint_open_shop: "Відкрий магазин і прокачайся",
+        onboard_title: "Ласкаво просимо до Hamka!",
+        onboard_desc: "Тапай по хом'яку та збирай монети",
+        onboard_starter: "Стартовий набір нараховано: 500 монет, 1 базовий кейс та 1 XP!",
+        onboard_btn: "Зрозуміло",
+        daily_title: "🎁 Щоденний бонус",
+        daily_streak: "Серія: {days} дн.",
+        daily_claim: "Забрати день {day}",
+        daily_restore: "🎬 Відновити серію (Реклама)",
+        daily_claimed_today: "Повертайся завтра!",
+        daily_reward_day7: "1 Лег. кейс",
+        brag_btn: "Похвалитися",
+        prestige_banner: "Престиж {n}, множник x{mult}",
+        prestige_ready: "Готово!",
+        prestige_req: "Потрібно {xp} XP",
+        no_energy: "❌ Немає енергії!",
+        copied_link: "✅ Запрошення скопійовано!",
+        err_enter_nick: "Введіть нікнейм",
+        err_pass_len: "Пароль мін. 6 символів",
+        err_bad_nick: "Некоректний нікнейм",
+        err_open_tg: "Відкрийте через бота Telegram",
+        err_short_nick: "❌ Закороткий нік",
+        saved_ok: "✅ Збережено!",
+        updated_settings: "✅ Налаштування оновлено",
+        logged_out: "Вийшли з акаунта",
+        err_code_not_found: "❌ Код не знайдено",
+        err_own_code: "❌ Не можна використати свій код",
+        promo_ok: "🎁 Промокод активовано! +1 Базовий кейс!",
+        claim_btn: "Забрати",
+        watch_btn: "Дивитись",
+        case_claimed: "✅ Кейс отримано!",
+        ad_not_avail: "❌ Реклама недоступна",
+        ad_credited: "✅ Перегляд зараховано! ({n}/5)",
+        ad_not_done: "❌ Рекламу не додивлено",
+        upgrade_ok: "✅ Прокачку куплено!",
+        skin_ok: "✅ Скін куплено!",
+        cosmetic_ok: "✅ Куплено!",
+        title_ok: "✅ Титул одягнуто!",
+        avatar_ok: "✅ Аватарку змінено!",
+        skin_eq_ok: "✅ Скін змінено!",
+        trade_ok: "✅ Угоду проведено!",
+        reward_toast: "🎁 Нагорода: {text}",
+        ph_nickname: "Нікнейм (латиниця)",
+        ph_password: "Пароль (мін. 6)",
+        ph_new_nickname: "Новий нікнейм",
+        ph_coins_amount: "Кількість монет",
+        ph_homs_amount: "Кількість Хомів",
+        ph_xp_amount: "Кількість XP",
+        admin_btn: "🛠 Адмін",
+        admin_title: "🛠 Адмін-панель",
+        admin_add_coins: "Додати монети",
+        admin_add_homs: "Додати Хоми",
+        admin_add_xp: "Додати XP",
+        admin_add_case: "Додати кейс",
+        admin_ok: "✅ Додано",
+        you_have: "У вас: {n} {sym}",
+        dup_homs: "+{n} Хомів (Дублікат: {kind})",
+        reward_skin: "Скін: {name}",
+        reward_avatar: "Аватарка: {name}",
+        reward_title: "Титул: {name}",
+        reward_xp: "+{n} XP",
+        reward_coins: "+{n} Монет",
+        reward_homs: "+{n} Хомів",
+        reward_basic: "+1 Базовий кейс",
+        reward_leg: "+1 Легендарний кейс",
+        rank_0: "Новачок",
+        rank_1: "Бронзовий Хом'як",
+        rank_2: "Срібний Хом'як",
+        rank_3: "Золотий Хом'як",
+        rank_4: "Діамантовий Хом'як",
+        rank_5: "Міфічний Хом'як"
       },
       ru: {
         loading: "Загрузка...",
         auth_subtitle: "Крипто-кликер с апгрейдами",
         login: "Вход",
         register: "Регистрация",
+        btn_register: "📝 Регистрация",
         auth_hint: "🔒 Выберите способ входа",
         btn_login: "👉 Войти",
         or: "или",
@@ -979,12 +1239,14 @@
         shop_upgrade: "Прокачка",
         shop_cases: "Кейсы",
         shop_cosmetics: "Косметика",
+        tab_crypto: "₿ Крипта",
         roulette: "🎰 Рулетка",
         roulette_title: "Рулетка за рекламу",
         roulette_desc: "Крути и получай монеты, XP, Хомы или эксклюзивы!",
         spin_btn: "🎬 Крутить за рекламу",
         coins: "Монеты",
         homs: "Хомы",
+        invited_lbl: "Приглашено",
         prestige: "Престиж",
         prestige_title: "🌟 Престиж",
         cases_title: "📦 Кейсы",
@@ -992,6 +1254,8 @@
         avatars_title: "Аватарки",
         skins_title: "Скины",
         top_title: "🏆 Топ игроков",
+        top_alltime: "За всё время",
+        top_weekly: "За неделю",
         settings_title: "⚙️ Настройки",
         lang_label: "Язык / Language / Мова",
         hide_top_label: "Не показывать меня в топе",
@@ -1003,37 +1267,129 @@
         change_nickname: "Изменить никнейм",
         save: "Сохранить",
         take: "Забрать",
+        continue_btn: "Продолжить",
         energy: "Энергия",
         buy: "Купить",
         sell: "Продать",
         owned: "Куплено",
         max: "МАКС",
         open_case: "Открыть кейс",
+        open_legendary: "Открыть Легендарный кейс",
         promo_title: "🎟 Реферальный промокод",
         promo_desc: "Делись кодом! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
         promo_enter_placeholder: "Введите промокод друга",
         promo_activate: "Активировать",
         promo_share: "Поделиться",
-        promo_already_used: "✅ Вы уже активировали реферальный промокод"
+        promo_already_used: "✅ Реферальный бонус уже активирован",
+        invite_friend: "Пригласить друга",
+        invited_by_toast: "Тебя пригласил {nick}",
+        tap_here: "Тапай",
+        hint_open_shop: "Открой магазин и прокачайся",
+        onboard_title: "Добро пожаловать в Hamka!",
+        onboard_desc: "Тапай по хомяку и собирай монеты",
+        onboard_starter: "Стартовый бонус выдан: 500 монет, 1 базовый кейс и 1 XP!",
+        onboard_btn: "Понятно",
+        daily_title: "🎁 Ежедневный бонус",
+        daily_streak: "Серия: {days} дн.",
+        daily_claim: "Забрать день {day}",
+        daily_restore: "🎬 Восстановить серию (Реклама)",
+        daily_claimed_today: "Возвращайся завтра!",
+        daily_reward_day7: "1 Лег. кейс",
+        brag_btn: "Похвастаться",
+        prestige_banner: "Престиж {n}, множитель x{mult}",
+        prestige_ready: "Готово!",
+        prestige_req: "Нужно {xp} XP",
+        no_energy: "❌ Нет энергии!",
+        copied_link: "✅ Приглашение скопировано!",
+        err_enter_nick: "Введите никнейм",
+        err_pass_len: "Пароль мин. 6 символов",
+        err_bad_nick: "Некорректный никнейм",
+        err_open_tg: "Откройте через бота Telegram",
+        err_short_nick: "❌ Слишком короткий ник",
+        saved_ok: "✅ Сохранено!",
+        updated_settings: "✅ Настройки обновлены",
+        logged_out: "Вышли из аккаунта",
+        err_code_not_found: "❌ Код не найден",
+        err_own_code: "❌ Нельзя использовать свой код",
+        promo_ok: "🎁 Промокод активирован! +1 Базовый кейс!",
+        claim_btn: "Забрать",
+        watch_btn: "Смотреть",
+        case_claimed: "✅ Кейс получен!",
+        ad_not_avail: "❌ Реклама недоступна",
+        ad_credited: "✅ Просмотр засчитан! ({n}/5)",
+        ad_not_done: "❌ Реклама не досмотрена",
+        upgrade_ok: "✅ Прокачка куплена!",
+        skin_ok: "✅ Скин куплен!",
+        cosmetic_ok: "✅ Куплено!",
+        title_ok: "✅ Титул надет!",
+        avatar_ok: "✅ Аватарка изменена!",
+        skin_eq_ok: "✅ Скин изменён!",
+        trade_ok: "✅ Сделка проведена!",
+        reward_toast: "🎁 Награда: {text}",
+        ph_nickname: "Никнейм (латиница)",
+        ph_password: "Пароль (мин. 6)",
+        ph_new_nickname: "Новый никнейм",
+        ph_coins_amount: "Количество монет",
+        ph_homs_amount: "Количество Хомов",
+        ph_xp_amount: "Количество XP",
+        admin_btn: "🛠 Админ",
+        admin_title: "🛠 Админ-панель",
+        admin_add_coins: "Добавить монеты",
+        admin_add_homs: "Добавить Хомы",
+        admin_add_xp: "Добавить XP",
+        admin_add_case: "Добавить кейс",
+        admin_ok: "✅ Добавлено",
+        you_have: "У вас: {n} {sym}",
+        dup_homs: "+{n} Хомов (Дубликат: {kind})",
+        reward_skin: "Скин: {name}",
+        reward_avatar: "Аватарка: {name}",
+        reward_title: "Титул: {name}",
+        reward_xp: "+{n} XP",
+        reward_coins: "+{n} Монет",
+        reward_homs: "+{n} Хомов",
+        reward_basic: "+1 Базовый кейс",
+        reward_leg: "+1 Легендарный кейс",
+        rank_0: "Новичок",
+        rank_1: "Бронзовый Хомяк",
+        rank_2: "Серебряный Хомяк",
+        rank_3: "Золотой Хомяк",
+        rank_4: "Алмазный Хомяк",
+        rank_5: "Мифический Хомяк"
       }
     };
+
+    function tr(key, vars = {}) {
+      const dict = translations[currentLang] || translations.en;
+      let str = dict[key] || translations.en[key] || key;
+      for (const k in vars) {
+        str = str.replaceAll(`{${k}}`, vars[k]);
+      }
+      return str;
+    }
 
     let currentLang = localStorage.getItem('hamka_lang') || 'en';
 
     function setLanguage(lang) {
       if (!translations[lang]) lang = 'en';
       currentLang = lang;
-      localStorage.setItem('hamka_lang', lang);
-      
+      try { localStorage.setItem('hamka_lang', lang); } catch(e) {}
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-          el.innerText = translations[lang][key];
-        }
+        el.innerText = tr(key);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = tr(key);
       });
 
       const langSelect = document.getElementById('language-select');
       if (langSelect) langSelect.value = lang;
+      if (!isLoginMode && tabRegister) {
+        authSubmit.innerHTML = tr('btn_register');
+      } else if (tabLogin) {
+        authSubmit.innerHTML = tr('btn_login');
+      }
     }
 
     const loadingScreen = document.getElementById('loading-screen');
@@ -1055,13 +1411,17 @@
     const energyDisplay = document.getElementById('energy-label-text');
     const energyDisplayBottom = document.getElementById('energy-label-bottom');
     const energyBar = document.getElementById('energy-bar');
+    const energyRegenLabel = document.getElementById('energy-regen-label');
     const hamster = document.getElementById('hamster');
     const tapArea = document.getElementById('tap-area');
+    const tapPrompt = document.getElementById('tap-prompt');
+    const tapHint30 = document.getElementById('tap-hint-30');
+    const btnInviteFriend = document.getElementById('btn-invite-friend');
     const statusEl = document.getElementById('status');
     const cryptoListEl = document.getElementById('crypto-list');
     const shopListEl = document.getElementById('shop-list');
     const leaderboardList = document.getElementById('leaderboard-list');
-    
+
     const xpDisplay = document.getElementById('xp-display');
     const xpNext = document.getElementById('xp-next');
     const xpBar = document.getElementById('xp-bar');
@@ -1073,11 +1433,15 @@
     const profPublicId = document.getElementById('prof-public-id');
     const profTitle = document.getElementById('prof-title');
     const profTitleBadge = document.getElementById('prof-title-badge');
+    const profPrestigeBigVal = document.getElementById('prof-prestige-big-val');
+    const profRankBadge = document.getElementById('prof-rank-badge');
+    const profCoinMult = document.getElementById('prof-coin-mult');
     const profCoins = document.getElementById('prof-coins');
     const profHoms = document.getElementById('prof-homs');
     const profXp = document.getElementById('prof-xp');
-    const profPrestige = document.getElementById('prof-prestige');
+    const profInvited = document.getElementById('prof-invited');
     const prestigeInfo = document.getElementById('prestige-info');
+    const btnBragProfile = document.getElementById('btn-brag-profile');
 
     const invTitles = document.getElementById('inv-titles');
     const invAvatars = document.getElementById('inv-avatars');
@@ -1086,7 +1450,6 @@
     const casesSection = document.getElementById('cases-section');
 
     const modalViewProfile = document.getElementById('modal-view-profile');
-    const viewProfAvatar = document.getElementById('view-prof-avatar');
     const viewProfNick = document.getElementById('view-prof-nick');
     const viewProfId = document.getElementById('view-prof-id');
     const viewProfTitle = document.getElementById('view-prof-title');
@@ -1098,13 +1461,25 @@
     const btnSaveNickname = document.getElementById('btn-save-nickname');
     const btnChangeNickname = document.getElementById('btn-change-nickname');
 
+    const modalOnboarding = document.getElementById('modal-onboarding');
+    const btnOnboardingOk = document.getElementById('btn-onboarding-ok');
+
+    const modalDaily = document.getElementById('modal-daily');
+    const dailyGrid = document.getElementById('daily-grid');
+    const dailyStreakInfo = document.getElementById('daily-streak-info');
+    const dailyActions = document.getElementById('daily-actions');
+
     const prestigeOverlay = document.getElementById('prestige-overlay');
     const prestigeText = document.getElementById('prestige-text');
+    const prestigeMultText = document.getElementById('prestige-mult-text');
+    const btnPrestigeContinue = document.getElementById('btn-prestige-continue');
+    const btnBragPrestige = document.getElementById('btn-brag-prestige');
 
     const caseOpenOverlay = document.getElementById('case-open-overlay');
     const caseOpeningBox = document.getElementById('case-opening-box');
     const caseRewardText = document.getElementById('case-reward-text');
     const btnCloseCase = document.getElementById('btn-close-case');
+    const btnBragCase = document.getElementById('btn-brag-case');
 
     const btnSpinRoulette = document.getElementById('btn-spin-roulette');
     const rouletteStrip = document.getElementById('roulette-strip');
@@ -1118,36 +1493,68 @@
     const miniContentCrypto = document.getElementById('mini-content-crypto');
     const miniContentRoulette = document.getElementById('mini-content-roulette');
 
+    const toptabAlltime = document.getElementById('toptab-alltime');
+    const toptabWeekly = document.getElementById('toptab-weekly');
+    let currentTopTab = 'alltime';
+
+    let sessionCount = 0;
+    try {
+      sessionCount = (parseInt(sessionStorage.getItem('hamka_session_count') || '0', 10) || 0) + 1;
+      sessionStorage.setItem('hamka_session_count', String(sessionCount));
+    } catch(e) { sessionCount = 1; }
+    let interstitialShownThisSession = 0;
+    const MAX_INTERSTITIALS_PER_SESSION = 3;
+
     let isLoginMode = true;
-    let state = { 
-      coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+    let state = {
+      coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, weeklyXp: 0, prestige: 0,
       title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
       activeSkin: 'default', holdings: {},
       purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [],
       cases: {}, legendaryCases: 0,
       adWatches: 0,
       usedReferralCode: false,
+      referredBy: '',
+      invited: 0,
       hideFromTop: false,
-      upgrades: { 
-        tapLevel: 0, tapPower: 1, xpPerTap: 1, 
+      onboardingDone: false,
+      totalTaps: 0,
+      firstPlayAt: 0,
+      dailyStreak: 0,
+      lastDailyClaimDate: '',
+      dailyLostPending: false,
+      upgrades: {
+        tapLevel: 0, tapPower: 1, xpPerTap: 1,
         autoTapRate: 0, autoXpRate: 0, energyRate: 1, caseChance: 0
       }
     };
     let pendingTap = false;
     let lastTapTime = 0;
+    let tapSecWindowStart = Date.now();
+    let tapSecCoinsGain = 0;
     let unsubscribeUserData = null;
     let gameLoop = null;
-    let cryptoInterval = null;
     let currentUid = null;
     let currentShopTab = 'auto';
     let isAdmin = false;
     let selectedCaseTypeToOpen = null;
+    let dailyModalShownThisLoad = false;
+    let referralChecked = false;
+    let pendingPrestigeSummary = null;
 
-    const GITHUB_RAW = "https://raw.githubusercontent.com/lolord1k228-create/hamka-game/main/skins/";
     const SKINS = [
       { id: 'skin_ai', name: 'AIHamster', file: 'ai_hamster.png', price: 50000 },
       { id: 'skin_neon', name: 'Neon Hamster', file: 'hamster.png', price: 5000000 },
       { id: 'skin_hom', name: 'HomHamster', file: 'homhamster.png', price: 1500, currency: 'homs' }
+    ];
+
+    const PRESTIGE_TITLES = [
+      { name: 'Novice', rankKey: 'rank_0', color: 'linear-gradient(90deg, #555, #777)' },
+      { name: 'Bronze Hamster', rankKey: 'rank_1', color: 'linear-gradient(90deg, #cd7f32, #8b4513)' },
+      { name: 'Silver Hamster', rankKey: 'rank_2', color: 'linear-gradient(90deg, #c0c0c0, #808080)' },
+      { name: 'Gold Hamster', rankKey: 'rank_3', color: 'linear-gradient(90deg, #ffd700, #b8860b)' },
+      { name: 'Diamond Hamster', rankKey: 'rank_4', color: 'linear-gradient(90deg, #00e5ff, #2979ff)' },
+      { name: 'Mythic Hamster', rankKey: 'rank_5', color: 'linear-gradient(90deg, #ff0080, #7928ca)' }
     ];
 
     let TITLES = [];
@@ -1185,15 +1592,16 @@
 
     const COINS = ['OLDHAM', 'NEWHAM', 'HAM', 'BHAM', 'PLAYERHOM'];
     const INITIAL_PRICES = { OLDHAM: 100, NEWHAM: 250, HAM: 500, BHAM: 1000, PLAYERHOM: 50 };
+    const DAILY_REWARDS = [100, 300, 700, 1500, 3000, 6000, 'LEGENDARY'];
 
     const SHOP_ITEMS = {
       auto: [
-        { id: 'autoTap', title: 'Auto Tap', desc: '+1 coin/sec', basePrice: 200, multiplier: 2, maxLevel: 999 },
+        { id: 'autoTap', title: 'Auto Tap', desc: '+1 coin/sec', basePrice: 100, multiplier: 1.8, maxLevel: 999 },
         { id: 'autoXp', title: 'Auto XP', desc: '+1 XP/sec', basePrice: 1500, multiplier: 2, maxLevel: 999 },
         { id: 'energyRate', title: '+Energy Regen', desc: '+1 energy/sec', basePrice: 1000, multiplier: 10, maxLevel: 999 },
       ],
       upgrade: [
-        { id: 'tap', title: 'Tap Power', desc: '+1 coin per tap', basePrice: 50, multiplier: 10, maxLevel: 9, prices: [50, 200, 2000, 5000, 20000, 50000, 150000, 500000, 2000000] },
+        { id: 'tap', title: 'Tap Power', desc: '+1 coin per tap', basePrice: 50, multiplier: 10, maxLevel: 9, prices: [50, 150, 400, 1200, 4000, 15000, 60000, 250000, 1000000] },
         { id: 'xpTap', title: 'XP Tap', desc: '+1 XP per tap', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
         { id: 'maxEnergy', title: 'Max Energy', desc: '+50 max energy', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
       ]
@@ -1209,16 +1617,20 @@
     }
 
     function getQty(symbol) {
-      const v = localStorage.getItem('qty_' + symbol);
-      return v ? Math.max(1, parseInt(v) || 1) : 1;
+      try {
+        const v = localStorage.getItem('qty_' + symbol);
+        return v ? Math.max(1, parseInt(v, 10) || 1) : 1;
+      } catch(e) { return 1; }
     }
-    function setQty(symbol, val) { localStorage.setItem('qty_' + symbol, val); }
+    function setQty(symbol, val) {
+      try { localStorage.setItem('qty_' + symbol, String(val)); } catch(e) {}
+    }
 
     function showStatus(text) {
       statusEl.innerText = text;
       statusEl.classList.add('show');
       clearTimeout(showStatus._t);
-      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2500);
+      showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2600);
     }
 
     function formatNumber(num) {
@@ -1234,6 +1646,232 @@
       return p.toFixed(2);
     }
 
+    function getCoinMultiplier(prestigeLvl = state.prestige) {
+      return 1 + (prestigeLvl || 0) * 0.1;
+    }
+
+    function getRankForPrestige(prestigeLvl = state.prestige) {
+      const idx = Math.min(PRESTIGE_TITLES.length - 1, Math.max(0, prestigeLvl || 0));
+      return PRESTIGE_TITLES[idx];
+    }
+
+    function getEffectiveEnergyRegen() {
+      const base = state.upgrades.energyRate || 1;
+      const elapsedMs = Date.now() - (state.firstPlayAt || Date.now());
+      if (elapsedMs <= 10 * 60 * 1000) {
+        return Math.max(3, base);
+      }
+      return base;
+    }
+
+    async function logImpression(placement) {
+      if (!currentUid) return;
+      try {
+        await push(ref(db, `impressions/${currentUid}`), {
+          placement,
+          ts: Date.now(),
+          session: sessionCount
+        });
+      } catch(e) {}
+    }
+
+    async function showInterstitial(placement) {
+      if (interstitialShownThisSession >= MAX_INTERSTITIALS_PER_SESSION) return;
+      if (!AdController || typeof AdController.show !== 'function') return;
+      try {
+        await AdController.show();
+        interstitialShownThisSession += 1;
+        await logImpression(placement);
+      } catch(e) {}
+    }
+
+    function getUtcDayKey(offsetDays = 0) {
+      const d = new Date(Date.now() + offsetDays * 86400000);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function renderDailyModal() {
+      const todayKey = getUtcDayKey(0);
+      const streak = state.dailyStreak || 0;
+      const nextDayIndex = Math.min(6, streak);
+      dailyStreakInfo.innerText = tr('daily_streak', { days: streak });
+
+      dailyGrid.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const div = document.createElement('div');
+        const isClaimed = state.lastDailyClaimDate === todayKey ? i < streak : i < streak;
+        const isToday = i === nextDayIndex && state.lastDailyClaimDate !== todayKey;
+        div.className = `daily-day ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''}`;
+        const rew = DAILY_REWARDS[i] === 'LEGENDARY' ? tr('daily_reward_day7') : `🪙 ${DAILY_REWARDS[i]}`;
+        div.innerHTML = `<div>D${i + 1}</div><div>${rew}</div>`;
+        dailyGrid.appendChild(div);
+      }
+
+      dailyActions.innerHTML = '';
+      if (state.lastDailyClaimDate === todayKey) {
+        const btn = document.createElement('button');
+        btn.className = 'modal-btn cancel';
+        btn.innerText = tr('daily_claimed_today');
+        btn.onclick = () => modalDaily.classList.remove('show');
+        dailyActions.appendChild(btn);
+        return;
+      }
+
+      if (state.dailyLostPending && streak > 0) {
+        const restoreBtn = document.createElement('button');
+        restoreBtn.className = 'modal-btn gold';
+        restoreBtn.innerText = tr('daily_restore');
+        restoreBtn.onclick = async () => {
+          if (!AdController) { showStatus(tr('ad_not_avail')); return; }
+          try {
+            const res = await AdController.show();
+            if (res && res.done) {
+              await logImpression('daily_restore');
+              await update(ref(db, 'users/' + currentUid), { dailyLostPending: false });
+              renderDailyModal();
+            }
+          } catch(e) { showStatus(tr('ad_not_done')); }
+        };
+        dailyActions.appendChild(restoreBtn);
+      }
+
+      const claimBtn = document.createElement('button');
+      claimBtn.className = 'modal-btn confirm';
+      claimBtn.innerText = tr('daily_claim', { day: nextDayIndex + 1 });
+      claimBtn.onclick = async () => {
+        if (!currentUid) return;
+        const rewardVal = DAILY_REWARDS[nextDayIndex];
+        const newStreak = state.dailyLostPending ? 1 : streak + 1;
+        await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+          if (!data) return data;
+          if (data.lastDailyClaimDate === todayKey) return;
+          data.lastDailyClaimDate = todayKey;
+          data.dailyStreak = newStreak;
+          data.dailyLostPending = false;
+          if (rewardVal === 'LEGENDARY') {
+            data.legendaryCases = (data.legendaryCases || 0) + 1;
+          } else {
+            data.coins = (data.coins || 0) + rewardVal;
+          }
+          return data;
+        });
+        modalDaily.classList.remove('show');
+        showStatus(tr('reward_toast', {
+          text: rewardVal === 'LEGENDARY' ? tr('reward_leg') : tr('reward_coins', { n: rewardVal })
+        }));
+      };
+      dailyActions.appendChild(claimBtn);
+    }
+
+    async function evaluateDailyOnLogin(data) {
+      if (!currentUid || dailyModalShownThisLoad) return;
+      const todayKey = getUtcDayKey(0);
+      const yesterdayKey = getUtcDayKey(-1);
+      if (data.lastDailyClaimDate && data.lastDailyClaimDate !== todayKey && data.lastDailyClaimDate !== yesterdayKey && (data.dailyStreak || 0) > 0) {
+        await update(ref(db, 'users/' + currentUid), { dailyLostPending: true });
+      }
+      if (data.lastDailyClaimDate !== todayKey && data.onboardingDone) {
+        dailyModalShownThisLoad = true;
+        renderDailyModal();
+        modalDaily.classList.add('show');
+      }
+    }
+
+    async function shareBragCard(headlineText) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
+      grad.addColorStop(0, '#0a0a0a');
+      grad.addColorStop(0.5, '#112217');
+      grad.addColorStop(1, '#000000');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      ctx.strokeStyle = '#2ecc71';
+      ctx.lineWidth = 12;
+      ctx.strokeRect(36, 36, 1008, 1008);
+
+      ctx.fillStyle = '#2ecc71';
+      ctx.font = '900 72px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🐭 HAMKA GAME', 540, 180);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 54px sans-serif';
+      ctx.fillText(state.nickname || 'Player', 540, 310);
+
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '700 42px sans-serif';
+      ctx.fillText(headlineText || `Prestige ${state.prestige} • ${formatNumber(state.xp)} XP`, 540, 420);
+
+      ctx.fillStyle = '#f5a623';
+      ctx.font = '800 56px sans-serif';
+      ctx.fillText(`🌟 Prestige: ${state.prestige} (x${getCoinMultiplier().toFixed(1)})`, 540, 560);
+
+      ctx.fillStyle = '#00e5ff';
+      ctx.font = '800 56px sans-serif';
+      ctx.fillText(`⚡ XP: ${formatNumber(state.xp)}`, 540, 670);
+
+      ctx.fillStyle = '#aaaaaa';
+      ctx.font = '600 34px sans-serif';
+      ctx.fillText(`${BOT_LINK}?startapp=${state.publicId}`, 540, 860);
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const shareText = `🐭 ${state.nickname}: ${headlineText} | 🌟 Prestige ${state.prestige} | ⚡ ${formatNumber(state.xp)} XP`;
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(`${BOT_LINK}?startapp=${state.publicId}`)}&text=${encodeURIComponent(shareText)}`;
+
+      let sharedViaStory = false;
+      try {
+        if (tg && typeof tg.shareToStory === 'function') {
+          tg.shareToStory(dataUrl, { text: shareText, widget_link: { url: `${BOT_LINK}?startapp=${state.publicId}`, name: 'Hamka' } });
+          sharedViaStory = true;
+        }
+      } catch(e) {}
+
+      if (!sharedViaStory) {
+        try {
+          if (tg && typeof tg.openTelegramLink === 'function') {
+            tg.openTelegramLink(shareUrl);
+          } else {
+            window.open(shareUrl, '_blank');
+          }
+        } catch(e) {
+          window.open(shareUrl, '_blank');
+        }
+      }
+    }
+
+    btnBragProfile.addEventListener('click', () => {
+      shareBragCard(`Prestige ${state.prestige} • ${formatNumber(state.xp)} XP`);
+    });
+    btnBragCase.addEventListener('click', () => {
+      shareBragCard(caseRewardText.innerText.split('\n')[0] || 'Case Loot!');
+    });
+    btnBragPrestige.addEventListener('click', () => {
+      shareBragCard(tr('prestige_banner', { n: state.prestige, mult: getCoinMultiplier().toFixed(1) }));
+    });
+
+    async function sha256Base64(input) {
+      if (window.crypto && window.crypto.subtle) {
+        const enc = new TextEncoder().encode(input);
+        const buf = await window.crypto.subtle.digest('SHA-256', enc);
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+      let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      for (let i = 0; i < input.length; i++) {
+        const ch = input.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      return btoa(`${h1.toString(16)}_${h2.toString(16)}_${input.length}`);
+    }
+
     languageSelect.addEventListener('change', (e) => {
       setLanguage(e.target.value);
       if (currentUid) {
@@ -1246,28 +1884,29 @@
       state.hideFromTop = val;
       if (currentUid) {
         await update(ref(db, 'users/' + currentUid), { hideFromTop: val });
-        showStatus('✅ Updated settings');
+        showStatus(tr('updated_settings'));
       }
     });
 
     btnLogout.addEventListener('click', async () => {
       try {
         await signOut(auth);
-        showStatus('Logged out');
+        showStatus(tr('logged_out'));
       } catch(e) {}
     });
 
+    setLanguage(currentLang);
     setAuthMode(true);
     function setAuthMode(loginMode) {
       isLoginMode = loginMode;
       if (loginMode) {
         tabLogin.classList.add('active');
         tabRegister.classList.remove('active');
-        authSubmit.innerHTML = '👉 Login';
+        authSubmit.innerHTML = tr('btn_login');
       } else {
         tabRegister.classList.add('active');
         tabLogin.classList.remove('active');
-        authSubmit.innerHTML = '📝 Register';
+        authSubmit.innerHTML = tr('btn_register');
       }
       authError.innerText = '';
     }
@@ -1281,15 +1920,21 @@
       return cleanNick + '@hamka.game';
     }
 
+    async function getTgCredentials(tgUser) {
+      const email = `tg_${tgUser.id}@hamka.test`;
+      const password = await sha256Base64(`${tgUser.id}hamka_salt_v1`);
+      return { email, password };
+    }
+
     async function autoLoginTelegram() {
-      const tgUser = tg?.initDataUnsafe?.user;
+      let tgUser = null;
+      try { tgUser = tg?.initDataUnsafe?.user || null; } catch(e) {}
       if (!tgUser) {
         loadingScreen.style.display = 'none';
         authScreen.classList.remove('hidden');
         return;
       }
-      const email = `tg_${tgUser.id}@hamka.test`;
-      const password = `Tg_${tgUser.id}_SecurePass_2026!`;
+      const { email, password } = await getTgCredentials(tgUser);
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
@@ -1307,10 +1952,10 @@
     authSubmit.addEventListener('click', async () => {
       const nick = authNickname.value.trim();
       const password = authPassword.value;
-      if (!nick) { authError.innerText = 'Enter nickname'; return; }
-      if (password.length < 6) { authError.innerText = 'Password min 6 chars'; return; }
+      if (!nick) { authError.innerText = tr('err_enter_nick'); return; }
+      if (password.length < 6) { authError.innerText = tr('err_pass_len'); return; }
       const email = nickToEmail(nick);
-      if (!email) { authError.innerText = 'Invalid nickname'; return; }
+      if (!email) { authError.innerText = tr('err_bad_nick'); return; }
 
       authSubmit.disabled = true;
       try {
@@ -1327,13 +1972,15 @@
     });
 
     tgLoginBtn.addEventListener('click', async () => {
-      const tgUser = tg?.initDataUnsafe?.user;
-      if (!tgUser) { authError.innerText = 'Open via Telegram bot'; return; }
+      let tgUser = null;
+      try { tgUser = tg?.initDataUnsafe?.user || null; } catch(e) {}
+      if (!tgUser) { authError.innerText = tr('err_open_tg'); return; }
+      const { email, password } = await getTgCredentials(tgUser);
       try {
-        await signInWithEmailAndPassword(auth, `tg_${tgUser.id}@hamka.test`, `Tg_${tgUser.id}_SecurePass_2026!`);
+        await signInWithEmailAndPassword(auth, email, password);
       } catch (e) {
         try {
-          await createUserWithEmailAndPassword(auth, `tg_${tgUser.id}@hamka.test`, `Tg_${tgUser.id}_SecurePass_2026!`);
+          await createUserWithEmailAndPassword(auth, email, password);
         } catch (err) {}
       }
     });
@@ -1344,34 +1991,42 @@
         loadingScreen.style.display = 'none';
         authScreen.classList.add('hidden');
         gameScreen.classList.add('visible');
-        
+        if (sessionCount > 0 && sessionCount % 3 === 0) {
+          showInterstitial('every_3_sessions');
+        }
+
         if (typeof window.Adsgram !== 'undefined') {
           try { AdController = window.Adsgram.init({ blockId: "59759" }); } catch (e) {}
         }
 
         loadGameData().then(() => {
           initGame(user.uid);
-          initCryptoSystem();
           checkAdminStatus(user.uid);
           initRoulette();
+          renderCryptoList();
         });
       } else {
         currentUid = null;
+        referralChecked = false;
+        dailyModalShownThisLoad = false;
         loadingScreen.style.display = 'none';
         authScreen.classList.remove('hidden');
         gameScreen.classList.remove('visible');
         if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
         if (gameLoop) { clearInterval(gameLoop); gameLoop = null; }
-        if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
       }
     });
 
     document.querySelectorAll('.menu-item[data-page]').forEach(item => {
       item.addEventListener('click', () => {
+        const wasMinigames = document.getElementById('page-minigames').classList.contains('active');
         document.querySelectorAll('.menu-item').forEach(n => n.classList.remove('active'));
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         item.classList.add('active');
         document.getElementById('page-' + item.dataset.page).classList.add('active');
+        if (wasMinigames && item.dataset.page !== 'minigames') {
+          showInterstitial('exit_minigame');
+        }
         if (item.dataset.page === 'shop') renderShop();
         if (item.dataset.page === 'profile') renderProfile();
         if (item.dataset.page === 'inventory') renderInventory();
@@ -1381,6 +2036,7 @@
           minitabRoulette.classList.remove('active');
           miniContentCrypto.style.display = 'block';
           miniContentRoulette.style.display = 'none';
+          renderCryptoList();
         }
       });
     });
@@ -1390,6 +2046,7 @@
       minitabRoulette.classList.remove('active');
       miniContentCrypto.style.display = 'block';
       miniContentRoulette.style.display = 'none';
+      renderCryptoList();
     });
 
     minitabRoulette.addEventListener('click', () => {
@@ -1399,14 +2056,111 @@
       miniContentRoulette.style.display = 'block';
     });
 
-    document.querySelectorAll('.shop-tab').forEach(tab => {
+    toptabAlltime.addEventListener('click', () => {
+      currentTopTab = 'alltime';
+      toptabAlltime.classList.add('active');
+      toptabWeekly.classList.remove('active');
+      loadLeaderboard();
+    });
+
+    toptabWeekly.addEventListener('click', () => {
+      currentTopTab = 'weekly';
+      toptabWeekly.classList.add('active');
+      toptabAlltime.classList.remove('active');
+      loadLeaderboard();
+    });
+
+    document.querySelectorAll('.shop-tab[data-shop-tab]').forEach(tab => {
       tab.addEventListener('click', () => {
-        document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.shop-tab[data-shop-tab]').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentShopTab = tab.dataset.shopTab;
         renderShop();
       });
     });
+
+    function shareReferralLink() {
+      const link = `${BOT_LINK}?startapp=${state.publicId}`;
+      const shareText = `🐭 ${tr('invite_friend')}: ${link}`;
+      try { navigator.clipboard?.writeText(link); } catch(e) {}
+      const url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+      let opened = false;
+      try {
+        if (tg && typeof tg.openTelegramLink === 'function') {
+          tg.openTelegramLink(url);
+          opened = true;
+        }
+      } catch(e) {}
+      if (!opened) {
+        try { window.open(url, '_blank'); } catch(e) {}
+      }
+      showStatus(tr('copied_link'));
+    }
+
+    btnInviteFriend.addEventListener('click', shareReferralLink);
+
+    async function applyReferralCode(rawCode, isAutoDeepLink = false) {
+      if (!currentUid) return false;
+      const code = String(rawCode || '').trim();
+      if (!code) return false;
+      if (code === state.publicId || code === currentUid) {
+        if (!isAutoDeepLink) showStatus(tr('err_own_code'));
+        return false;
+      }
+      if (state.usedReferralCode) {
+        return false;
+      }
+
+      const usersSnap = await get(ref(db, 'users'));
+      if (!usersSnap.exists()) {
+        if (!isAutoDeepLink) showStatus(tr('err_code_not_found'));
+        return false;
+      }
+
+      const users = usersSnap.val();
+      let referrerUid = null;
+      let referrerNick = 'Friend';
+      for (const uId in users) {
+        const uData = users[uId];
+        if (String(uData.publicId) === code || uId === code) {
+          referrerUid = uId;
+          referrerNick = uData.nickname || 'Friend';
+          break;
+        }
+      }
+
+      if (!referrerUid) {
+        if (!isAutoDeepLink) showStatus(tr('err_code_not_found'));
+        return false;
+      }
+
+      const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+        if (!data) return data;
+        if (data.usedReferralCode) return;
+        data.usedReferralCode = true;
+        data.referredBy = referrerUid;
+        if (!data.cases) data.cases = {};
+        data.cases.basic = (data.cases.basic || 0) + 1;
+        return data;
+      });
+
+      if (!res1.committed) return false;
+
+      await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
+        if (!data) return data;
+        data.legendaryCases = (data.legendaryCases || 0) + 1;
+        data.invited = (data.invited || 0) + 1;
+        return data;
+      });
+
+      if (isAutoDeepLink) {
+        showStatus(tr('invited_by_toast', { nick: referrerNick }));
+      } else {
+        showStatus(tr('promo_ok'));
+      }
+      try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+      return true;
+    }
 
     async function loadGameData() {
       try {
@@ -1421,9 +2175,9 @@
             { id: 'gld', name: 'Gold Hamster', price: 0, color: 'linear-gradient(90deg, #ffd700, #b8860b)', reqPrestige: 3 },
             { id: 'crypto_baron', name: 'Crypto Baron', price: 10000, color: 'linear-gradient(90deg, #ff9800, #ff5722)', reqPrestige: 0 },
             { id: 'tap_god', name: 'Tap God', price: 50000, color: 'linear-gradient(90deg, #00bcd4, #2196f3)', reqPrestige: 0 },
-            { id: 'h_mag', name: 'Хом\'яковий Магнат', price: 100, currency: 'homs', color: 'linear-gradient(90deg, #2ecc71, #27ae60)', reqPrestige: 0 },
+            { id: 'h_mag', name: "Хом'яковий Магнат", price: 100, currency: 'homs', color: 'linear-gradient(90deg, #2ecc71, #27ae60)', reqPrestige: 0 },
             { id: 'h_lord', name: 'Володар Хомів', price: 500, currency: 'homs', color: 'linear-gradient(90deg, #9b59b6, #8e44ad)', reqPrestige: 0 },
-            { id: 'h_leg', name: 'Легендарний Хом\'як', price: 2000, currency: 'homs', color: 'linear-gradient(90deg, #f1c40f, #e67e22)', reqPrestige: 0 }
+            { id: 'h_leg', name: "Легендарний Хом'як", price: 2000, currency: 'homs', color: 'linear-gradient(90deg, #f1c40f, #e67e22)', reqPrestige: 0 }
           ];
         }
 
@@ -1443,7 +2197,7 @@
     }
 
     async function loadLeaderboard() {
-      leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Loading...</div>';
+      leaderboardList.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">${tr('loading')}</div>`;
       try {
         const snap = await get(ref(db, 'users'));
         const users = snap.val() || {};
@@ -1451,36 +2205,41 @@
         for (const uid in users) {
           const u = users[uid];
           if (u.hideFromTop) continue;
-          arr.push({ 
+          arr.push({
             uid, nickname: u.nickname || 'Player', avatar: u.avatar || '🐭',
             title: u.title || 'Beginner', activeSkin: u.activeSkin || 'default',
-            publicId: u.publicId || '000000', xp: u.xp || 0, prestige: u.prestige || 0
+            publicId: u.publicId || '000000', xp: u.xp || 0, weeklyXp: u.weeklyXp || 0, prestige: u.prestige || 0
           });
         }
-        arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
+        if (currentTopTab === 'weekly') {
+          arr.sort((a, b) => b.weeklyXp - a.weeklyXp || b.xp - a.xp);
+        } else {
+          arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
+        }
         const top10 = arr.slice(0, 10);
 
         leaderboardList.innerHTML = '';
         top10.forEach((u, i) => {
           const el = document.createElement('div');
           el.className = 'leaderboard-item';
-          
-          if (i < 3 && u.uid === currentUid) {
+
+          if (i < 3 && u.uid === currentUid && currentTopTab === 'alltime') {
             const topTitle = TOP_TITLES[i].name;
             if (!state.purchasedTitles.includes(topTitle)) {
               update(ref(db, 'users/' + currentUid), { purchasedTitles: [...state.purchasedTitles, topTitle] });
             }
           }
 
-          const titleObj = TITLES.find(t => t.name === u.title) || CASE_TITLES.find(t => t.name === u.title) || TOP_TITLES.find(t => t.name === u.title);
+          const titleObj = TITLES.find(t => t.name === u.title) || PRESTIGE_TITLES.find(t => t.name === u.title) || CASE_TITLES.find(t => t.name === u.title) || TOP_TITLES.find(t => t.name === u.title);
           const titleColor = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
 
           let avatarHtml = `<div class="lb-avatar">${u.avatar}</div>`;
           if (u.activeSkin !== 'default') {
             const skinObj = SKINS.find(s => s.id === u.activeSkin);
-            if (skinObj && skinObj.file) avatarHtml = `<div class="lb-avatar" style="background-image: url('${GITHUB_RAW}${skinObj.file}');"></div>`;
+            if (skinObj && skinObj.file) avatarHtml = `<div class="lb-avatar" style="background-image: url('${ASSETS_SKINS}${skinObj.file}');" loading="lazy"></div>`;
           }
 
+          const displayedXp = currentTopTab === 'weekly' ? u.weeklyXp : u.xp;
           el.innerHTML = `
             <div style="font-size:16px; font-weight:800; color:#f5a623; width:25px;">#${i + 1}</div>
             ${avatarHtml}
@@ -1489,7 +2248,7 @@
               <div class="lb-title" style="background:${titleColor};">${u.title}</div>
             </div>
             <div class="lb-stats">
-              <div class="lb-xp">${formatNumber(u.xp)} XP</div>
+              <div class="lb-xp">${formatNumber(displayedXp)} XP</div>
               <div class="lb-prestige">🌟 ${u.prestige}</div>
             </div>
           `;
@@ -1498,7 +2257,7 @@
             viewProfId.innerText = 'ID: ' + u.publicId;
             viewProfTitle.innerText = u.title;
             viewProfTitle.style.background = titleColor;
-            viewProfXp.innerText = formatNumber(u.xp);
+            viewProfXp.innerText = formatNumber(displayedXp);
             viewProfPrestige.innerText = u.prestige;
             modalViewProfile.classList.add('show');
           });
@@ -1507,17 +2266,25 @@
       } catch (err) {}
     }
 
+    document.getElementById('btn-close-view-profile').addEventListener('click', () => {
+      modalViewProfile.classList.remove('show');
+    });
+
     btnChangeNickname.addEventListener('click', () => {
       newNicknameInput.value = state.nickname;
       modalNickname.classList.add('show');
     });
 
+    document.getElementById('btn-cancel-nickname').addEventListener('click', () => {
+      modalNickname.classList.remove('show');
+    });
+
     btnSaveNickname.addEventListener('click', async () => {
       const newNick = newNicknameInput.value.trim();
-      if (newNick.length < 3) { showStatus('❌ Too short'); return; }
+      if (newNick.length < 3) { showStatus(tr('err_short_nick')); return; }
       await update(ref(db, 'users/' + currentUid), { nickname: newNick });
       modalNickname.classList.remove('show');
-      showStatus('✅ Saved!');
+      showStatus(tr('saved_ok'));
     });
 
     async function checkAdminStatus(uid) {
@@ -1530,25 +2297,37 @@
       } catch (e) {}
     }
 
-    window.adminAddCoins = async () => {
+    adminBtnBadge.addEventListener('click', () => {
+      document.getElementById('modal-admin').classList.add('show');
+    });
+    document.getElementById('btn-admin-close').addEventListener('click', () => {
+      document.getElementById('modal-admin').classList.remove('show');
+    });
+    document.getElementById('btn-admin-coins').addEventListener('click', async () => {
       if (!isAdmin || !currentUid) return;
-      const amount = parseInt(document.getElementById('admin-coins-input').value) || 0;
+      const amount = parseInt(document.getElementById('admin-coins-input').value, 10) || 0;
       await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.coins = (d.coins || 0) + amount; return d; });
-      showStatus('✅ Added coins');
-    };
-    window.adminAddHoms = async () => {
+      showStatus(tr('admin_ok'));
+    });
+    document.getElementById('btn-admin-homs').addEventListener('click', async () => {
       if (!isAdmin || !currentUid) return;
-      const amount = parseInt(document.getElementById('admin-homs-input').value) || 0;
+      const amount = parseInt(document.getElementById('admin-homs-input').value, 10) || 0;
       await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.homs = (d.homs || 0) + amount; return d; });
-      showStatus('✅ Added Homs');
-    };
-    window.adminAddXp = async () => {
+      showStatus(tr('admin_ok'));
+    });
+    document.getElementById('btn-admin-xp').addEventListener('click', async () => {
       if (!isAdmin || !currentUid) return;
-      const amount = parseInt(document.getElementById('admin-xp-input').value) || 0;
-      await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.xp = (d.xp || 0) + amount; return d; });
-      showStatus('✅ Added XP');
-    };
-    window.adminAddCase = async () => {
+      const amount = parseInt(document.getElementById('admin-xp-input').value, 10) || 0;
+      await runTransaction(ref(db, 'users/' + currentUid), d => {
+        if (d) {
+          d.xp = (d.xp || 0) + amount;
+          d.weeklyXp = (d.weeklyXp || 0) + amount;
+        }
+        return d;
+      });
+      showStatus(tr('admin_ok'));
+    });
+    document.getElementById('btn-admin-case').addEventListener('click', async () => {
       if (!isAdmin || !currentUid) return;
       await runTransaction(ref(db, 'users/' + currentUid), d => {
         if (!d) return d;
@@ -1556,41 +2335,74 @@
         d.cases.basic = (d.cases.basic || 0) + 1;
         return d;
       });
-      showStatus('✅ Case added');
-    };
+      showStatus(tr('admin_ok'));
+    });
+
+    btnOnboardingOk.addEventListener('click', async () => {
+      modalOnboarding.classList.remove('show');
+      state.onboardingDone = true;
+      if (currentUid) {
+        await update(ref(db, 'users/' + currentUid), { onboardingDone: true });
+        if (!dailyModalShownThisLoad) {
+          dailyModalShownThisLoad = true;
+          renderDailyModal();
+          modalDaily.classList.add('show');
+        }
+      }
+    });
+
+    btnPrestigeContinue.addEventListener('click', () => {
+      prestigeOverlay.classList.remove('show');
+      pendingPrestigeSummary = null;
+    });
 
     function initGame(uid) {
       const userRef = ref(db, 'users/' + uid);
-      
-      get(userRef).then((snap) => {
+
+      get(userRef).then(async (snap) => {
         if (!snap.exists()) {
-          const tgUser = tg?.initDataUnsafe?.user;
+          let tgUser = null;
+          try { tgUser = tg?.initDataUnsafe?.user || null; } catch(e) {}
           const generatedId = tgUser ? 'tg_' + tgUser.id : Math.floor(100000 + Math.random() * 900000).toString();
           const defaultNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
 
-          set(userRef, { 
-            coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0, 
+          const initialData = {
+            coins: 500, homs: 0, energy: 200, maxEnergy: 200, xp: 1, weeklyXp: 1, prestige: 0,
             title: 'Beginner', avatar: '🐭', holdings: {},
             nickname: defaultNick, publicId: generatedId, activeSkin: 'default',
             tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
             purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [],
             cases: { basic: 1 }, legendaryCases: 0, adWatches: 0,
-            usedReferralCode: false, hideFromTop: false, language: 'en',
+            usedReferralCode: false, referredBy: '', invited: 0,
+            hideFromTop: false, language: currentLang,
+            onboardingDone: false, totalTaps: 0, firstPlayAt: Date.now(),
+            dailyStreak: 0, lastDailyClaimDate: '', dailyLostPending: false,
             createdAt: Date.now()
-          });
+          };
+          await set(userRef, initialData);
+          modalOnboarding.classList.add('show');
         }
       }).catch(err => {});
 
-      unsubscribeUserData = onValue(userRef, (snapshot) => {
+      unsubscribeUserData = onValue(userRef, async (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
         if (pendingTap) return;
+
+        if (!data.firstPlayAt) {
+          data.firstPlayAt = Date.now();
+          update(userRef, { firstPlayAt: data.firstPlayAt }).catch(() => {});
+        }
+        if (!data.onboardingDone && !modalOnboarding.classList.contains('show')) {
+          modalOnboarding.classList.add('show');
+        }
 
         state.coins = data.coins || 0;
         state.homs = data.homs || 0;
         state.energy = data.energy ?? 200;
         state.maxEnergy = data.maxEnergy ?? 200;
         state.xp = data.xp || 0;
+        state.weeklyXp = data.weeklyXp || 0;
         state.prestige = data.prestige || 0;
         state.title = data.title || 'Beginner';
         state.avatar = data.avatar || '🐭';
@@ -1605,8 +2417,16 @@
         state.activeSkin = data.activeSkin || 'default';
         state.adWatches = data.adWatches || 0;
         state.usedReferralCode = data.usedReferralCode || false;
+        state.referredBy = data.referredBy || '';
+        state.invited = data.invited || 0;
         state.hideFromTop = data.hideFromTop || false;
-        
+        state.onboardingDone = !!data.onboardingDone;
+        state.totalTaps = data.totalTaps || 0;
+        state.firstPlayAt = data.firstPlayAt || Date.now();
+        state.dailyStreak = data.dailyStreak || 0;
+        state.lastDailyClaimDate = data.lastDailyClaimDate || '';
+        state.dailyLostPending = !!data.dailyLostPending;
+
         if (data.language && data.language !== currentLang) {
           setLanguage(data.language);
         } else {
@@ -1622,6 +2442,17 @@
 
         hideTopToggle.checked = state.hideFromTop;
 
+        if (!referralChecked) {
+          referralChecked = true;
+          let startParam = '';
+          try { startParam = tg?.initDataUnsafe?.start_param || ''; } catch(e) {}
+          if (startParam && !state.usedReferralCode) {
+            await applyReferralCode(startParam, true);
+          }
+        }
+
+        await evaluateDailyOnLogin(data);
+
         renderUI();
         checkAutoPrestige();
         updateHamsterSkin();
@@ -1629,21 +2460,26 @@
         if (document.getElementById('page-shop').classList.contains('active')) renderShop();
         if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
         if (document.getElementById('page-inventory').classList.contains('active')) renderInventory();
-        renderCryptoList();
+        if (document.getElementById('page-minigames').classList.contains('active')) renderCryptoList();
       });
 
       if (gameLoop) clearInterval(gameLoop);
       gameLoop = setInterval(async () => {
-        const earn = state.upgrades.autoTapRate;
-        const earnXp = state.upgrades.autoXpRate;
-        const earnEnergy = state.upgrades.energyRate;
-        
+        const mult = getCoinMultiplier(state.prestige);
+        const earn = Math.round((state.upgrades.autoTapRate || 0) * mult);
+        const earnXp = state.upgrades.autoXpRate || 0;
+        const earnEnergy = getEffectiveEnergyRegen();
+
         if (earn > 0 || earnXp > 0 || (state.energy < state.maxEnergy && earnEnergy > 0)) {
           await runTransaction(userRef, (data) => {
             if (!data) return data;
             let changed = false;
             if (earn > 0) { data.coins = (data.coins || 0) + earn; changed = true; }
-            if (earnXp > 0) { data.xp = (data.xp || 0) + earnXp; changed = true; }
+            if (earnXp > 0) {
+              data.xp = (data.xp || 0) + earnXp;
+              data.weeklyXp = (data.weeklyXp || 0) + earnXp;
+              changed = true;
+            }
             if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 200)) {
               data.energy = Math.min(data.maxEnergy ?? 200, (data.energy || 0) + earnEnergy);
               changed = true;
@@ -1655,22 +2491,44 @@
 
       hamster.onclick = async (e) => {
         const now = Date.now();
-        if (now - lastTapTime < 60) return; 
+        if (now - lastTapTime < 60) return;
         lastTapTime = now;
 
-        if (state.energy < 1) { showStatus("❌ No energy!"); return; }
-        const tapPower = state.upgrades.tapPower;
-        const xpPerTap = state.upgrades.xpPerTap;
+        if (state.energy < 1) { showStatus(tr('no_energy')); return; }
+
+        if (now - tapSecWindowStart >= 1000) {
+          tapSecWindowStart = now;
+          tapSecCoinsGain = 0;
+        }
+
+        const mult = getCoinMultiplier(state.prestige);
+        const tapPower = Math.max(1, Math.round((state.upgrades.tapPower || 1) * mult));
+        const xpPerTap = Math.max(1, Math.round((state.upgrades.xpPerTap || 1) * (1 + (state.prestige || 0) * 0.5)));
+
+        const maxAllowedPerSec = (((state.upgrades.tapPower || 1) * mult) * 15 + (state.upgrades.autoTapRate || 0) * mult) * 1.5;
+        if (tapSecCoinsGain + tapPower > maxAllowedPerSec) {
+          const snap = await get(userRef);
+          if (snap.exists()) {
+            const srv = snap.val();
+            state.coins = srv.coins || 0;
+            state.energy = srv.energy ?? state.energy;
+            renderUI();
+          }
+          return;
+        }
+        tapSecCoinsGain += tapPower;
 
         state.energy = Math.max(0, state.energy - 1);
         state.coins += tapPower;
         state.xp += xpPerTap;
+        state.weeklyXp += xpPerTap;
+        state.totalTaps = (state.totalTaps || 0) + 1;
         renderUI();
 
         const rect = tapArea.getBoundingClientRect();
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
-        effect.innerText = `+${tapPower}`;
+        effect.innerText = `+${formatNumber(tapPower)}`;
         effect.style.left = (e.clientX - rect.left - 10) + 'px';
         effect.style.top = (e.clientY - rect.top - 10) + 'px';
         tapArea.appendChild(effect);
@@ -1687,6 +2545,8 @@
             data.energy = curEnergy - 1;
             data.coins = (data.coins || 0) + tapPower;
             data.xp = (data.xp || 0) + xpPerTap;
+            data.weeklyXp = (data.weeklyXp || 0) + xpPerTap;
+            data.totalTaps = (data.totalTaps || 0) + 1;
             return data;
           });
         } catch (err) {} finally { pendingTap = false; }
@@ -1701,7 +2561,7 @@
         const skinObj = SKINS.find(s => s.id === state.activeSkin);
         if (skinObj && skinObj.file) {
           hamster.innerText = '';
-          hamster.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
+          hamster.style.backgroundImage = `url('${ASSETS_SKINS}${skinObj.file}')`;
         } else {
           hamster.style.backgroundImage = 'none';
           hamster.innerText = '🐭';
@@ -1715,803 +2575,20 @@
 
     async function checkAutoPrestige() {
       const req = getPrestigeReq(state.prestige);
-      if (state.xp >= req && currentUid) {
+      if (state.xp >= req && currentUid && !pendingPrestigeSummary) {
         const userRef = ref(db, 'users/' + currentUid);
-        let newPrestige = state.prestige + 1;
-        
-        prestigeText.innerText = `PRESTIGE ${newPrestige}`;
+        const newPrestige = state.prestige + 1;
+        const nextRank = getRankForPrestige(newPrestige);
+        const newMult = getCoinMultiplier(newPrestige).toFixed(1);
+
+        pendingPrestigeSummary = { newPrestige, newMult };
+        prestigeText.innerText = tr('prestige_banner', { n: newPrestige, mult: newMult });
+        prestigeMultText.innerText = `x${newMult} • ${tr(nextRank.rankKey)}`;
         prestigeOverlay.classList.add('show');
-        setTimeout(() => prestigeOverlay.classList.remove('show'), 2500);
 
         await runTransaction(userRef, (data) => {
           if (!data) return data;
           if ((data.xp || 0) >= req) {
-            data.xp = (data.xp || 0) - req;
+            data.xp = 0;
             data.prestige = (data.prestige || 0) + 1;
-          }
-          return data;
-        });
-        try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
-      }
-    }
-
-    function getLevelInfo(xp) {
-      let currentLvl = LEVELS[0];
-      let nextLvl = LEVELS[1];
-      for (let i = 0; i < LEVELS.length; i++) {
-        if (xp >= LEVELS[i].xp) {
-          currentLvl = LEVELS[i];
-          nextLvl = LEVELS[i + 1] || LEVELS[i];
-        }
-      }
-      return { currentLvl, nextLvl };
-    }
-
-    function renderUI() {
-      const coinsStr = formatNumber(state.coins);
-      const homsStr = formatNumber(state.homs);
-      
-      tapCoinDisplay.innerText = coinsStr;
-      topCoins.innerText = coinsStr;
-      topHoms.innerText = homsStr;
-      bottomCoins.innerText = coinsStr;
-      autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate);
-
-      const energyPct = (state.energy / state.maxEnergy) * 100;
-      energyBar.style.width = energyPct + '%';
-      energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
-      energyDisplayBottom.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
-
-      const { currentLvl, nextLvl } = getLevelInfo(state.xp);
-      levelName.innerText = currentLvl.name;
-      xpDisplay.innerText = formatNumber(state.xp);
-      xpNext.innerText = nextLvl.xp === currentLvl.xp ? 'MAX' : formatNumber(nextLvl.xp);
-      
-      const lvlProgress = nextLvl.xp === currentLvl.xp ? 100 : ((state.xp - currentLvl.xp) / (nextLvl.xp - currentLvl.xp)) * 100;
-      xpBar.style.width = Math.min(100, Math.max(0, lvlProgress)) + '%';
-    }
-
-    function renderShop() {
-      if (!shopListEl) return;
-      shopListEl.innerHTML = '';
-
-      if (currentShopTab === 'cosmetics') {
-        const grid = document.createElement('div');
-        grid.className = 'shop-grid';
-
-        TITLES.forEach(item => {
-          if (item.price <= 0) return;
-          const isOwned = state.purchasedTitles.includes(item.name);
-          const isHoms = item.currency === 'homs';
-          const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
-          
-          const card = document.createElement('div');
-          card.className = 'shop-card';
-          card.innerHTML = `
-            <div class="grid-preview" style="font-size:24px; background:${item.color};">🏆</div>
-            <div class="shop-card-info">
-              <div class="shop-card-title" style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${item.name}</div>
-              <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
-            </div>
-            <button class="shop-card-btn" data-title-name="${item.name}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
-          `;
-          grid.appendChild(card);
-        });
-
-        AVATARS.forEach(item => {
-          const isOwned = state.purchasedAvatars.includes(item.name);
-          const canAfford = state.coins >= item.price;
-          const card = document.createElement('div');
-          card.className = 'shop-card';
-          card.innerHTML = `
-            <div class="grid-preview">${item.name}</div>
-            <div class="shop-card-info">
-              <div class="shop-card-title">Avatar</div>
-              <div class="shop-card-price">${formatNumber(item.price)} 🪙</div>
-            </div>
-            <button class="shop-card-btn" data-avatar-name="${item.name}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
-          `;
-          grid.appendChild(card);
-        });
-
-        SKINS.forEach(item => {
-          if (!item.file) return;
-          const isOwned = state.purchasedSkins.includes(item.id);
-          const isHoms = item.currency === 'homs';
-          const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
-
-          const card = document.createElement('div');
-          card.className = 'shop-card';
-          card.innerHTML = `
-            <div class="grid-preview" style="background-image: url('${GITHUB_RAW}${item.file}');"></div>
-            <div class="shop-card-info">
-              <div class="shop-card-title">Skin: ${item.name}</div>
-              <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
-            </div>
-            <button class="shop-card-btn" data-skin-id="${item.id}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
-          `;
-          grid.appendChild(card);
-        });
-
-        shopListEl.appendChild(grid);
-
-        shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
-          if (btn.dataset.titleName) {
-            const item = TITLES.find(t => t.name === btn.dataset.titleName);
-            btn.addEventListener('click', () => buyCosmetic({ name: item.name, price: item.price, type: 'title', currency: item.currency || 'coins' }));
-          } else if (btn.dataset.avatarName) {
-            const item = AVATARS.find(a => a.name === btn.dataset.avatarName);
-            btn.addEventListener('click', () => buyCosmetic({ name: item.name, price: item.price, type: 'avatar', currency: 'coins' }));
-          } else if (btn.dataset.skinId) {
-            btn.addEventListener('click', () => buySkin(SKINS.find(s => s.id === btn.dataset.skinId)));
-          }
-        });
-        return;
-      }
-
-      if (currentShopTab === 'cases') {
-        const t = translations[currentLang];
-        const promoBox = document.createElement('div');
-        promoBox.className = 'promo-box';
-        
-        const enterHtml = state.usedReferralCode 
-          ? `<div style="font-size:12px; color:#2ecc71; margin-top:10px; font-weight:600;">${t.promo_already_used}</div>`
-          : `<div class="promo-input-row">
-               <input type="text" class="promo-input" id="ref-promo-input" placeholder="${t.promo_enter_placeholder}">
-               <button class="shop-card-btn" id="btn-activate-promo">${t.promo_activate}</button>
-             </div>`;
-
-        promoBox.innerHTML = `
-          <div class="shop-card-title" style="color:#2ecc71;">${t.promo_title}</div>
-          <div class="shop-card-desc">${t.promo_desc}</div>
-          <div class="promo-code-display">
-            <span class="promo-code-text" id="my-promo-code">${state.publicId}</span>
-            <div style="display:flex; gap:6px;">
-              <button class="shop-card-btn" id="btn-copy-promo" style="padding:6px 10px;">📋</button>
-              <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${t.promo_share}</button>
-            </div>
-          </div>
-          ${enterHtml}
-        `;
-        shopListEl.appendChild(promoBox);
-
-        document.getElementById('btn-copy-promo').addEventListener('click', () => {
-          const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!\n🤖 Бот: ${BOT_LINK}\n🎟 Мій промокод: ${state.publicId}`;
-          navigator.clipboard.writeText(shareText);
-          showStatus('✅ Copied with bot link!');
-        });
-
-        document.getElementById('btn-share-promo').addEventListener('click', () => {
-          const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!\n🎟 Мій промокод: ${state.publicId}`;
-          const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(BOT_LINK)}&text=${encodeURIComponent(shareText)}`;
-          if (tg && tg.openTelegramLink) {
-            tg.openTelegramLink(shareUrl);
-          } else {
-            window.open(shareUrl, '_blank');
-          }
-        });
-
-        const btnActivate = document.getElementById('btn-activate-promo');
-        if (btnActivate) {
-          btnActivate.addEventListener('click', async () => {
-            const code = document.getElementById('ref-promo-input').value.trim();
-            if (!code) { showStatus('❌ [ERR_1] Enter code'); return; }
-            if (code === state.publicId || code === currentUid) { showStatus('❌ [ERR_3] Own code'); return; }
-            if (state.usedReferralCode) { showStatus('❌ [ERR_4] Already activated'); return; }
-
-            btnActivate.disabled = true;
-            showStatus('⏳ Searching...');
-            try {
-              const usersSnap = await get(ref(db, 'users'));
-              if (!usersSnap.exists()) {
-                showStatus('❌ [ERR_5] Database empty');
-                btnActivate.disabled = false;
-                return;
-              }
-
-              const users = usersSnap.val();
-              let referrerUid = null;
-              for (const uId in users) {
-                const uData = users[uId];
-                if (String(uData.publicId) === code || uId === code) {
-                  referrerUid = uId;
-                  break;
-                }
-              }
-
-              if (!referrerUid) {
-                showStatus('❌ [ERR_6] Code not found');
-                btnActivate.disabled = false;
-                return;
-              }
-
-              // 1. Нараховуємо гравцю (+1 Базовий кейс)
-              const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-                if (!data) return data;
-                if (data.usedReferralCode) return;
-                data.usedReferralCode = true;
-                if (!data.cases) data.cases = {};
-                data.cases.basic = (data.cases.basic || 0) + 1;
-                return data;
-              });
-
-              if (!res1.committed) {
-                showStatus('❌ [ERR_7] User tx failed (Rules)');
-                btnActivate.disabled = false;
-                return;
-              }
-
-              // 2. Нараховуємо власнику коду (+1 Легендарний кейс)
-              const res2 = await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
-                if (!data) return data;
-                data.legendaryCases = (data.legendaryCases || 0) + 1;
-                return data;
-              });
-
-              if (!res2.committed) {
-                showStatus('❌ [ERR_8] Referrer tx failed (Rules)');
-                btnActivate.disabled = false;
-                return;
-              }
-
-              showStatus('🎁 Promo activated! +1 Basic Case!');
-              try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
-            } catch (err) {
-              alert(`Firebase Error:\n${err.code || ''}\n${err.message}`);
-              showStatus('❌ [ERR_SYS] ' + (err.code || err.message));
-              btnActivate.disabled = false;
-            }
-          });
-        }
-
-        const adCaseCard = document.createElement('div');
-        adCaseCard.className = 'shop-card';
-        adCaseCard.innerHTML = `
-          <div class="grid-preview" style="font-size:40px;">🎬</div>
-          <div class="shop-card-info">
-            <div class="shop-card-title">Case for Ad</div>
-            <div class="shop-card-price">Progress: ${state.adWatches} / 5</div>
-          </div>
-          <button class="shop-card-btn" id="btn-buy-case-ad">${state.adWatches >= 5 ? 'Claim' : 'Watch'}</button>
-        `;
-        shopListEl.appendChild(adCaseCard);
-
-        document.getElementById('btn-buy-case-ad').addEventListener('click', async () => {
-          if (state.adWatches >= 5) {
-            await update(ref(db, 'users/' + currentUid), {
-              adWatches: 0,
-              cases: { ...state.cases, basic: (state.cases.basic || 0) + 1 }
-            });
-            showStatus('✅ Case received!');
-          } else {
-            if (!AdController) { showStatus('❌ Ad not available'); return; }
-            try {
-              const result = await AdController.show();
-              if (result && result.done) {
-                await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-                  if (!data) return data;
-                  data.adWatches = (data.adWatches || 0) + 1;
-                  return data;
-                });
-                showStatus(`✅ Ad credited! (${state.adWatches + 1}/5)`);
-              }
-            } catch(e) { showStatus('❌ Ad not completed'); }
-          }
-        });
-        return;
-      }
-
-      const items = SHOP_ITEMS[currentShopTab] || [];
-      items.forEach(item => {
-        let currentLevel = 0;
-        if (item.id === 'autoTap') currentLevel = state.upgrades.autoTapRate;
-        else if (item.id === 'autoXp') currentLevel = state.upgrades.autoXpRate;
-        else if (item.id === 'energyRate') currentLevel = state.upgrades.energyRate - 1;
-        else if (item.id === 'tap') currentLevel = state.upgrades.tapLevel;
-        else if (item.id === 'xpTap') currentLevel = state.upgrades.xpPerTap - 1;
-        else if (item.id === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
-
-        const price = getShopPrice(item.id, currentLevel);
-        const isMaxed = currentLevel >= item.maxLevel || price === Infinity;
-        const canAfford = state.coins >= price;
-
-        const card = document.createElement('div');
-        card.className = 'shop-card';
-        card.innerHTML = `
-          <div class="shop-card-info">
-            <div class="shop-card-title">${item.title} <span style="font-size:10px; color:#888;">(Lvl ${currentLevel})</span></div>
-            <div class="shop-card-desc">${item.desc}</div>
-            ${!isMaxed ? `<div class="shop-card-price">${formatNumber(price)} 🪙</div>` : `<div class="shop-card-price" style="color:#2ecc71;">${translations[currentLang].max || 'MAX'}</div>`}
-          </div>
-          <button class="shop-card-btn" data-id="${item.id}" ${isMaxed || !canAfford ? 'disabled' : ''}>${isMaxed ? (translations[currentLang].max || 'Max') : (translations[currentLang].buy || 'Buy')}</button>
-        `;
-        shopListEl.appendChild(card);
-      });
-
-      shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
-        btn.addEventListener('click', () => buyUpgrade(btn.dataset.id));
-      });
-    }
-
-    async function buyUpgrade(itemId) {
-      if (!currentUid) return;
-      const allItems = [...SHOP_ITEMS.auto, ...SHOP_ITEMS.upgrade];
-      const item = allItems.find(i => i.id === itemId);
-      if (!item) return;
-
-      let currentLevel = 0;
-      if (itemId === 'autoTap') currentLevel = state.upgrades.autoTapRate;
-      else if (itemId === 'autoXp') currentLevel = state.upgrades.autoXpRate;
-      else if (itemId === 'energyRate') currentLevel = state.upgrades.energyRate - 1;
-      else if (itemId === 'tap') currentLevel = state.upgrades.tapLevel;
-      else if (itemId === 'xpTap') currentLevel = state.upgrades.xpPerTap - 1;
-      else if (itemId === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
-
-      const price = getShopPrice(itemId, currentLevel);
-      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-        if (!data || (data.coins || 0) < price) return;
-        data.coins -= price;
-        if (itemId === 'autoTap') data.autoTapRate = (data.autoTapRate || 0) + 1;
-        else if (itemId === 'autoXp') data.autoXpRate = (data.autoXpRate || 0) + 1;
-        else if (itemId === 'energyRate') data.energyRate = (data.energyRate || 1) + 1;
-        else if (itemId === 'tap') { data.tapLevel = (data.tapLevel || 0) + 1; data.tapPower = (data.tapPower || 1) + 1; }
-        else if (itemId === 'xpTap') data.xpPerTap = (data.xpPerTap || 1) + 1;
-        else if (itemId === 'maxEnergy') data.maxEnergy = (data.maxEnergy || 200) + 50;
-        return data;
-      });
-      showStatus('✅ Upgrade purchased!');
-    }
-
-    async function buySkin(item) {
-      const isHoms = item.currency === 'homs';
-      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-        if (!data) return data;
-        const bal = isHoms ? (data.homs || 0) : (data.coins || 0);
-        if (bal < item.price) return;
-        if (isHoms) data.homs -= item.price; else data.coins -= item.price;
-        if (!data.purchasedSkins) data.purchasedSkins = [];
-        if (!data.purchasedSkins.includes(item.id)) data.purchasedSkins.push(item.id);
-        return data;
-      });
-      showStatus('✅ Skin bought!');
-      renderShop();
-    }
-
-    async function buyCosmetic(item) {
-      const isHoms = item.currency === 'homs';
-      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-        if (!data) return data;
-        const bal = isHoms ? (data.homs || 0) : (data.coins || 0);
-        if (bal < item.price) return;
-        if (isHoms) data.homs -= item.price; else data.coins -= item.price;
-        if (item.type === 'title') {
-          if (!data.purchasedTitles) data.purchasedTitles = [];
-          if (!data.purchasedTitles.includes(item.name)) data.purchasedTitles.push(item.name);
-        } else if (item.type === 'avatar') {
-          if (!data.purchasedAvatars) data.purchasedAvatars = [];
-          if (!data.purchasedAvatars.includes(item.name)) data.purchasedAvatars.push(item.name);
-        }
-        return data;
-      });
-      showStatus('✅ Purchased!');
-      renderShop();
-    }
-
-    function renderProfile() {
-      profCoins.innerText = formatNumber(state.coins);
-      profHoms.innerText = formatNumber(state.homs);
-      profXp.innerText = formatNumber(state.xp);
-      profPrestige.innerText = state.prestige;
-      profNickname.innerText = state.nickname;
-      profPublicId.innerText = 'ID: ' + state.publicId;
-      
-      if (state.activeSkin !== 'default') {
-        const skinObj = SKINS.find(s => s.id === state.activeSkin);
-        if (skinObj && skinObj.file) {
-          profAvatar.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
-          profAvatar.innerText = '';
-        }
-      } else {
-        profAvatar.style.backgroundImage = 'none';
-        profAvatar.innerText = state.avatar;
-      }
-
-      const titleObj = TITLES.find(t => t.name === state.title) || CASE_TITLES.find(t => t.name === state.title) || TOP_TITLES.find(t => t.name === state.title);
-      if (titleObj) {
-        profTitle.innerText = titleObj.name;
-        profTitleBadge.style.background = titleObj.color;
-      } else {
-        profTitle.innerText = state.title;
-        profTitleBadge.style.background = 'linear-gradient(90deg, #8a2be2, #da70d6)';
-      }
-
-      const req = getPrestigeReq(state.prestige);
-      prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
-    }
-
-    function renderInventory() {
-      const cases = state.cases || {};
-      const legendaryCount = state.legendaryCases || 0;
-      const hasCases = Object.keys(cases).some(k => cases[k] > 0) || legendaryCount > 0;
-      
-      if (hasCases) {
-        casesSection.style.display = 'block';
-        invCases.innerHTML = '';
-        for (const type in cases) {
-          const count = cases[type];
-          if (count <= 0) continue;
-          const el = document.createElement('div');
-          el.className = 'case-item';
-          el.innerHTML = `
-            <div class="case-count-badge">${count}</div>
-            <div class="case-icon">📦</div>
-            <div class="case-name">Basic Case</div>
-          `;
-          el.addEventListener('click', () => openCaseModal(type, count));
-          invCases.appendChild(el);
-        }
-
-        if (legendaryCount > 0) {
-          const el = document.createElement('div');
-          el.className = 'case-item legendary';
-          el.innerHTML = `
-            <div class="case-count-badge">${legendaryCount}</div>
-            <div class="case-icon">🌟</div>
-            <div class="case-name">Legendary Case</div>
-          `;
-          el.addEventListener('click', () => openCaseModal('legendary', legendaryCount));
-          invCases.appendChild(el);
-        }
-      } else {
-        casesSection.style.display = 'none';
-      }
-
-      const availableTitles = [
-        ...TITLES.filter(t => (t.price === 0 && (t.reqPrestige === 0 || state.prestige >= t.reqPrestige)) || state.purchasedTitles.includes(t.name)),
-        ...CASE_TITLES.filter(t => state.purchasedTitles.includes(t.name)),
-        ...TOP_TITLES.filter(t => state.purchasedTitles.includes(t.name))
-      ];
-      invTitles.innerHTML = '';
-      availableTitles.forEach(tItem => {
-        const el = document.createElement('div');
-        el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
-        el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${tItem.name}</div>`;
-        el.addEventListener('click', async () => {
-          await update(ref(db, 'users/' + currentUid), { title: tItem.name });
-          showStatus('✅ Title equipped!');
-        });
-        invTitles.appendChild(el);
-      });
-
-      const availableAvatars = ['🐭', ...state.purchasedAvatars];
-      invAvatars.innerHTML = '';
-      availableAvatars.forEach(avName => {
-        const el = document.createElement('div');
-        el.className = `inventory-item ${state.avatar === avName ? 'active' : ''}`;
-        el.innerHTML = `<div class="inventory-item-icon">${avName}</div>`;
-        el.addEventListener('click', async () => {
-          await update(ref(db, 'users/' + currentUid), { avatar: avName });
-          showStatus('✅ Avatar changed!');
-        });
-        invAvatars.appendChild(el);
-      });
-
-      invSkins.innerHTML = '';
-      const defaultEl = document.createElement('div');
-      defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
-      defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">Default</div>`;
-      defaultEl.addEventListener('click', async () => {
-        await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
-        showStatus('✅ Skin changed!');
-      });
-      invSkins.appendChild(defaultEl);
-
-      state.purchasedSkins.forEach(skinId => {
-        const skinObj = SKINS.find(s => s.id === skinId);
-        if (!skinObj || !skinObj.file) return;
-        const el = document.createElement('div');
-        el.className = `inventory-item ${state.activeSkin === skinId ? 'active' : ''}`;
-        el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${skinObj.name}</div>`;
-        el.addEventListener('click', async () => {
-          await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
-          showStatus('✅ Skin changed!');
-        });
-        invSkins.appendChild(el);
-      });
-    }
-
-    function openCaseModal(type, count) {
-      selectedCaseTypeToOpen = type;
-      document.getElementById('case-modal-title').innerText = type === 'legendary' ? 'Open Legendary Case' : 'Open Case';
-      document.getElementById('case-modal-count').innerText = `Available: ${count}`;
-      document.getElementById('modal-case-qty').classList.add('show');
-    }
-
-    window.openCasesBatch = async function(qty) {
-      document.getElementById('modal-case-qty').classList.remove('show');
-      if (!currentUid || !selectedCaseTypeToOpen) return;
-
-      const isLegendary = selectedCaseTypeToOpen === 'legendary';
-      const currentCount = isLegendary ? (state.legendaryCases || 0) : (state.cases[selectedCaseTypeToOpen] || 0);
-      let openNum = qty === 'all' ? currentCount : parseInt(qty);
-      if (openNum > currentCount) openNum = currentCount;
-      if (openNum <= 0) return;
-
-      caseOpenOverlay.classList.add('show');
-      caseOpeningBox.style.display = 'block';
-      caseOpeningBox.innerText = isLegendary ? '🌟' : '📦';
-      caseRewardText.innerText = '';
-      btnCloseCase.style.display = 'none';
-
-      setTimeout(async () => {
-        caseOpeningBox.style.display = 'none';
-        let summaryRewards = [];
-        const multiplier = isLegendary ? 10 : 1;
-
-        await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-          if (!data) return data;
-          if (isLegendary) {
-            if ((data.legendaryCases || 0) < openNum) return;
-            data.legendaryCases -= openNum;
-          } else {
-            if (!data.cases || (data.cases[selectedCaseTypeToOpen] || 0) < openNum) return;
-            data.cases[selectedCaseTypeToOpen] -= openNum;
-            if (data.cases[selectedCaseTypeToOpen] <= 0) delete data.cases[selectedCaseTypeToOpen];
-          }
-
-          if (!data.purchasedTitles) data.purchasedTitles = [];
-          if (!data.purchasedAvatars) data.purchasedAvatars = [];
-          if (!data.purchasedSkins) data.purchasedSkins = [];
-
-          for (let i = 0; i < openNum; i++) {
-            const rand = Math.random() * 100;
-            if (rand < 20) {
-              const randomSkin = SKINS[Math.floor(Math.random() * SKINS.length)];
-              if (data.purchasedSkins.includes(randomSkin.id)) {
-                const homsBonus = 10 * multiplier;
-                data.homs = (data.homs || 0) + homsBonus;
-                summaryRewards.push(`+${homsBonus} Homs (Skin Duplicate)`);
-              } else {
-                data.purchasedSkins.push(randomSkin.id);
-                summaryRewards.push(`Skin: ${randomSkin.name}`);
-              }
-            } else if (rand < 45) {
-              const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-              if (data.purchasedAvatars.includes(randomAvatar.name)) {
-                const homsBonus = 10 * multiplier;
-                data.homs = (data.homs || 0) + homsBonus;
-                summaryRewards.push(`+${homsBonus} Homs (Avatar Duplicate)`);
-              } else {
-                data.purchasedAvatars.push(randomAvatar.name);
-                summaryRewards.push(`Avatar: ${randomAvatar.name}`);
-              }
-            } else if (rand < 70) {
-              const randomTitle = CASE_TITLES[Math.floor(Math.random() * CASE_TITLES.length)];
-              if (data.purchasedTitles.includes(randomTitle.name)) {
-                const homsBonus = 10 * multiplier;
-                data.homs = (data.homs || 0) + homsBonus;
-                summaryRewards.push(`+${homsBonus} Homs (Title Duplicate)`);
-              } else {
-                data.purchasedTitles.push(randomTitle.name);
-                summaryRewards.push(`Title: ${randomTitle.name}`);
-              }
-            } else {
-              const xpReward = (Math.floor(Math.random() * 49000) + 1000) * multiplier;
-              data.xp = (data.xp || 0) + xpReward;
-              summaryRewards.push(`+${formatNumber(xpReward)} XP`);
-            }
-          }
-          return data;
-        });
-
-        caseRewardText.innerText = summaryRewards.join('\n');
-        btnCloseCase.style.display = 'block';
-        try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
-      }, 1500);
-    };
-
-    btnCloseCase.addEventListener('click', () => {
-      caseOpenOverlay.classList.remove('show');
-    });
-
-    let cryptoState = {};
-    async function initCryptoSystem() {
-      for (const symbol of COINS) {
-        const cRef = ref(db, 'crypto/' + symbol);
-        const snap = await get(cRef);
-        if (!snap.exists()) {
-          const price = INITIAL_PRICES[symbol];
-          await set(cRef, { price: price, history: [{ t: Date.now(), p: price }] });
-        }
-      }
-
-      onValue(ref(db, 'crypto'), (snap) => {
-        const data = snap.val();
-        if (!data) return;
-        cryptoState = data;
-        renderCryptoList();
-      });
-
-      if (cryptoInterval) clearInterval(cryptoInterval);
-      cryptoInterval = setInterval(async () => {
-        for (const symbol of COINS) {
-          updateCryptoPrice(symbol);
-        }
-      }, 10000);
-    }
-
-    async function updateCryptoPrice(symbol) {
-      const cRef = ref(db, 'crypto/' + symbol);
-      try {
-        await runTransaction(cRef, (data) => {
-          if (!data) return data;
-          const currentPrice = data.price || INITIAL_PRICES[symbol];
-          const isGrowth = Math.random() < 0.4;
-          const percent = (Math.random() * 0.03) + 0.005;
-          let newPrice = isGrowth ? currentPrice * (1 + percent) : currentPrice * (1 - percent);
-          newPrice = Math.max(1, newPrice);
-
-          const history = data.history || [];
-          history.push({ t: Date.now(), p: newPrice });
-          if (history.length > 30) history.shift();
-          return { price: newPrice, history: history };
-        });
-      } catch (err) {}
-    }
-
-    function renderCryptoList() {
-      if (!cryptoListEl) return;
-      cryptoListEl.innerHTML = '';
-      for (const symbol of COINS) {
-        const info = cryptoState[symbol];
-        if (!info) continue;
-
-        const price = info.price || INITIAL_PRICES[symbol];
-        const history = info.history || [];
-        const firstPrice = history[0]?.p || price;
-        const isUp = price >= firstPrice;
-        const holding = state.holdings?.[symbol] || 0;
-        const qty = getQty(symbol);
-
-        const card = document.createElement('div');
-        card.className = 'crypto-card';
-        card.innerHTML = `
-          <div class="crypto-header">
-            <div class="crypto-symbol">${symbol}</div>
-            <div class="crypto-price ${isUp ? 'up' : 'down'}">${formatPrice(price)} 🪙</div>
-          </div>
-          <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
-          <div class="crypto-actions">
-            <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
-            <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">${translations[currentLang].buy || 'Buy'}</button>
-            <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">${translations[currentLang].sell || 'Sell'}</button>
-          </div>
-          <div class="crypto-holdings">You have: <span>${holding}</span> ${symbol}</div>
-        `;
-        cryptoListEl.appendChild(card);
-        drawChart(document.getElementById('chart-' + symbol), history, isUp);
-      }
-
-      cryptoListEl.querySelectorAll('.crypto-input').forEach(inp => {
-        inp.addEventListener('input', () => setQty(inp.dataset.symbol, inp.value));
-      });
-
-      cryptoListEl.querySelectorAll('.crypto-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const symbol = btn.dataset.symbol;
-          const action = btn.dataset.action;
-          const qty = parseInt(document.getElementById('qty-' + symbol).value) || 1;
-          tradeCrypto(symbol, action, qty);
-        });
-      });
-    }
-
-    function drawChart(canvas, history, isUp) {
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      if (history.length < 2) return;
-
-      const prices = history.map(x => x.p);
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      const range = max - min || 1;
-
-      ctx.beginPath();
-      ctx.strokeStyle = isUp ? '#2ecc71' : '#ff5252';
-      ctx.lineWidth = 2;
-
-      history.forEach((point, i) => {
-        const x = (i / (history.length - 1)) * (w - 4) + 2;
-        const y = h - ((point.p - min) / range) * (h - 8) - 4;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-    }
-
-    async function tradeCrypto(symbol, action, qty) {
-      if (!currentUid) return;
-      const info = cryptoState[symbol];
-      if (!info) return;
-
-      const price = info.price;
-      const total = price * qty;
-
-      await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-        if (!data) return data;
-        if (!data.holdings) data.holdings = {};
-
-        if (action === 'buy') {
-          if ((data.coins || 0) < total) return;
-          data.coins -= total;
-          data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
-        } else {
-          const owned = data.holdings[symbol] || 0;
-          if (owned < qty) return;
-          data.coins = (data.coins || 0) + total;
-          data.holdings[symbol] = owned - qty;
-        }
-        return data;
-      });
-      showStatus('✅ Trade successful!');
-    }
-
-    function initRoulette() {
-      if (!rouletteStrip) return;
-      rouletteStrip.innerHTML = '';
-      const items = ['🪙', '⭐', '📦', '🐹', '🪙', '⭐', '🪙', '🐹'];
-      for (let i = 0; i < 40; i++) {
-        const div = document.createElement('div');
-        div.className = 'roulette-item';
-        div.innerText = items[i % items.length];
-        rouletteStrip.appendChild(div);
-      }
-    }
-
-    btnSpinRoulette.addEventListener('click', async () => {
-      if (!AdController) { showStatus('❌ Ad not available'); return; }
-      try {
-        const result = await AdController.show();
-        if (result && result.done) {
-          const randomOffset = Math.floor(Math.random() * 15) * 60 + 900;
-          rouletteStrip.style.transition = 'transform 3s cubic-bezier(0.1, 0.8, 0.2, 1)';
-          rouletteStrip.style.transform = `translateX(-${randomOffset}px)`;
-
-          setTimeout(async () => {
-            rouletteStrip.style.transition = 'none';
-            rouletteStrip.style.transform = 'translateX(0)';
-
-            const rewards = [
-              { type: 'coins', val: 1000, text: '+1,000 Coins' },
-              { type: 'xp', val: 500, text: '+500 XP' },
-              { type: 'homs', val: 10, text: '+10 Homs' },
-              { type: 'case', val: 1, text: '+1 Basic Case' },
-              { type: 'leg_case', val: 1, text: '+1 Legendary Case' }
-            ];
-            const reward = rewards[Math.floor(Math.random() * rewards.length)];
-
-            await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-              if (!data) return data;
-              if (reward.type === 'coins') data.coins = (data.coins || 0) + reward.val;
-              if (reward.type === 'xp') data.xp = (data.xp || 0) + reward.val;
-              if (reward.type === 'homs') data.homs = (data.homs || 0) + reward.val;
-              if (reward.type === 'case') {
-                if (!data.cases) data.cases = {};
-                data.cases.basic = (data.cases.basic || 0) + 1;
-              }
-              if (reward.type === 'leg_case') {
-                data.legendaryCases = (data.legendaryCases || 0) + 1;
-              }
-              return data;
-            });
-
-            showStatus(`🎁 Reward: ${reward.text}`);
-            try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
-          }, 3100);
-        }
-      } catch(e) { showStatus('❌ Ad not completed'); }
-    });
-  </script>
-</body>
-</html>
+            if (!data.
