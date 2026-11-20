@@ -243,6 +243,17 @@ const authSubmit = document.getElementById('auth-submit');
 const tgLoginBtn = document.getElementById('tg-login-btn');
 const adminBtnBadge = document.getElementById('admin-btn-badge');
 
+function hideLoading() {
+  if (loadingScreen) loadingScreen.style.display = 'none';
+}
+
+setTimeout(() => {
+  hideLoading();
+  if (!currentUid && authScreen) {
+    authScreen.classList.remove('hidden');
+  }
+}, 4000);
+
 const tapCoinDisplay = document.getElementById('tap-coin-display');
 const topCoins = document.getElementById('top-coins');
 const topHoms = document.getElementById('top-homs');
@@ -418,7 +429,7 @@ const LEVELS = GAME_DATA.LEVELS || [
   { name: '0 beginner', xp: 0 },
   { name: '1 beginner', xp: 50 },
   { name: '2 beginner', xp: 200 },
-  { name: '3 beginner', xp": 500 },
+  { name: '3 beginner', xp: 500 },
   { name: '4 beginner', xp: 1500 },
   { name: 'bronze 1', xp: 5000 },
   { name: 'bronze 2', xp: 10000 },
@@ -441,9 +452,9 @@ const SHOP_ITEMS = GAME_DATA.SHOP_ITEMS || {
     { id: 'energyRate', title: '+Energy Regen', desc: '+1 energy/sec', basePrice: 1000, multiplier: 10, maxLevel: 999 },
   ],
   upgrade: [
-    { id: "tap", "title": "Tap Power", "desc": "+1 coin per tap", "basePrice": 50, "multiplier": 10, "maxLevel": 9, "prices": [50, 200, 2000, 4000, 5000, 6500, 7500, 10000, 20000] },
-    { id: "xpTap", "title": "XP Tap", "desc": "+1 XP per tap", "basePrice": 50000, "multiplier": 10, "maxLevel": 999, "prices": [50000, 500000, 5000000, 50000000, 500000000] },
-    { id: "maxEnergy", "title": "Max Energy", "desc": "+50 max energy", "basePrice": 1500, "multiplier": 1.5, "maxLevel": 999, "prices": [1500, 5000] },
+    { id: 'tap', title: 'Tap Power', desc: '+1 coin per tap', basePrice: 50, multiplier: 10, maxLevel: 9, prices: [50, 200, 2000, 4000, 5000, 6500, 7500, 10000, 20000] },
+    { id: 'xpTap', title: 'XP Tap', desc: '+1 XP per tap', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
+    { id: 'maxEnergy', title: 'Max Energy', desc: '+50 max energy', basePrice: 1500, multiplier: 1.5, maxLevel: 999, prices: [1500, 5000] },
   ]
 };
 
@@ -511,6 +522,7 @@ function getQty(symbol) {
 function setQty(symbol, val) { localStorage.setItem('qty_' + symbol, val); }
 
 function showStatus(text) {
+  if (!statusEl) return;
   statusEl.innerText = text;
   statusEl.classList.add('show');
   clearTimeout(showStatus._t);
@@ -580,7 +592,7 @@ function nickToEmail(nick) {
 async function autoLoginTelegram() {
   const tgUser = tg?.initDataUnsafe?.user;
   if (!tgUser) {
-    loadingScreen.style.display = 'none';
+    hideLoading();
     authScreen.classList.remove('hidden');
     return;
   }
@@ -592,7 +604,7 @@ async function autoLoginTelegram() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (createErr) {
-      loadingScreen.style.display = 'none';
+      hideLoading();
       authScreen.classList.remove('hidden');
     }
   }
@@ -634,12 +646,12 @@ tgLoginBtn.addEventListener('click', async () => {
   }
 });
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUid = user.uid;
     userDataReady = false;
     dailyCheckDone = false;
-    loadingScreen.style.display = 'none';
+    hideLoading();
     authScreen.classList.add('hidden');
     gameScreen.classList.add('visible');
 
@@ -647,17 +659,18 @@ onAuthStateChanged(auth, (user) => {
       try { AdController = window.Adsgram.init({ blockId: "59759" }); } catch (e) {}
     }
 
-    loadGameData().then(() => {
-      initGame(user.uid);
-      initCryptoSystem();
-      checkAdminStatus(user.uid);
-      initRoulette();
-    });
+    try {
+      await loadGameData();
+    } catch (e) {}
+    initGame(user.uid);
+    initCryptoSystem();
+    checkAdminStatus(user.uid);
+    initRoulette();
   } else {
     currentUid = null;
     userDataReady = false;
     dailyCheckDone = false;
-    loadingScreen.style.display = 'none';
+    hideLoading();
     authScreen.classList.remove('hidden');
     gameScreen.classList.remove('visible');
     if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
@@ -722,7 +735,7 @@ async function loadGameData() {
         { id: 'slvr', name: 'Silver Hamster', price: 0, color: 'linear-gradient(90deg, #c0c0c0, #808080)', reqPrestige: 2 },
         { id: 'gld', name: 'Gold Hamster', price: 0, color: 'linear-gradient(90deg, #ffd700, #b8860b)', reqPrestige: 3 },
         { id: 'crypto_baron', name: 'Crypto Baron', price: 10000, color: 'linear-gradient(90deg, #ff9800, #ff5722)', reqPrestige: 0 },
-        { id: "tap_god", "name": "Tap God", "price": 50000, "color": "linear-gradient(90deg, #00bcd4, #2196f3)", "reqPrestige": 0 },
+        { id: 'tap_god', name: 'Tap God', price: 50000, color: 'linear-gradient(90deg, #00bcd4, #2196f3)', reqPrestige: 0 },
         { id: 'h_mag', name: "Хом'яковий Магнат", price: 100, currency: 'homs', color: 'linear-gradient(90deg, #2ecc71, #27ae60)', reqPrestige: 0 },
         { id: 'h_lord', name: 'Володар Хомів', price: 500, currency: 'homs', color: 'linear-gradient(90deg, #9b59b6, #8e44ad)', reqPrestige: 0 },
         { id: 'h_leg', name: "Легендарний Хом'як", price: 2000, currency: 'homs', color: 'linear-gradient(90deg, #f1c40f, #e67e22)', reqPrestige: 0 }
@@ -740,7 +753,7 @@ async function loadGameData() {
         { id: 'cat', name: '🐱', price: 5000 },
         { id: 'lion', name: '🦁', price: 15000 },
         { id: 'panda', name: '🐼', price: 20000 },
-        { id: 'unicorn', "name": "🦄", "price": 30000 }
+        { id: 'unicorn', name: '🦄', price: 30000 }
       ];
     }
   } catch (err) {}
@@ -1319,7 +1332,9 @@ function initGame(uid) {
     userDataReady = true;
 
     if (!dailyCheckDone) {
-      await processMonthlyTopAndStreak(uid, data);
+      try {
+        await processMonthlyTopAndStreak(uid, data);
+      } catch (e) {}
     }
 
     renderUI();
