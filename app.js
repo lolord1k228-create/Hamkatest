@@ -24,7 +24,14 @@ let AdController = null;
 const BOT_LINK = "https://t.me/hamka_game_bot";
 
 const gameDataEl = document.getElementById('game-data');
-const GAME_DATA = gameDataEl ? JSON.parse(gameDataEl.textContent) : {};
+let GAME_DATA = {};
+if (gameDataEl && gameDataEl.textContent) {
+  try {
+    GAME_DATA = JSON.parse(gameDataEl.textContent);
+  } catch (e) {
+    GAME_DATA = {};
+  }
+}
 
 const translations = {
   en: {
@@ -661,7 +668,7 @@ async function loadGameData() {
         { id: 'cat', name: '🐱', price: 5000 },
         { id: 'lion', name: '🦁', price: 15000 },
         { id: 'panda', name: '🐼', price: 20000 },
-        { id: 'unicorn', name: '🦄', price: 30000 }
+        { id: 'unicorn', "name": "🦄", "price": 30000 }
       ];
     }
   } catch (err) {}
