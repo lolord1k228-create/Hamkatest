@@ -28,19 +28,40 @@
       --text-muted: #8b949e;
       --accent: #f5a623;
       --accent-2: #f76b1c;
+      --radius-card: 14px;
+      --radius-btn: 10px;
+      --btn-pad-y: 9px;
+      --btn-pad-x: 12px;
+      --btn-font: 13px;
+      --card-pad: 12px;
+      --card-shadow: none;
+      --hamster-size: 437px;
+      --hamster-max: 82vw;
+      --hamster-emoji-size: clamp(96px, 24vw, 180px);
     }
 
+    /* Повна "стара тема": інші кольори, скруглення, розміри кнопок/карток і кнопка тапу */
     body.theme-classic {
-      --bg-main: #18141c;
-      --bg-card: #251f2d;
-      --bg-surface: #141018;
-      --bg-elevated: #322a3d;
-      --border-color: #3a3047;
-      --border-strong: #4d405e;
-      --text-main: #fff8eb;
-      --text-muted: #c2b4d4;
-      --accent: #ffb703;
-      --accent-2: #fb8500;
+      --bg-main: #1b1524;
+      --bg-card: #292036;
+      --bg-surface: #140f1c;
+      --bg-elevated: #382c4a;
+      --border-color: #46375c;
+      --border-strong: #5d4978;
+      --text-main: #fff9ed;
+      --text-muted: #c8b8de;
+      --accent: #ffbe0b;
+      --accent-2: #fb5607;
+      --radius-card: 8px;
+      --radius-btn: 6px;
+      --btn-pad-y: 7px;
+      --btn-pad-x: 10px;
+      --btn-font: 12px;
+      --card-pad: 10px;
+      --card-shadow: 0 3px 0 #120d19;
+      --hamster-size: 190px;
+      --hamster-max: 52vw;
+      --hamster-emoji-size: 72px;
     }
 
     body {
@@ -52,6 +73,37 @@
       min-height: 100vh;
       overflow-x: hidden;
       transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    body.theme-classic {
+      font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body.theme-classic .top-bar {
+      padding: 9px 12px;
+    }
+
+    body.theme-classic .page {
+      padding: 12px;
+    }
+
+    body.theme-classic .shop-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    body.theme-classic .inv-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    body.theme-classic .bottom-menu {
+      height: 50px;
+      padding: 4px 2px;
+    }
+
+    body.theme-classic .bottom-tap-hud {
+      bottom: 50px;
     }
 
     .hidden {
@@ -93,7 +145,7 @@
     }
 
     body.theme-classic #auth-screen {
-      background: radial-gradient(circle at top, #362747 0%, var(--bg-main) 70%);
+      background: radial-gradient(circle at top, #3d2a57 0%, var(--bg-main) 70%);
     }
 
     .auth-card {
@@ -101,9 +153,9 @@
       max-width: 380px;
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
-      border-radius: 18px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
       padding: 24px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
 
     .auth-title {
@@ -126,7 +178,7 @@
       gap: 8px;
       background: var(--bg-surface);
       padding: 4px;
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
       margin-bottom: 16px;
     }
 
@@ -134,9 +186,10 @@
       border: none;
       background: transparent;
       color: var(--text-muted);
-      padding: 9px;
-      border-radius: 9px;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      border-radius: var(--radius-btn);
       font-weight: 700;
+      font-size: var(--btn-font);
       cursor: pointer;
     }
 
@@ -147,9 +200,9 @@
 
     .auth-input {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 14px;
       margin-bottom: 10px;
-      border-radius: 10px;
+      border-radius: var(--radius-btn);
       border: 1px solid var(--border-strong);
       background: var(--bg-surface);
       color: var(--text-main);
@@ -163,13 +216,14 @@
 
     .auth-btn {
       width: 100%;
-      padding: 12px;
+      padding: 11px;
       border: none;
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: #0d1117;
       font-weight: 800;
-      font-size: 15px;
+      font-size: 14px;
+      box-shadow: var(--card-shadow);
       cursor: pointer;
       margin-top: 4px;
     }
@@ -188,9 +242,9 @@
 
     .tg-btn {
       width: 100%;
-      padding: 11px;
+      padding: 10px;
       border: 1px solid #2aabee;
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
       background: rgba(42, 171, 238, 0.12);
       color: #6cc7f8;
       font-weight: 700;
@@ -214,8 +268,12 @@
 
     #game-screen {
       display: none;
-      padding-bottom: 156px;
+      padding-bottom: 76px;
       min-height: 100vh;
+    }
+
+    body.on-tap-page #game-screen {
+      padding-bottom: 152px;
     }
 
     #game-screen.visible {
@@ -243,6 +301,10 @@
       color: var(--accent);
     }
 
+    body.theme-classic .season-badge {
+      border-radius: 6px;
+    }
+
     .top-balances {
       display: flex;
       align-items: center;
@@ -256,6 +318,11 @@
       border-radius: 999px;
       font-size: 13px;
       font-weight: 700;
+    }
+
+    body.theme-classic .balance-chip {
+      border-radius: 6px;
+      font-size: 12px;
     }
 
     .boost-badge {
@@ -288,8 +355,9 @@
     .xp-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: var(--card-pad) 14px;
       margin-bottom: 14px;
     }
 
@@ -307,6 +375,11 @@
       background: var(--bg-surface);
       border-radius: 999px;
       overflow: hidden;
+    }
+
+    body.theme-classic .progress-track {
+      border-radius: 4px;
+      height: 8px;
     }
 
     .progress-fill {
@@ -334,6 +407,10 @@
       letter-spacing: 0.5px;
     }
 
+    body.theme-classic .coin-main-value {
+      font-size: 28px;
+    }
+
     .auto-tap-sub {
       font-size: 12px;
       color: var(--text-muted);
@@ -346,15 +423,14 @@
       align-items: center;
       justify-content: center;
       margin: 12px auto 24px;
-      min-height: 240px;
+      min-height: 200px;
     }
 
-    /* Збільшена кнопка тапу в 2.3 раза (базовий розмір 190px -> ~437px з безпечним масштабуванням на екрані) */
     #hamster {
-      width: 437px;
-      height: 437px;
-      max-width: 82vw;
-      max-height: 82vw;
+      width: var(--hamster-size);
+      height: var(--hamster-size);
+      max-width: var(--hamster-max);
+      max-height: var(--hamster-max);
       aspect-ratio: 1 / 1;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #2b3545, var(--bg-card));
@@ -365,10 +441,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(96px, 24vw, 180px);
+      font-size: var(--hamster-emoji-size);
       cursor: pointer;
       transition: transform 0.08s ease;
       flex-shrink: 0;
+    }
+
+    body.theme-classic #hamster {
+      border-width: 3px;
+      box-shadow: 0 6px 0 #120d19;
     }
 
     #hamster:active {
@@ -391,8 +472,9 @@
       100% { opacity: 0; transform: translateY(-70px); }
     }
 
-    /* Енергія і монети прикріплені над нижнім меню */
+    /* Енергія і монети над нижнім меню показуються ТІЛЬКИ на вкладці Tap */
     .bottom-tap-hud {
+      display: none;
       position: fixed;
       bottom: 54px;
       left: 0;
@@ -402,6 +484,10 @@
       padding: 8px 14px 10px;
       z-index: 25;
       box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    body.on-tap-page .bottom-tap-hud {
+      display: block;
     }
 
     .bottom-tap-hud-inner {
@@ -431,10 +517,10 @@
       border: 1px solid var(--border-strong);
       background: var(--bg-card);
       color: var(--text-muted);
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      border-radius: var(--radius-btn);
       font-weight: 700;
-      font-size: 13px;
+      font-size: var(--btn-font);
       cursor: pointer;
       white-space: nowrap;
     }
@@ -455,8 +541,9 @@
     .shop-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: var(--card-pad);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -471,7 +558,7 @@
     .grid-preview {
       width: 100%;
       height: 84px;
-      border-radius: 10px;
+      border-radius: var(--radius-btn);
       background-color: var(--bg-surface);
       background-size: cover;
       background-position: center;
@@ -483,6 +570,10 @@
     .shop-card-title {
       font-size: 14px;
       font-weight: 800;
+    }
+
+    body.theme-classic .shop-card-title {
+      font-size: 13px;
     }
 
     .shop-card-desc {
@@ -501,25 +592,33 @@
     .shop-card-btn,
     .invite-friend-btn {
       border: none;
-      border-radius: 10px;
-      padding: 9px 12px;
+      border-radius: var(--radius-btn);
+      padding: var(--btn-pad-y) var(--btn-pad-x);
       font-weight: 700;
-      font-size: 13px;
+      font-size: var(--btn-font);
+      box-shadow: var(--card-shadow);
       cursor: pointer;
       background: #238636;
       color: #ffffff;
+    }
+
+    body.theme-classic .shop-card-btn,
+    body.theme-classic .invite-friend-btn {
+      background: #2b9348;
     }
 
     .shop-card-btn:disabled {
       background: var(--bg-elevated);
       color: #6e7681;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     .promo-box {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
       padding: 14px;
       margin-bottom: 12px;
     }
@@ -530,7 +629,7 @@
       justify-content: space-between;
       background: var(--bg-surface);
       border: 1px solid var(--border-strong);
-      border-radius: 10px;
+      border-radius: var(--radius-btn);
       padding: 8px 10px;
       margin-top: 10px;
     }
@@ -540,7 +639,8 @@
       overflow: hidden;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
       padding: 16px;
       margin-bottom: 14px;
     }
@@ -577,6 +677,13 @@
       flex-shrink: 0;
     }
 
+    body.theme-classic .profile-avatar {
+      border-radius: 10px;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+    }
+
     .profile-title-badge {
       display: inline-block;
       padding: 2px 8px;
@@ -599,8 +706,13 @@
     .stat-box {
       background: rgba(13, 17, 23, 0.85);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: var(--radius-btn);
       padding: 10px;
+    }
+
+    body.theme-classic .stat-box {
+      background: rgba(20, 15, 28, 0.85);
+      padding: 8px;
     }
 
     .stat-label {
@@ -636,7 +748,8 @@
       position: relative;
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
+      box-shadow: var(--card-shadow);
       padding: 10px 8px;
       text-align: center;
       cursor: pointer;
@@ -692,7 +805,8 @@
       overflow: hidden;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
+      box-shadow: var(--card-shadow);
       padding: 10px 12px;
       margin-bottom: 8px;
       cursor: pointer;
@@ -751,8 +865,9 @@
     .crypto-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      padding: var(--card-pad);
       margin-bottom: 10px;
     }
 
@@ -770,7 +885,7 @@
       width: 100%;
       height: 60px;
       background: var(--bg-surface);
-      border-radius: 8px;
+      border-radius: var(--radius-btn);
       margin-bottom: 8px;
     }
 
@@ -782,7 +897,7 @@
     .crypto-input {
       width: 76px;
       padding: 6px 8px;
-      border-radius: 8px;
+      border-radius: var(--radius-btn);
       border: 1px solid var(--border-strong);
       background: var(--bg-surface);
       color: var(--text-main);
@@ -791,9 +906,11 @@
     .crypto-btn {
       flex: 1;
       border: none;
-      border-radius: 8px;
-      padding: 7px;
+      border-radius: var(--radius-btn);
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      font-size: var(--btn-font);
       font-weight: 700;
+      box-shadow: var(--card-shadow);
       cursor: pointer;
     }
 
@@ -811,7 +928,7 @@
       overflow: hidden;
       background: var(--bg-surface);
       border: 1px solid var(--border-strong);
-      border-radius: 12px;
+      border-radius: var(--radius-btn);
       height: 76px;
       margin: 12px 0;
     }
@@ -850,7 +967,7 @@
       justify-content: center;
       gap: 2px;
       padding: 4px 2px;
-      border-radius: 8px;
+      border-radius: var(--radius-btn);
       cursor: pointer;
       color: var(--text-muted);
       font-size: 10px;
@@ -913,7 +1030,8 @@
       max-width: 360px;
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
-      border-radius: 16px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
       padding: 18px;
       text-align: center;
     }
@@ -927,7 +1045,7 @@
     }
   </style>
 </head>
-<body>
+<body class="on-tap-page">
   <div id="loading-screen">
     <div class="spinner"></div>
     <div data-i18n="loading">Loading...</div>
@@ -1069,6 +1187,7 @@
           <span id="streak-days-badge" class="season-badge">0 дн.</span>
         </div>
         <div id="streak-desc" class="shop-card-desc"></div>
+        <button type="button" id="btn-claim-streak" class="shop-card-btn" style="display: none;">🎁 Забрати нагороду</button>
         <button type="button" id="btn-restore-streak" class="shop-card-btn" style="display: none;"></button>
       </div>
 
@@ -1155,7 +1274,7 @@
       <button type="button" id="btn-logout" class="crypto-btn sell" style="width: 100%; padding: 12px;" data-i18n="logout_btn">🚪 Log out</button>
     </section>
 
-    <!-- Fixed Coins & Energy HUD above Bottom Menu -->
+    <!-- Fixed Coins & Energy HUD above Bottom Menu (visible only on Tap tab) -->
     <div class="bottom-tap-hud">
       <div class="bottom-tap-hud-inner">
         <div class="bottom-tap-stats">
@@ -1272,6 +1391,3 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
-
-  
