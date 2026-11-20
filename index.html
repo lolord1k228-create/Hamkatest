@@ -1,964 +1,1207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Hamka Game</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script defer src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body {
-      height: 100dvh;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #000; color: #fff; user-select: none;
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
+
+    input, textarea {
+      user-select: text;
+    }
+
     body {
-      display: flex; flex-direction: column; position: relative;
-      background: radial-gradient(circle at 50% 30%, #111 0%, #000 80%);
-      padding-top: env(safe-area-inset-top, 0px);
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0d1117;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ЗАВАНТАЖЕННЯ */
+    .hidden {
+      display: none !important;
+    }
+
     #loading-screen {
-      position: fixed; inset: 0; z-index: 2000; background: #0a0a0a;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: fixed;
+      inset: 0;
+      background: #0d1117;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 9999;
     }
-    .loader {
-      width: 50px; height: 50px; border: 5px solid #222;
-      border-top: 5px solid #2ecc71; border-radius: 50%;
-      animation: spin 1s linear infinite; margin-bottom: 20px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .loading-text { font-size: 16px; font-weight: 600; color: #fff; }
 
-    /* АВТОРИЗАЦІЯ */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.15);
+      border-top-color: #f5a623;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     #auth-screen {
-      position: fixed; inset: 0; z-index: 1000; background: #0a0a0a;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; overflow-y: auto;
-    }
-    #auth-screen.hidden { display: none; }
-
-    .auth-logo-img { font-size: clamp(64px, 18vw, 88px); margin-bottom: 10px; line-height: 1; }
-    .auth-title { font-size: clamp(30px, 8vw, 38px); font-weight: 800; color: #2ecc71; margin-bottom: 6px; letter-spacing: -0.5px; }
-    .auth-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; text-align: center; }
-
-    .auth-tabs { display: flex; width: 100%; max-width: 360px; gap: 10px; margin-bottom: 20px; }
-    .auth-tab {
-      flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
-      text-align: center; cursor: pointer; border: 1px solid #222; color: #aaa;
-      background: transparent; transition: 0.2s;
-    }
-    .auth-tab.active { background: #0f1f15; color: #fff; border-color: #2ecc71; }
-
-    .auth-hint-top { font-size: 13px; color: #aaa; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
-    .auth-form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
-
-    .input-wrap { position: relative; width: 100%; }
-    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #555; pointer-events: none; }
-    .auth-input {
-      width: 100%; padding: 15px 15px 15px 44px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px;
-      color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s;
-    }
-    .auth-input:focus { border-color: #2ecc71; }
-    .auth-input::placeholder { color: #555; }
-
-    .auth-error { color: #ff6b6b; font-size: 12px; text-align: center; min-height: 16px; margin-top: 4px; }
-
-    .auth-btn {
-      width: 100%; max-width: 360px; padding: 15px; border: none; border-radius: 12px;
-      font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
-    }
-    .auth-btn:active { transform: scale(0.97); }
-    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-green { background: #2ecc71; color: #000; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
-    .btn-blue { background: #2aabee; color: #fff; }
-
-    .auth-divider {
-      display: flex; align-items: center; gap: 12px; color: #555; font-size: 13px;
-      margin: 10px 0; width: 100%; max-width: 360px;
-    }
-    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #222; }
-
-    /* ГРА */
-    #game-screen { display: none; flex-direction: column; height: 100%; max-width: 500px; width: 100%; margin: 0 auto; }
-    #game-screen.visible { display: flex; }
-
-    .top-stats {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: clamp(8px, 1.5vh, 12px) 14px; background: #000; font-size: clamp(12px, 3.2vw, 14px); font-weight: 600;
-      border-bottom: 1px solid #222; flex-shrink: 0;
-    }
-    .top-stats-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .stat-pill {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 8px;
-    }
-    .boost-pill {
-      display: none; align-items: center; gap: 4px;
-      background: rgba(255, 215, 0, 0.16); border: 1px solid rgba(255, 215, 0, 0.45);
-      color: #ffd700; padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 800;
-    }
-    .boost-pill.active { display: flex; }
-    .season-badge {
-      background: #f5a623; color: #000; padding: 4px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      display: flex; align-items: center; gap: 4px; white-space: nowrap;
-    }
-    .admin-btn-badge {
-      background: #ff3333; color: #fff; padding: 4px 10px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      cursor: pointer; display: none; align-items: center; gap: 4px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, #1b2432 0%, #0d1117 70%);
     }
 
-    .main-menu {
-      display: flex; justify-content: space-around; align-items: center;
-      padding: clamp(8px, 1.4vh, 12px) 6px; background: #111; border-bottom: 1px solid #222;
-      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
-    }
-    .main-menu::-webkit-scrollbar { display: none; }
-    .menu-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 4px; color: #666; font-size: clamp(10px, 2.6vw, 11px); font-weight: 600;
-      min-width: 48px; cursor: pointer;
-    }
-    .menu-item.active { color: #fff; }
-    .menu-item.active .menu-icon-wrap {
-      background: #2ecc71; color: #000; box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
-    }
-    .menu-icon-wrap {
-      width: clamp(32px, 8.5vw, 38px); height: clamp(32px, 8.5vw, 38px); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(16px, 4.2vw, 19px); background: rgba(255,255,255,0.05); color: #888;
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
 
-    .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
-    .page.active { display: flex; }
+    .auth-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 6px;
+    }
 
-    /* ТАП */
-    .tap-area {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative; overflow: hidden; padding: 10px;
-    }
-    .coin-counter {
-      display: flex; align-items: center; gap: 8px; font-size: clamp(24px, 7vw, 34px); font-weight: 800;
-      color: #fff; margin-bottom: clamp(16px, 3.5vh, 32px); text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-    }
-    .hamster-wrap {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      width: clamp(240px, 68vw, 340px);
-      height: clamp(240px, 68vw, 340px);
-      max-height: 44dvh;
-      max-width: 44dvh;
-    }
-    .hamster {
-      width: 100%; height: 100%; border-radius: 50%;
-      border: 4px solid #2ecc71;
-      box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), inset 0 0 40px rgba(46, 204, 113, 0.15);
-      background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(110px, 32vw, 160px); cursor: pointer; transition: transform 0.1s ease; position: relative; z-index: 2;
-      background-size: cover; background-position: center;
-    }
-    .hamster:active { transform: scale(0.96); }
-
-    .invite-friend-btn {
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: 1px solid rgba(46, 204, 113, 0.45);
-      background: rgba(46, 204, 113, 0.14);
-      color: #2ecc71;
+    .auth-subtitle {
       font-size: 13px;
+      color: #8b949e;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #0d1117;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      border: none;
+      background: transparent;
+      color: #8b949e;
+      padding: 9px;
+      border-radius: 9px;
       font-weight: 700;
       cursor: pointer;
-      z-index: 5;
-      transition: transform 0.1s, background 0.2s;
     }
-    .invite-friend-btn:active { transform: scale(0.97); background: rgba(46, 204, 113, 0.24); }
+
+    .auth-tab.active {
+      background: #21262d;
+      color: #ffffff;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .auth-input:focus {
+      border-color: #f5a623;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #f5a623, #f76b1c);
+      color: #0d1117;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .auth-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-divider {
+      text-align: center;
+      color: #8b949e;
+      font-size: 12px;
+      margin: 12px 0;
+    }
+
+    .tg-btn {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #2aabee;
+      border-radius: 12px;
+      background: rgba(42, 171, 238, 0.12);
+      color: #6cc7f8;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #8b949e;
+      text-align: center;
+    }
+
+    .auth-error {
+      min-height: 18px;
+      color: #ff6b6b;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    #game-screen {
+      display: none;
+      padding-bottom: 84px;
+      min-height: 100vh;
+    }
+
+    #game-screen.visible {
+      display: block;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .season-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(245, 166, 35, 0.15);
+      color: #f5a623;
+    }
+
+    .top-balances {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .balance-chip {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .boost-badge {
+      display: none;
+      background: rgba(46, 204, 113, 0.18);
+      border: 1px solid #2ecc71;
+      color: #2ecc71;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .boost-badge.active {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .page {
+      display: none;
+      padding: 16px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .xp-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .xp-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #0d1117;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .xp-fill {
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+    }
+
+    .energy-fill {
+      background: linear-gradient(90deg, #f5a623, #f76b1c);
+    }
+
+    .coin-hero {
+      text-align: center;
+      margin: 8px 0 14px;
+    }
+
+    .coin-main-value {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .auto-tap-sub {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+
+    #tap-area {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 18px auto;
+      min-height: 230px;
+    }
+
+    #hamster {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #2b3545, #161b22);
+      background-size: cover;
+      background-position: center;
+      border: 4px solid rgba(245, 166, 35, 0.45);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 84px;
+      cursor: pointer;
+      transition: transform 0.08s ease;
+    }
+
+    #hamster:active {
+      transform: scale(0.95);
+    }
 
     .tap-effect {
-      position: absolute; font-size: clamp(24px, 6vw, 32px); font-weight: 800; color: #2ecc71;
-      pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
+      position: absolute;
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffd700;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      z-index: 10;
     }
+
     @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-85px) scale(1.3); }
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-65px); }
     }
 
-    /* МАГАЗИН */
-    .shop-container { display: flex; flex-direction: column; height: 100%; }
-    .shop-tabs {
-      display: flex; gap: 6px; padding: 10px 12px; background: #0a0a0a;
-      border-bottom: 1px solid #222; flex-shrink: 0;
-      overflow-x: auto; scrollbar-width: none;
+    .bottom-tap-stats {
+      display: flex;
+      justify-content: space-between;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
     }
-    .shop-tabs::-webkit-scrollbar { display: none; }
-    .shop-tab {
-      flex: 1; padding: 9px 6px; text-align: center; font-size: clamp(11px, 3vw, 13px); font-weight: 700;
-      background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; color: #aaa;
-      border: 1px solid transparent; white-space: nowrap;
-    }
-    .shop-tab.active { background: #2ecc71; color: #000; border-color: #2ecc71; }
 
-    .shop-list { flex: 1; overflow-y: auto; padding: 10px 12px 40px; }
+    .tabs-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .shop-tab,
+    .mini-tab {
+      border: 1px solid #30363d;
+      background: #161b22;
+      color: #8b949e;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .shop-tab.active,
+    .mini-tab.active {
+      background: #f5a623;
+      color: #0d1117;
+      border-color: #f5a623;
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
 
     .shop-card {
-      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px; padding: 12px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
     }
-    .shop-card-info { flex: 1; padding-right: 10px; }
-    .shop-card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-    .shop-card-desc { font-size: 11px; color: #888; line-height: 1.35; }
-    .shop-card-price { font-size: 13px; font-weight: 700; color: #ffd700; margin-top: 5px; }
-    .shop-card-btn {
-      padding: 9px 14px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
-      background: #2ecc71; color: #000; cursor: pointer; white-space: nowrap;
-    }
-    .shop-card-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .shop-grid .shop-card { flex-direction: column; text-align: center; padding: 12px 8px; margin-bottom: 0; }
-    .shop-grid .shop-card-info { padding-right: 0; width: 100%; }
-    .shop-grid .shop-card-btn { width: 100%; margin-top: 8px; }
+    .shop-grid .shop-card {
+      margin-bottom: 0;
+    }
 
     .grid-preview {
-      width: 64px; height: 64px; border-radius: 14px; background: rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center; font-size: 36px;
-      margin: 0 auto 8px; background-size: cover; background-position: center;
+      width: 100%;
+      height: 84px;
+      border-radius: 10px;
+      background-color: #0d1117;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Промокод / Реферал блок */
+    .shop-card-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .shop-card-desc {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 2px;
+    }
+
+    .shop-card-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f5a623;
+      margin-top: 4px;
+    }
+
+    .shop-card-btn,
+    .invite-friend-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      background: #238636;
+      color: #ffffff;
+    }
+
+    .shop-card-btn:disabled {
+      background: #21262d;
+      color: #6e7681;
+      cursor: not-allowed;
+    }
+
     .promo-box {
-      background: linear-gradient(145deg, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0.03));
-      border: 1px solid rgba(46, 204, 113, 0.3);
-      border-radius: 14px; padding: 14px; margin-bottom: 12px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
     }
+
     .promo-code-display {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #111; border: 1px dashed #2ecc71; border-radius: 10px;
-      padding: 10px 12px; margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-top: 10px;
     }
-    .promo-code-text { font-family: monospace; font-size: 16px; font-weight: 800; color: #2ecc71; letter-spacing: 1px; }
 
-    /* КРИПТА / МІНІ-ІГРИ */
-    .crypto-page { padding: 10px 12px 40px; }
-    .crypto-card {
-      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px; padding: 12px; margin-bottom: 10px;
-    }
-    .crypto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .crypto-symbol { font-size: 16px; font-weight: 700; color: #f5a623; }
-    .crypto-price { font-size: 15px; font-weight: 700; }
-    .crypto-price.up { color: #2ecc71; }
-    .crypto-price.down { color: #ff5252; }
-    .crypto-chart { width: 100%; height: 60px; display: block; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; }
-    .crypto-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .crypto-input {
-      width: 65px; flex-shrink: 0; padding: 9px; background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; outline: none;
-      -moz-appearance: textfield;
-    }
-    .crypto-input::-webkit-outer-spin-button,
-    .crypto-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .crypto-btn { flex: 1; min-width: 0; padding: 9px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-    .crypto-btn.buy { background: #2ecc71; color: #000; }
-    .crypto-btn.sell { background: #ff5252; color: #fff; }
-    .crypto-holdings { font-size: 11px; color: #888; margin-top: 6px; }
-    .crypto-holdings span { color: #f5a623; font-weight: 600; }
-
-    /* ПРОФІЛЬ ТА БАНЕРИ */
-    .scroll-page { padding: 10px 12px 40px; }
     .profile-card {
-      background: linear-gradient(145deg, #1a1a24, #0f0f15);
-      border: 1px solid #333; border-radius: 20px; padding: 20px;
-      text-align: center; margin-bottom: 16px; position: relative; overflow: hidden;
+      position: relative;
+      overflow: hidden;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
     }
+
     .profile-banner-bg {
-      position: absolute; inset: 0 0 auto 0; height: 110px;
-      background-size: cover; background-position: center;
-      opacity: 0.75; pointer-events: none; z-index: 0;
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.25;
+      pointer-events: none;
     }
-    .profile-banner-bg::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(15,15,21,0.15) 0%, rgba(15,15,21,0.98) 100%);
-    }
-    .profile-card > *:not(.profile-banner-bg) { position: relative; z-index: 1; }
 
-    .streak-card {
-      background: linear-gradient(145deg, rgba(245, 166, 35, 0.12), rgba(255, 255, 255, 0.03));
-      border: 1px solid rgba(245, 166, 35, 0.35);
-      border-radius: 16px; padding: 14px; margin-bottom: 16px;
+    .profile-top-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .streak-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .streak-title { font-size: 15px; font-weight: 800; color: #ffd700; }
-    .streak-badge { background: rgba(245, 166, 35, 0.2); color: #ffd700; padding: 3px 9px; border-radius: 12px; font-size: 12px; font-weight: 700; }
-    .streak-desc { font-size: 12px; color: #bbb; line-height: 1.4; }
-    .restore-streak-btn {
-      margin-top: 10px; width: 100%; padding: 10px; border: none; border-radius: 10px;
-      background: linear-gradient(90deg, #f5a623, #ff9800); color: #000;
-      font-size: 13px; font-weight: 800; cursor: pointer;
-    }
-    .restore-streak-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .profile-avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
     .profile-avatar {
-      width: 84px; height: 84px; border-radius: 50%;
-      background: linear-gradient(135deg, #f5a623, #d4891a);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 42px; box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
-      background-size: cover; background-position: center; border: 3px solid rgba(255,255,255,0.2);
-    }
-    .profile-name-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
-    .profile-name { font-size: 22px; font-weight: 800; color: #fff; }
-    .edit-name-btn {
-      background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
-      width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; cursor: pointer; color: #fff;
-    }
-    .profile-id { font-size: 12px; color: #888; margin-top: 2px; }
-
-    .profile-title-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 8px; padding: 5px 16px; border-radius: 20px;
-      font-size: 12px; font-weight: 700; color: #fff;
-      box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
-    }
-
-    .profile-stats {
-      display: flex; justify-content: space-around; margin-top: 16px;
-      background: rgba(0,0,0,0.35); border-radius: 12px; padding: 12px;
-    }
-    .profile-stat-item { text-align: center; }
-    .profile-stat-val { font-size: 16px; font-weight: 700; color: #f5a623; }
-    .profile-stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; }
-
-    .prestige-section {
-      background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3);
-      border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px;
-    }
-
-    /* ІНВЕНТАР */
-    .inventory-section { margin-bottom: 16px; }
-    .inventory-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #f5a623; }
-    .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .inventory-item {
-      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 6px; text-align: center;
-      cursor: pointer; border: 2px solid transparent; position: relative;
-    }
-    .inventory-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
-    .inventory-item-icon { font-size: 24px; height: 32px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; margin: 0 auto; }
-    .inventory-item-name { font-size: 10px; margin-top: 4px; color: #aaa; word-break: break-word; }
-
-    .banner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .banner-item {
-      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px; text-align: center;
-      cursor: pointer; border: 2px solid transparent;
-    }
-    .banner-item.active { border-color: #2ecc71; background: rgba(46, 204, 113, 0.12); }
-    .banner-preview {
-      width: 100%; height: 42px; border-radius: 7px; background-size: cover; background-position: center;
-      background-color: #1b2838; margin-bottom: 5px;
-    }
-
-    .case-item {
-      background: linear-gradient(135deg, #2a1b3d, #1a1a24);
-      border: 2px solid #8a2be2;
-      border-radius: 12px; padding: 14px 8px; text-align: center;
-      cursor: pointer; box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-      transition: transform 0.2s; position: relative;
-    }
-    .case-item.epic {
-      background: linear-gradient(135deg, #1b2c3d, #121b26);
-      border: 2px solid #00bcd4;
-      box-shadow: 0 0 15px rgba(0, 188, 212, 0.35);
-    }
-    .case-item.legendary {
-      background: linear-gradient(135deg, #3d2a1b, #241a0f);
-      border: 2px solid #ffd700;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-    }
-    .case-item:active { transform: scale(0.95); }
-    .case-icon { font-size: 36px; margin-bottom: 4px; }
-    .case-name { font-size: 11px; font-weight: 700; color: #da70d6; }
-    .case-item.epic .case-name { color: #4dd0e1; }
-    .case-item.legendary .case-name { color: #ffd700; }
-    .case-count-badge {
-      position: absolute; top: 6px; right: 6px; background: #8a2be2; color: #fff;
-      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
-    }
-
-    /* ТОП */
-    .leaderboard-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px;
-      margin-bottom: 8px; cursor: pointer; position: relative; overflow: hidden;
-    }
-    .leaderboard-item:active { background: rgba(255,255,255,0.1); }
-    .leaderboard-item > * { position: relative; z-index: 1; }
-
-    .lb-avatar {
-      width: 42px; height: 42px; border-radius: 50%; background: #333;
-      display: flex; align-items: center; justify-content: center; font-size: 20px;
-      flex-shrink: 0; background-size: cover; background-position: center;
-    }
-    .lb-info { flex: 1; min-width: 0; }
-    .lb-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lb-title {
-      display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 4px;
-      color: #fff; margin-top: 2px;
-    }
-    .lb-stats { text-align: right; flex-shrink: 0; }
-    .lb-xp { font-size: 13px; font-weight: 700; color: #2ecc71; }
-    .lb-prestige { font-size: 11px; font-weight: 700; color: #da70d6; }
-
-    /* НАЛАШТУВАННЯ */
-    .settings-group {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px; padding: 14px; margin-bottom: 12px;
-    }
-    .settings-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; color: #fff; }
-    .settings-select, .settings-btn {
-      width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333;
-      border-radius: 10px; color: #fff; font-size: 14px; outline: none; cursor: pointer;
-    }
-    .settings-toggle-row { display: flex; justify-content: space-between; align-items: center; }
-    .toggle-switch {
-      position: relative; display: inline-block; width: 50px; height: 26px;
-    }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; cursor: pointer; inset: 0; background-color: #333;
-      transition: .3s; border-radius: 26px;
-    }
-    .toggle-slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
-      background-color: white; transition: .3s; border-radius: 50%;
-    }
-    input:checked + .toggle-slider { background-color: #2ecc71; }
-    input:checked + .toggle-slider:before { transform: translateX(24px); }
-
-    /* МОДАЛКИ */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.8);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-content {
-      background: #1a1a1a; border: 1px solid #333; border-radius: 16px;
-      padding: 20px; width: 100%; max-width: 340px; text-align: center; position: relative; overflow: hidden;
-    }
-    .modal-content > * { position: relative; z-index: 1; }
-    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-    .preview-box {
-      width: 100px; height: 100px; border-radius: 20px; background: rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center; font-size: 60px;
-      margin: 0 auto 16px; background-size: cover; background-position: center;
-    }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-    .modal-btn {
-      flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
-    }
-    .modal-btn.cancel { background: #333; color: #fff; }
-    .modal-btn.confirm { background: #2ecc71; color: #000; }
-
-    /* Кейс відкриття */
-    .case-open-overlay {
-      position: fixed; inset: 0; z-index: 2500; background: rgba(0,0,0,0.95);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
-    .case-open-overlay.show { opacity: 1; pointer-events: all; }
-    .case-opening-box { font-size: 100px; animation: shake 0.5s infinite; }
-    @keyframes shake {
-      0% { transform: rotate(0deg) scale(1); }
-      25% { transform: rotate(15deg) scale(1.1); }
-      50% { transform: rotate(-15deg) scale(1.1); }
-      75% { transform: rotate(15deg) scale(1.1); }
-      100% { transform: rotate(0deg) scale(1); }
-    }
-    .case-reward-text {
-      font-size: 20px; font-weight: 800; color: #fff; margin-top: 20px; text-align: center; max-height: 200px; overflow-y: auto;
-      animation: popIn 0.5s ease-out forwards; padding: 0 10px;
-    }
-    @keyframes popIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Рулетка */
-    .roulette-container {
-      width: 100%; overflow: hidden; background: #222; border-radius: 10px;
-      margin-top: 15px; position: relative; height: 60px;
-    }
-    .roulette-strip { display: flex; align-items: center; height: 100%; }
-    .roulette-item { min-width: 60px; width: 60px; flex-shrink: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; border-right: 1px solid #333; }
-    .roulette-pointer {
-      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
-      border-top: 15px solid #2ecc71; z-index: 10;
-    }
-
-    .admin-input {
-      width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333;
-      border-radius: 8px; color: #fff; font-size: 14px; outline: none; margin-bottom: 8px;
-    }
-
-    /* НИЖНЯ ПАНЕЛЬ */
-    .bottom-panel {
-      background: #0a0a0a; border-top: 1px solid #222;
-      padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #0d1117;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 2px solid #f5a623;
       flex-shrink: 0;
     }
-    .bottom-stats { display: flex; justify-content: space-between; align-items: center; font-size: clamp(11px, 3vw, 12px); color: #aaa; margin-bottom: 5px; }
-    .energy-bar-wrap { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; }
-    .energy-bar { height: 100%; background: linear-gradient(90deg, #f5a623, #ffd700); width: 100%; transition: width 0.3s; }
-    .energy-labels { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-top: 3px; }
-    .xp-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; margin-top: 5px; }
-    .xp-bar-wrap { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin-bottom: 2px; }
-    .xp-bar { height: 100%; background: linear-gradient(90deg, #00bcd4, #2196f3); width: 0%; transition: width 0.3s; }
 
-    #status {
-      position: fixed; bottom: calc(115px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.92); padding: 10px 20px; border-radius: 10px;
-      font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
-      white-space: nowrap; z-index: 100; border: 1px solid rgba(255, 255, 255, 0.12);
+    .profile-title-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 4px;
     }
-    #status.show { opacity: 1; }
 
-    .prestige-overlay {
-      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.5s;
+    .stats-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 14px;
     }
-    .prestige-overlay.show { opacity: 1; pointer-events: all; }
-    .prestige-glow { font-size: 80px; animation: prestigePop 1s ease-out infinite alternate; }
-    @keyframes prestigePop {
-      0% { transform: scale(1); filter: drop-shadow(0 0 10px #8a2be2); }
-      100% { transform: scale(1.2); filter: drop-shadow(0 0 30px #da70d6); }
+
+    .stat-box {
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 10px;
     }
-    .prestige-text { font-size: 32px; font-weight: 900; margin-top: 20px; background: linear-gradient(90deg, #8a2be2, #da70d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .stat-label {
+      font-size: 11px;
+      color: #8b949e;
+    }
+
+    .stat-val {
+      font-size: 15px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .inv-section {
+      margin-bottom: 18px;
+    }
+
+    .inv-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .inv-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .case-item,
+    .banner-item,
+    .inventory-item {
+      position: relative;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .banner-item.active,
+    .inventory-item.active {
+      border-color: #f5a623;
+      box-shadow: 0 0 0 1px #f5a623;
+    }
+
+    .case-count-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: #f5a623;
+      color: #0d1117;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+
+    .case-icon,
+    .inventory-item-icon {
+      font-size: 26px;
+      height: 32px;
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .banner-preview {
+      width: 100%;
+      height: 36px;
+      border-radius: 6px;
+      background: #0d1117;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 4px;
+    }
+
+    .case-name,
+    .inventory-item-name {
+      font-size: 11px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .leaderboard-item {
+      position: relative;
+      overflow: hidden;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .lb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0d1117;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .lb-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .lb-name {
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lb-title {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      color: #ffffff;
+    }
+
+    .lb-stats {
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .lb-xp {
+      color: #4facfe;
+    }
+
+    .lb-prestige {
+      color: #f5a623;
+    }
+
+    .crypto-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .crypto-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .crypto-price.up { color: #2ecc71; }
+    .crypto-price.down { color: #ff5252; }
+
+    .crypto-chart {
+      width: 100%;
+      height: 60px;
+      background: #0d1117;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .crypto-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .crypto-input {
+      width: 76px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #ffffff;
+    }
+
+    .crypto-btn {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 7px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .crypto-btn.buy { background: #2ecc71; color: #0d1117; }
+    .crypto-btn.sell { background: #e74c3c; color: #ffffff; }
+
+    .crypto-holdings {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 6px;
+    }
+
+    .roulette-window {
+      position: relative;
+      overflow: hidden;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      height: 76px;
+      margin: 12px 0;
+    }
+
+    .roulette-strip {
+      display: flex;
+      height: 100%;
+      align-items: center;
+    }
+
+    .roulette-item {
+      width: 60px;
+      flex-shrink: 0;
+      text-align: center;
+      font-size: 30px;
+    }
+
+    .bottom-menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #161b22;
+      border-top: 1px solid #21262d;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: 6px 2px;
+      z-index: 30;
+    }
+
+    .menu-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px 2px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #8b949e;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .menu-item.active {
+      color: #f5a623;
+      background: rgba(245, 166, 35, 0.1);
+    }
+
+    .menu-icon {
+      font-size: 16px;
+    }
+
+    .status-toast {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: #21262d;
+      color: #ffffff;
+      border: 1px solid #f5a623;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 100;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-backdrop,
+    .overlay-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-backdrop.show,
+    .overlay-screen.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 360px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .case-reward-text {
+      white-space: pre-line;
+      font-size: 15px;
+      font-weight: 700;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
-
-  <!-- Екран завантаження -->
   <div id="loading-screen">
-    <div class="loader"></div>
-    <div class="loading-text" data-i18n="loading">Loading...</div>
+    <div class="spinner"></div>
+    <div data-i18n="loading">Loading...</div>
   </div>
 
-  <!-- АВТОРИЗАЦІЯ -->
   <div id="auth-screen" class="hidden">
-    <div class="auth-logo-img">🐭</div>
-    <div class="auth-title">Hamka</div>
-    <div class="auth-subtitle" data-i18n="auth_subtitle">Crypto clicker with upgrades</div>
+    <div class="auth-card">
+      <div class="auth-title">🐭 Hamka Game</div>
+      <div class="auth-subtitle" data-i18n="auth_subtitle">Crypto clicker with upgrades</div>
 
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login" data-i18n="login">Login</div>
-      <div class="auth-tab" id="tab-register" data-i18n="register">Register</div>
-    </div>
-
-    <div class="auth-hint-top" data-i18n="auth_hint">🔒 Choose login method</div>
-
-    <div class="auth-form">
-      <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input type="text" id="auth-nickname" class="auth-input" placeholder="Nickname (latin)" autocomplete="username">
-      </div>
-      <div class="input-wrap">
-        <span class="input-icon">🔑</span>
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password (min. 6)" autocomplete="current-password">
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="auth-tab active" data-i18n="login">Login</button>
+        <button type="button" id="tab-register" class="auth-tab" data-i18n="register">Register</button>
       </div>
 
-      <div class="auth-error" id="auth-error"></div>
+      <input type="text" id="auth-nickname" class="auth-input" placeholder="Nickname (3-16 chars)" maxlength="16" />
+      <input type="password" id="auth-password" class="auth-input" placeholder="Password (min 6 chars)" />
 
-      <button class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Login</button>
-
+      <button type="button" id="auth-submit" class="auth-btn" data-i18n="btn_login">👉 Login</button>
       <div class="auth-divider" data-i18n="or">or</div>
-      <button class="auth-btn btn-blue" id="tg-login-btn" data-i18n="btn_tg">📱 Login via Telegram</button>
+      <button type="button" id="tg-login-btn" class="tg-btn" data-i18n="btn_tg">📱 Login via Telegram</button>
+
+      <div class="auth-hint" data-i18n="auth_hint">🔒 Choose login method</div>
+      <div id="auth-error" class="auth-error"></div>
     </div>
   </div>
 
-  <!-- ГРА -->
   <div id="game-screen">
-    <div class="top-stats">
-      <div class="top-stats-group">
-        <div class="stat-pill"><span class="icon">🪙</span> <span id="top-coins">0</span></div>
-        <div class="stat-pill"><span class="icon">🐹</span> <span id="top-homs">0</span></div>
-        <div class="boost-pill" id="active-boost-badge">⚡ <span id="active-boost-text">x2</span></div>
+    <header class="top-bar">
+      <div class="season-badge" data-i18n="season">🏆 Season 1</div>
+      <div class="top-balances">
+        <div id="active-boost-badge" class="boost-badge">⚡ <span id="active-boost-text"></span></div>
+        <div class="balance-chip">🪙 <span id="top-coins">0</span></div>
+        <div class="balance-chip">🐹 <span id="top-homs">0</span></div>
       </div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <div class="admin-btn-badge" id="admin-btn-badge" onclick="document.getElementById('modal-admin').classList.add('show')">🛠 Admin</div>
-        <div class="season-badge" data-i18n="season">🏆 Season 1</div>
-      </div>
-    </div>
+    </header>
 
-    <div class="main-menu">
-      <div class="menu-item active" data-page="tap"><div class="menu-icon-wrap">🐭</div><span data-i18n="menu_tap">Tap</span></div>
-      <div class="menu-item" data-page="shop"><div class="menu-icon-wrap">🛒</div><span data-i18n="menu_shop">Shop</span></div>
-      <div class="menu-item" data-page="minigames"><div class="menu-icon-wrap">🎲</div><span data-i18n="menu_games">Games</span></div>
-      <div class="menu-item" data-page="profile"><div class="menu-icon-wrap">👤</div><span data-i18n="menu_profile">Profile</span></div>
-      <div class="menu-item" data-page="inventory"><div class="menu-icon-wrap">🎒</div><span data-i18n="menu_inventory">Inventory</span></div>
-      <div class="menu-item" data-page="top"><div class="menu-icon-wrap">🏆</div><span data-i18n="menu_top">Top</span></div>
-      <div class="menu-item" data-page="settings"><div class="menu-icon-wrap">⚙️</div><span data-i18n="menu_settings">Settings</span></div>
-    </div>
+    <div id="status" class="status-toast"></div>
 
-    <!-- ТАП -->
-    <div class="page active" id="page-tap">
-      <div class="tap-area" id="tap-area">
-        <div class="coin-counter">
-          <span class="coin-icon">🪙</span>
-          <span id="tap-coin-display">0</span>
+    <!-- Page: Tap -->
+    <section id="page-tap" class="page active">
+      <div class="xp-card">
+        <div class="xp-header">
+          <span id="level-name">0 beginner</span>
+          <span><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
         </div>
-        <div class="hamster-wrap">
-          <div class="hamster" id="hamster">🐭</div>
+        <div class="progress-track">
+          <div id="xp-bar" class="progress-fill xp-fill"></div>
         </div>
       </div>
-    </div>
 
-    <!-- МАГАЗИН -->
-    <div class="page" id="page-shop">
-      <div class="shop-container">
-        <div class="shop-tabs">
-          <div class="shop-tab active" data-shop-tab="auto" data-i18n="shop_auto">Auto</div>
-          <div class="shop-tab" data-shop-tab="upgrade" data-i18n="shop_upgrade">Upgrades</div>
-          <div class="shop-tab" data-shop-tab="cases" data-i18n="shop_cases">Cases</div>
-          <div class="shop-tab" data-shop-tab="cosmetics" data-i18n="shop_cosmetics">Cosmetics</div>
-        </div>
-        <div class="shop-list" id="shop-list"></div>
-      </div>
-    </div>
-
-    <!-- МІНІ-ІГРИ -->
-    <div class="page crypto-page" id="page-minigames">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="menu_games">🎲 Mini-games</div>
-
-      <div class="shop-tabs" style="margin-bottom: 16px;">
-        <div class="shop-tab active" id="minitab-crypto">₿ Crypto</div>
-        <div class="shop-tab" id="minitab-roulette" data-i18n="roulette">🎰 Roulette</div>
+      <div class="coin-hero">
+        <div id="tap-coin-display" class="coin-main-value">0</div>
+        <div class="auto-tap-sub">⚡ Auto: +<span id="auto-tap-label">0</span> / sec</div>
       </div>
 
-      <!-- Крипта -->
+      <div id="tap-area">
+        <div id="hamster">🐭</div>
+      </div>
+
+      <div class="bottom-tap-stats">
+        <div>🪙 <span id="bottom-coins">0</span></div>
+        <div>⚡ <span id="energy-label-text">200/200</span> (<span id="energy-label-bottom">200/200</span>)</div>
+      </div>
+      <div class="progress-track" style="margin-top: 8px;">
+        <div id="energy-bar" class="progress-fill energy-fill"></div>
+      </div>
+    </section>
+
+    <!-- Page: Shop -->
+    <section id="page-shop" class="page">
+      <div class="tabs-row">
+        <button type="button" class="shop-tab active" data-shop-tab="auto" data-i18n="shop_auto">Auto</button>
+        <button type="button" class="shop-tab" data-shop-tab="upgrade" data-i18n="shop_upgrade">Upgrades</button>
+        <button type="button" class="shop-tab" data-shop-tab="cases" data-i18n="shop_cases">Cases</button>
+        <button type="button" class="shop-tab" data-shop-tab="cosmetics" data-i18n="shop_cosmetics">Cosmetics</button>
+      </div>
+      <div id="shop-list"></div>
+    </section>
+
+    <!-- Page: Mini-games -->
+    <section id="page-minigames" class="page">
+      <div class="tabs-row">
+        <button type="button" id="minitab-crypto" class="mini-tab active">📈 Crypto</button>
+        <button type="button" id="minitab-roulette" class="mini-tab" data-i18n="roulette">🎰 Roulette</button>
+      </div>
+
       <div id="mini-content-crypto">
         <div id="crypto-list"></div>
       </div>
 
-      <!-- Рулетка -->
-      <div id="mini-content-roulette" style="display:none; text-align: center;">
-        <div class="crypto-card">
-          <div style="font-size: 18px; font-weight: 700; color: #f5a623; margin-bottom: 8px;" data-i18n="roulette_title">Roulette for Ad</div>
-          <div style="font-size: 12px; color: #aaa; margin-bottom: 16px;" data-i18n="roulette_desc">Spin and get coins, XP, Homs or exclusive items!</div>
-
-          <div class="roulette-container" style="margin-bottom: 16px;">
-            <div class="roulette-pointer"></div>
-            <div class="roulette-strip" id="roulette-strip"></div>
+      <div id="mini-content-roulette" style="display: none;">
+        <div class="shop-card">
+          <div class="shop-card-title" data-i18n="roulette_title">Roulette for Ad</div>
+          <div class="shop-card-desc" data-i18n="roulette_desc">Spin and get coins, XP, Homs or exclusive items!</div>
+          <div class="roulette-window">
+            <div id="roulette-strip" class="roulette-strip"></div>
           </div>
-
-          <button class="auth-btn btn-green" id="btn-spin-roulette" style="width:100%;" data-i18n="spin_btn">🎬 Spin for Ad</button>
+          <button type="button" id="btn-spin-roulette" class="shop-card-btn" data-i18n="spin_btn">🎬 Spin for Ad</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ПРОФІЛЬ -->
-    <div class="page scroll-page" id="page-profile">
-      <div class="profile-card" id="profile-card">
-        <div class="profile-banner-bg" id="prof-banner"></div>
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="prof-avatar">🐭</div>
+    <!-- Page: Profile -->
+    <section id="page-profile" class="page">
+      <div class="profile-card">
+        <div id="prof-banner" class="profile-banner-bg"></div>
+        <div class="profile-top-row">
+          <div id="prof-avatar" class="profile-avatar">🐭</div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong id="prof-nickname" style="font-size: 17px;">Player</strong>
+              <button type="button" id="btn-change-nickname" style="background: none; border: none; color: #f5a623; cursor: pointer;">✏️</button>
+            </div>
+            <div id="prof-public-id" style="font-size: 12px; color: #8b949e;">ID: 000000</div>
+            <div id="prof-title-badge" class="profile-title-badge">
+              <span id="prof-title">Beginner</span>
+            </div>
+          </div>
+          <div id="admin-btn-badge" class="season-badge" style="display: none;">ADMIN</div>
         </div>
 
-        <div class="profile-name-wrap">
-          <div class="profile-name" id="prof-nickname">Player</div>
-          <button class="edit-name-btn" id="btn-change-nickname">✏️</button>
-        </div>
-        <div class="profile-id" id="prof-public-id">ID: 000000</div>
-
-        <div class="profile-title-badge" id="prof-title-badge">
-          <span id="prof-title">Beginner</span>
-        </div>
-
-        <div class="profile-stats">
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-coins">0</div>
-            <div class="profile-stat-lbl" data-i18n="coins">Coins</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label" data-i18n="coins">Coins</div>
+            <div id="prof-coins" class="stat-val">0</div>
           </div>
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-homs">0</div>
-            <div class="profile-stat-lbl" data-i18n="homs">Homs</div>
+          <div class="stat-box">
+            <div class="stat-label" data-i18n="homs">Homs</div>
+            <div id="prof-homs" class="stat-val">0</div>
           </div>
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-xp">0</div>
-            <div class="profile-stat-lbl">XP</div>
+          <div class="stat-box">
+            <div class="stat-label">XP</div>
+            <div id="prof-xp" class="stat-val">0</div>
           </div>
-          <div class="profile-stat-item">
-            <div class="profile-stat-val" id="prof-prestige">0</div>
-            <div class="profile-stat-lbl" data-i18n="prestige">Prestige</div>
+          <div class="stat-box">
+            <div class="stat-label" data-i18n="prestige">Prestige</div>
+            <div id="prof-prestige" class="stat-val">0</div>
+            <div id="prestige-info" style="font-size: 11px; color: #8b949e;"></div>
           </div>
         </div>
       </div>
 
-      <!-- Денна серія -->
-      <div class="streak-card" id="streak-card">
-        <div class="streak-header">
-          <div class="streak-title" data-i18n="streak_title">🔥 Daily Streak</div>
-          <div class="streak-badge" id="streak-days-badge">0 дн.</div>
+      <div class="shop-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="shop-card-title" data-i18n="streak_title">🔥 Daily Streak</div>
+          <span id="streak-days-badge" class="season-badge">0 дн.</span>
         </div>
-        <div class="streak-desc" id="streak-desc">Кожен день +1% від балансу випадкової валюти. Кожні 7 днів — кейс (50/50 звичайний x1 або епічний x5).</div>
-        <button class="restore-streak-btn" id="btn-restore-streak" style="display:none;"></button>
+        <div id="streak-desc" class="shop-card-desc"></div>
+        <button type="button" id="btn-restore-streak" class="shop-card-btn" style="display: none;"></button>
       </div>
 
-      <div class="prestige-section">
-        <div style="font-size: 18px; font-weight: 800; color: #da70d6;" data-i18n="prestige_title">🌟 Prestige</div>
-        <div style="font-size: 12px; color: #aaa; margin-top: 4px;" id="prestige-info">Required 1,000,000 XP</div>
+      <div id="admin-panel" class="shop-card" style="display: none;">
+        <div class="shop-card-title">🛠 Admin Panel</div>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="admin-coins-input" class="crypto-input" style="flex: 1;" placeholder="Coins" />
+          <button type="button" class="shop-card-btn" onclick="adminAddCoins()">+Coins</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="admin-homs-input" class="crypto-input" style="flex: 1;" placeholder="Homs" />
+          <button type="button" class="shop-card-btn" onclick="adminAddHoms()">+Homs</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="admin-xp-input" class="crypto-input" style="flex: 1;" placeholder="XP" />
+          <button type="button" class="shop-card-btn" onclick="adminAddXp()">+XP</button>
+        </div>
+        <button type="button" class="shop-card-btn" onclick="adminAddCase()">+Basic Case</button>
       </div>
-    </div>
+    </section>
 
-    <!-- ІНВЕНТАР -->
-    <div class="page scroll-page" id="page-inventory">
-      <div class="inventory-section" id="cases-section" style="display:none;">
-        <div class="inventory-title" data-i18n="cases_title">📦 Cases</div>
-        <div class="inventory-grid" id="inv-cases"></div>
+    <!-- Page: Inventory -->
+    <section id="page-inventory" class="page">
+      <div id="cases-section" class="inv-section" style="display: none;">
+        <div class="inv-section-title" data-i18n="cases_title">📦 Cases</div>
+        <div id="inv-cases" class="inv-grid"></div>
       </div>
 
-      <div class="inventory-section">
-        <div class="inventory-title" data-i18n="banners_title">🖼️ Banners</div>
-        <div class="banner-grid" id="inv-banners"></div>
+      <div class="inv-section">
+        <div class="inv-section-title" data-i18n="banners_title">🖼️ Banners</div>
+        <div id="inv-banners" class="inv-grid"></div>
       </div>
 
-      <div class="inventory-section">
-        <div class="inventory-title" data-i18n="titles_title">Titles</div>
-        <div class="inventory-grid" id="inv-titles"></div>
+      <div class="inv-section">
+        <div class="inv-section-title" data-i18n="titles_title">Titles</div>
+        <div id="inv-titles" class="inv-grid"></div>
       </div>
-      <div class="inventory-section">
-        <div class="inventory-title" data-i18n="avatars_title">Avatars</div>
-        <div class="inventory-grid" id="inv-avatars"></div>
-      </div>
-      <div class="inventory-section">
-        <div class="inventory-title" data-i18n="skins_title">Skins</div>
-        <div class="inventory-grid" id="inv-skins"></div>
-      </div>
-    </div>
 
-    <!-- ТОП -->
-    <div class="page scroll-page" id="page-top">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 12px;" data-i18n="top_title">🏆 Leaderboard</div>
+      <div class="inv-section">
+        <div class="inv-section-title" data-i18n="avatars_title">Avatars</div>
+        <div id="inv-avatars" class="inv-grid"></div>
+      </div>
+
+      <div class="inv-section">
+        <div class="inv-section-title" data-i18n="skins_title">Skins</div>
+        <div id="inv-skins" class="inv-grid"></div>
+      </div>
+    </section>
+
+    <!-- Page: Top -->
+    <section id="page-top" class="page">
+      <h3 style="margin-top: 0;" data-i18n="top_title">🏆 Leaderboard</h3>
       <div id="leaderboard-list"></div>
-    </div>
+    </section>
 
-    <!-- НАЛАШТУВАННЯ -->
-    <div class="page scroll-page" id="page-settings">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="settings_title">⚙️ Settings</div>
-
-      <div class="settings-group">
-        <span class="settings-label" data-i18n="lang_label">Language / Мова / Язык</span>
-        <select class="settings-select" id="language-select">
+    <!-- Page: Settings -->
+    <section id="page-settings" class="page">
+      <h3 style="margin-top: 0;" data-i18n="settings_title">⚙️ Settings</h3>
+      <div class="shop-card">
+        <label for="language-select" class="shop-card-title" data-i18n="lang_label">Language / Мова / Язык</label>
+        <select id="language-select" class="auth-input" style="margin-bottom: 0;">
           <option value="en">English</option>
           <option value="uk">Українська</option>
           <option value="ru">Русский</option>
         </select>
       </div>
 
-      <div class="settings-group">
-        <div class="settings-toggle-row">
-          <span class="settings-label" style="margin-bottom:0;" data-i18n="hide_top_label">Hide me from Leaderboard</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="hide-top-toggle">
-            <span class="toggle-slider"></span>
-          </label>
+      <div class="shop-card">
+        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+          <span class="shop-card-title" data-i18n="hide_top_label">Hide me from Leaderboard</span>
+          <input type="checkbox" id="hide-top-toggle" />
+        </label>
+      </div>
+
+      <button type="button" id="btn-logout" class="crypto-btn sell" style="width: 100%; padding: 12px;" data-i18n="logout_btn">🚪 Log out</button>
+    </section>
+
+    <!-- Bottom Menu -->
+    <nav class="bottom-menu">
+      <div class="menu-item active" data-page="tap">
+        <span class="menu-icon">👆</span>
+        <span data-i18n="menu_tap">Tap</span>
+      </div>
+      <div class="menu-item" data-page="shop">
+        <span class="menu-icon">🛒</span>
+        <span data-i18n="menu_shop">Shop</span>
+      </div>
+      <div class="menu-item" data-page="minigames">
+        <span class="menu-icon">🎮</span>
+        <span data-i18n="menu_games">Games</span>
+      </div>
+      <div class="menu-item" data-page="profile">
+        <span class="menu-icon">👤</span>
+        <span data-i18n="menu_profile">Profile</span>
+      </div>
+      <div class="menu-item" data-page="inventory">
+        <span class="menu-icon">🎒</span>
+        <span data-i18n="menu_inventory">Inventory</span>
+      </div>
+      <div class="menu-item" data-page="top">
+        <span class="menu-icon">🏆</span>
+        <span data-i18n="menu_top">Top</span>
+      </div>
+      <div class="menu-item" data-page="settings">
+        <span class="menu-icon">⚙️</span>
+        <span data-i18n="menu_settings">Settings</span>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Modal: Change Nickname -->
+  <div id="modal-nickname" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 style="margin-top: 0;" data-i18n="change_nickname">Change Nickname</h3>
+      <input type="text" id="new-nickname-input" class="auth-input" maxlength="16" placeholder="New nickname" />
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="crypto-btn sell" onclick="document.getElementById('modal-nickname').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button type="button" id="btn-save-nickname" class="crypto-btn buy" data-i18n="save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: View Player Profile -->
+  <div id="modal-view-profile" class="modal-backdrop" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-box" style="position: relative; overflow: hidden;">
+      <div id="view-prof-banner" class="profile-banner-bg"></div>
+      <div style="position: relative; z-index: 1;">
+        <div id="view-prof-avatar" class="profile-avatar" style="margin: 0 auto 8px;">🐭</div>
+        <div id="view-prof-nick" style="font-size: 18px; font-weight: 800;">Player</div>
+        <div id="view-prof-id" style="font-size: 12px; color: #8b949e; margin-bottom: 6px;">ID: 000000</div>
+        <div id="view-prof-title" class="profile-title-badge">Beginner</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">XP</div>
+            <div id="view-prof-xp" class="stat-val">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label" data-i18n="prestige">Prestige</div>
+            <div id="view-prof-prestige" class="stat-val">0</div>
+          </div>
         </div>
-      </div>
-
-      <div class="settings-group">
-        <button class="settings-btn" id="btn-logout" style="background: #ff5252; color: #fff; font-weight: 700;" data-i18n="logout_btn">🚪 Log out</button>
-      </div>
-    </div>
-
-    <!-- НИЖНЯ ПАНЕЛЬ -->
-    <div class="bottom-panel">
-      <div class="bottom-stats">
-        <span>⚡ <span id="energy-label-text">200/200</span></span>
-        <span>+1 ⚡/s</span>
-        <span>+<span id="auto-tap-label">0</span> 🪙/s</span>
-        <span>🪙 <span id="bottom-coins">0</span></span>
-      </div>
-      <div class="energy-bar-wrap"><div class="energy-bar" id="energy-bar" style="width: 100%;"></div></div>
-      <div class="energy-labels">
-        <span data-i18n="energy">Energy</span>
-        <span id="energy-label-bottom">200/200</span>
-      </div>
-      <div class="xp-row">
-        <span id="level-name">0 beginner</span>
-        <span><span id="xp-display">0</span> / <span id="xp-next">50</span> XP</span>
-      </div>
-      <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar"></div></div>
-    </div>
-  </div>
-
-  <div id="status"></div>
-
-  <!-- Модалки -->
-  <div class="modal-overlay" id="modal-case-qty">
-    <div class="modal-content">
-      <div class="modal-title" id="case-modal-title" data-i18n="open_case">Open Case</div>
-      <div style="font-size: 14px; color: #aaa; margin-bottom: 16px;" id="case-modal-count">Available: 0</div>
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <button class="modal-btn confirm" onclick="openCasesBatch(1)">1</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch(5)">5</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch(10)">10</button>
-        <button class="modal-btn confirm" onclick="openCasesBatch('all')" data-i18n="all">All</button>
-      </div>
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-case-qty').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button type="button" class="shop-card-btn" style="width: 100%; margin-top: 12px;" onclick="document.getElementById('modal-view-profile').classList.remove('show')" data-i18n="close">Close</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-view-profile">
-    <div class="modal-content" id="view-prof-card">
-      <div class="profile-banner-bg" id="view-prof-banner"></div>
-      <div class="modal-title" data-i18n="player_profile">Player Profile</div>
-      <div class="preview-box" id="view-prof-avatar" style="font-size: 50px;">🐭</div>
-      <div style="text-align:center; font-size: 20px; font-weight: 800; margin-bottom: 4px;" id="view-prof-nick">Player</div>
-      <div style="text-align:center; font-size: 12px; color: #888; margin-bottom: 8px;" id="view-prof-id">ID: 000000</div>
-
-      <div style="text-align:center; margin-bottom:12px;">
-        <span class="profile-title-badge" id="view-prof-title" style="margin-top:0;">Beginner</span>
+  <!-- Modal: Case Batch Quantity -->
+  <div id="modal-case-qty" class="modal-backdrop" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-box">
+      <h3 id="case-modal-title" style="margin-top: 0;">Open Case</h3>
+      <div id="case-modal-count" style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Available: 0</div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px;">
+        <button type="button" class="shop-card-btn" onclick="openCasesBatch(1)">x1</button>
+        <button type="button" class="shop-card-btn" onclick="openCasesBatch(5)">x5</button>
+        <button type="button" class="shop-card-btn" onclick="openCasesBatch(10)">x10</button>
+        <button type="button" class="shop-card-btn" onclick="openCasesBatch('all')" data-i18n="all">All</button>
       </div>
-
-      <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.45); padding:10px; border-radius:10px; margin-bottom:12px;">
-        <div style="text-align:center;">
-          <div style="font-weight:700; color:#f5a623;" id="view-prof-xp">0</div>
-          <div style="font-size:10px; color:#888;">XP</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-weight:700; color:#da70d6;" id="view-prof-prestige">0</div>
-          <div style="font-size:10px; color:#888;" data-i18n="prestige">Prestige</div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-view-profile').classList.remove('show')" data-i18n="close">Close</button>
-      </div>
+      <button type="button" class="crypto-btn sell" style="width: 100%;" onclick="document.getElementById('modal-case-qty').classList.remove('show')" data-i18n="cancel">Cancel</button>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-nickname">
-    <div class="modal-content">
-      <div class="modal-title" data-i18n="change_nickname">Change Nickname</div>
-      <input type="text" class="admin-input" id="new-nickname-input" placeholder="New nickname">
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-nickname').classList.remove('show')" data-i18n="cancel">Cancel</button>
-        <button class="modal-btn confirm" id="btn-save-nickname" data-i18n="save">Save</button>
-      </div>
+  <!-- Overlay: Case Opening -->
+  <div id="case-open-overlay" class="overlay-screen">
+    <div class="modal-box">
+      <div id="case-opening-box" style="font-size: 56px; animation: spin 1s linear infinite;">📦</div>
+      <div id="case-reward-text" class="case-reward-text"></div>
+      <button type="button" id="btn-close-case" class="shop-card-btn" style="width: 100%; display: none;" data-i18n="take">Take</button>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-admin">
-    <div class="modal-content">
-      <div class="modal-title">🛠 Admin Panel</div>
-      <input type="number" class="admin-input" id="admin-coins-input" placeholder="Coins amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCoins()">Add Coins</button>
-
-      <input type="number" class="admin-input" id="admin-homs-input" placeholder="Homs amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddHoms()">Add Homs</button>
-
-      <input type="number" class="admin-input" id="admin-xp-input" placeholder="XP amount">
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddXp()">Add XP</button>
-
-      <button class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCase()">Add Case</button>
-
-      <div class="modal-actions">
-        <button class="modal-btn cancel" onclick="document.getElementById('modal-admin').classList.remove('show')">Close</button>
-      </div>
+  <!-- Overlay: Prestige -->
+  <div id="prestige-overlay" class="overlay-screen">
+    <div class="modal-box">
+      <div style="font-size: 48px;">🌟</div>
+      <div id="prestige-text" style="font-size: 22px; font-weight: 900; color: #f5a623; margin-top: 8px;">PRESTIGE 1</div>
     </div>
   </div>
 
-  <div class="case-open-overlay" id="case-open-overlay">
-    <div class="case-opening-box" id="case-opening-box">📦</div>
-    <div class="case-reward-text" id="case-reward-text"></div>
-    <div class="modal-actions" style="width: 100%; max-width: 300px; margin-top: 30px;">
-      <button class="modal-btn confirm" id="btn-close-case" data-i18n="take">Take</button>
-    </div>
-  </div>
-
-  <div class="prestige-overlay" id="prestige-overlay">
-    <div class="prestige-glow">🌟</div>
-    <div class="prestige-text" id="prestige-text">PRESTIGE 1</div>
-  </div>
-
-  <script id="game-data" type="application/json">
-  {
-    "SKINS": [
-      { "id": "skin_ai", "name": "AIHamster", "file": "ai_hamster.png", "price": 50000 },
-      { "id": "skin_neon", "name": "Neon Hamster", "file": "hamster.png", "price": 5000000 },
-      { "id": "skin_hom", "name": "HomHamster", "file": "homhamster.png", "price": 1500, "currency": "homs" }
-    ],
-    "BANNERS": [
-      { "id": "banner_gradient_blue", "name": "Gradient Blue", "file": "gradientblue.png", "legendaryOnly": true }
-    ],
-    "TITLES": [
-      { "id": "beg", "name": "Beginner", "price": 0, "color": "linear-gradient(90deg, #555, #777)", "reqPrestige": 0 },
-      { "id": "brnz", "name": "Bronze Hamster", "price": 0, "color": "linear-gradient(90deg, #cd7f32, #8b4513)", "reqPrestige": 1 },
-      { "id": "slvr", "name": "Silver Hamster", "price": 0, "color": "linear-gradient(90deg, #c0c0c0, #808080)", "reqPrestige": 2 },
-      { "id": "gld", "name": "Gold Hamster", "price": 0, "color": "linear-gradient(90deg, #ffd700, #b8860b)", "reqPrestige": 3 },
-      { "id": "crypto_baron", "name": "Crypto Baron", "price": 10000, "color": "linear-gradient(90deg, #ff9800, #ff5722)", "reqPrestige": 0 },
-      { "id": "tap_god", "name": "Tap God", "price": 50000, "color": "linear-gradient(90deg, #00bcd4, #2196f3)", "reqPrestige": 0 },
-      { "id": "h_mag", "name": "Хом'яковий Магнат", "price": 100, "currency": "homs", "color": "linear-gradient(90deg, #2ecc71, #27ae60)", "reqPrestige": 0 },
-      { "id": "h_lord", "name": "Володар Хомів", "price": 500, "currency": "homs", "color": "linear-gradient(90deg, #9b59b6, #8e44ad)", "reqPrestige": 0 },
-      { "id": "h_leg", "name": "Легендарний Хом'як", "price": 2000, "currency": "homs", "color": "linear-gradient(90deg, #f1c40f, #e67e22)", "reqPrestige": 0 }
-    ],
-    "AVATARS": [
-      { "id": "dog", "name": "🐶", "price": 5000 },
-      { "id": "cat", "name": "🐱", "price": 5000 },
-      { "id": "lion", "name": "🦁", "price": 15000 },
-      { "id": "panda", "name": "🐼", "price": 20000 },
-      { "id": "unicorn", "name": "🦄", "price": 30000 }
-    ],
-    "LEVELS": [
-      { "name": "0 beginner", "xp": 0 },
-      { "name": "1 beginner", "xp": 50 },
-      { "name": "2 beginner", "xp": 200 },
-      { "name": "3 beginner", "xp": 500 },
-      { "name": "4 beginner", "xp": 1500 },
-      { "name": "bronze 1", "xp": 5000 },
-      { "name": "bronze 2", "xp": 10000 },
-      { "name": "bronze 3", "xp": 15000 },
-      { "name": "silver 1", "xp": 50000 },
-      { "name": "silver 2", "xp": 1000000 },
-      { "name": "silver 3", "xp": 150000 },
-      { "name": "gold 1", "xp": 300000 },
-      { "name": "gold 2", "xp": 600000 },
-      { "name": "gold 3", "xp": 900000 }
-    ],
-    "COINS": ["OLDHAM", "NEWHAM", "HAM", "BHAM", "PLAYERHOM"],
-    "INITIAL_PRICES": {
-      "OLDHAM": 100,
-      "NEWHAM": 250,
-      "HAM": 500,
-      "BHAM": 1000,
-      "PLAYERHOM": 50
-    },
-    "SHOP_ITEMS": {
-      "auto": [
-        { "id": "autoTap", "title": "Auto Tap", "desc": "+1 coin/sec", "basePrice": 200, "multiplier": 1.5, "maxLevel": 999 },
-        { "id": "autoXp", "title": "Auto XP", "desc": "+1 XP/sec", "basePrice": 1500, "multiplier": 2, "maxLevel": 999 },
-        { "id": "energyRate", "title": "+Energy Regen", "desc": "+1 energy/sec", "basePrice": 1000, "multiplier": 10, "maxLevel": 999 }
-      ],
-      "upgrade": [
-        { "id": "tap", "title": "Tap Power", "desc": "+1 coin per tap", "basePrice": 50, "multiplier": 10, "maxLevel": 9, "prices": [50, 200, 2000, 4000, 5000, 6500, 7500, 10000, 20000] },
-        { "id": "xpTap", "title": "XP Tap", "desc": "+1 XP per tap", "basePrice": 50000, "multiplier": 10, "maxLevel": 999, "prices": [50000, 500000, 5000000, 50000000, 500000000] },
-        { "id": "maxEnergy", "title": "Max Energy", "desc": "+50 max energy", "basePrice": 1500, "multiplier": 1.5, "maxLevel": 999, "prices": [1500, 5000] }
-      ]
-    }
-  }
-  </script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
