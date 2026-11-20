@@ -113,6 +113,9 @@ const translations = {
     top_title: "🏆 Leaderboard",
     settings_title: "⚙️ Settings",
     lang_label: "Language / Мова / Язык",
+    theme_label: "Theme / Тема / Тема",
+    theme_new: "New Dark (New)",
+    theme_classic: "Classic (Old)",
     hide_top_label: "Hide me from Leaderboard",
     logout_btn: "🚪 Log out",
     all: "All",
@@ -132,8 +135,35 @@ const translations = {
     promo_desc: "Share your link! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
     promo_share: "Share",
     invite_friend: "👥 Invite friend",
-    invite_copied: "Приглашение скопировано",
-    streak_title: "🔥 Daily Streak"
+    invite_copied: "Invitation copied",
+    streak_title: "🔥 Daily Streak",
+    avatar_label: "Avatar",
+    skin_prefix: "Skin",
+    banner_prefix: "Banner",
+    default_item: "Default",
+    cosmetic_names: {
+      "Beginner": "Beginner",
+      "Bronze Hamster": "Bronze Hamster",
+      "Silver Hamster": "Silver Hamster",
+      "Gold Hamster": "Gold Hamster",
+      "Crypto Baron": "Crypto Baron",
+      "Tap God": "Tap God",
+      "Хом'яковий Магнат": "Hamster Tycoon",
+      "Володар Хомів": "Lord of Homs",
+      "Легендарний Хом'як": "Legendary Hamster",
+      "Case Legend": "Case Legend",
+      "Lootbox King": "Lootbox King",
+      "Chosen": "Chosen",
+      "Shadow": "Shadow",
+      "🥇 Top 1": "🥇 Top 1",
+      "🥈 Top 2": "🥈 Top 2",
+      "🥉 Top 3": "🥉 Top 3",
+      "AIHamster": "AIHamster",
+      "Neon Hamster": "Neon Hamster",
+      "HomHamster": "HomHamster",
+      "Gradient Blue": "Gradient Blue",
+      "Gradient Yellow": "Gradient Yellow"
+    }
   },
   uk: {
     loading: "Завантаження...",
@@ -172,6 +202,9 @@ const translations = {
     top_title: "🏆 Топ гравців",
     settings_title: "⚙️ Налаштування",
     lang_label: "Мова / Language / Язык",
+    theme_label: "Тема / Theme / Тема",
+    theme_new: "Нова тема",
+    theme_classic: "Стара тема",
     hide_top_label: "Не показувати мене в топі",
     logout_btn: "🚪 Вийти з акаунта",
     all: "Всі",
@@ -191,8 +224,35 @@ const translations = {
     promo_desc: "Ділися посиланням! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
     promo_share: "Поділитися",
     invite_friend: "👥 Запросити друга",
-    invite_copied: "Приглашение скопировано",
-    streak_title: "🔥 Денна серія"
+    invite_copied: "Запрошення скопійовано",
+    streak_title: "🔥 Денна серія",
+    avatar_label: "Аватарка",
+    skin_prefix: "Скін",
+    banner_prefix: "Банер",
+    default_item: "Стандарт",
+    cosmetic_names: {
+      "Beginner": "Новачок",
+      "Bronze Hamster": "Бронзовий Хом'як",
+      "Silver Hamster": "Срібний Хом'як",
+      "Gold Hamster": "Золотий Хом'як",
+      "Crypto Baron": "Крипто-Барон",
+      "Tap God": "Бог Тапу",
+      "Хом'яковий Магнат": "Хом'яковий Магнат",
+      "Володар Хомів": "Володар Хомів",
+      "Легендарний Хом'як": "Легендарний Хом'як",
+      "Case Legend": "Легенда Кейсів",
+      "Lootbox King": "Король Лутбоксів",
+      "Chosen": "Обраний",
+      "Shadow": "Тінь",
+      "🥇 Top 1": "🥇 Топ 1",
+      "🥈 Top 2": "🥈 Топ 2",
+      "🥉 Top 3": "🥉 Топ 3",
+      "AIHamster": "AI-Хом'як",
+      "Neon Hamster": "Неоновий Хом'як",
+      "HomHamster": "Хом-Хом'як",
+      "Gradient Blue": "Синій Градієнт",
+      "Gradient Yellow": "Жовтий Градієнт"
+    }
   },
   ru: {
     loading: "Загрузка...",
@@ -231,6 +291,9 @@ const translations = {
     top_title: "🏆 Топ игроков",
     settings_title: "⚙️ Настройки",
     lang_label: "Язык / Language / Мова",
+    theme_label: "Тема / Theme / Тема",
+    theme_new: "Новая тема",
+    theme_classic: "Старая тема",
     hide_top_label: "Не показывать меня в топе",
     logout_btn: "🚪 Выйти из аккаунта",
     all: "Все",
@@ -251,16 +314,60 @@ const translations = {
     promo_share: "Поделиться",
     invite_friend: "👥 Пригласить друга",
     invite_copied: "Приглашение скопировано",
-    streak_title: "🔥 Дневная серия"
+    streak_title: "🔥 Дневная серия",
+    avatar_label: "Аватарка",
+    skin_prefix: "Скин",
+    banner_prefix: "Баннер",
+    default_item: "Стандарт",
+    cosmetic_names: {
+      "Beginner": "Новичок",
+      "Bronze Hamster": "Бронзовый Хомяк",
+      "Silver Hamster": "Серебряный Хомяк",
+      "Gold Hamster": "Золотой Хомяк",
+      "Crypto Baron": "Крипто-Барон",
+      "Tap God": "Бог Тапа",
+      "Хом'яковий Магнат": "Хомяковый Магнат",
+      "Володар Хомів": "Повелитель Хомов",
+      "Легендарний Хом'як": "Легендарный Хомяк",
+      "Case Legend": "Легенда Кейсов",
+      "Lootbox King": "Король Лутбоксов",
+      "Chosen": "Избранный",
+      "Shadow": "Тень",
+      "🥇 Top 1": "🥇 Топ 1",
+      "🥈 Top 2": "🥈 Топ 2",
+      "🥉 Top 3": "🥉 Топ 3",
+      "AIHamster": "ИИ-Хомяк",
+      "Neon Hamster": "Неоновый Хомяк",
+      "HomHamster": "Хом-Хомяк",
+      "Gradient Blue": "Синий Градиент",
+      "Gradient Yellow": "Жёлтый Градиент"
+    }
   }
 };
 
 let currentLang = localStorage.getItem('hamka_lang') || 'en';
+let currentTheme = localStorage.getItem('hamka_theme') || 'new';
+
+function localizeCosmeticName(rawName) {
+  const dict = translations[currentLang]?.cosmetic_names || {};
+  return dict[rawName] || rawName;
+}
+
+function applyTheme(themeName) {
+  const normalized = themeName === 'classic' ? 'classic' : 'new';
+  currentTheme = normalized;
+  localStorage.setItem('hamka_theme', normalized);
+  document.body.classList.toggle('theme-classic', normalized === 'classic');
+
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) themeSelect.value = normalized;
+}
 
 function setLanguage(lang) {
   if (!translations[lang]) lang = 'en';
   currentLang = lang;
   localStorage.setItem('hamka_lang', lang);
+  document.documentElement.lang = lang;
 
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -272,6 +379,8 @@ function setLanguage(lang) {
   const langSelect = document.getElementById('language-select');
   if (langSelect) langSelect.value = lang;
 }
+
+applyTheme(currentTheme);
 
 const loadingScreen = document.getElementById('loading-screen');
 const authScreen = document.getElementById('auth-screen');
@@ -366,6 +475,7 @@ const btnCloseCase = document.getElementById('btn-close-case');
 const btnSpinRoulette = document.getElementById('btn-spin-roulette');
 const rouletteStrip = document.getElementById('roulette-strip');
 
+const themeSelect = document.getElementById('theme-select');
 const languageSelect = document.getElementById('language-select');
 const hideTopToggle = document.getElementById('hide-top-toggle');
 const btnLogout = document.getElementById('btn-logout');
@@ -387,6 +497,7 @@ let state = {
   referredBy: '',
   invited: 0,
   hideFromTop: false,
+  theme: 'new',
   streakCount: 0,
   lastStreakDay: '',
   lostStreakCount: 0,
@@ -447,9 +558,26 @@ const SKINS = GAME_DATA.SKINS || [
   { id: 'skin_hom', name: 'HomHamster', file: 'homhamster.png', price: 1500, currency: 'homs' }
 ];
 
-const BANNERS = GAME_DATA.BANNERS || [
-  { id: 'banner_gradient_blue', name: 'Gradient Blue', file: 'gradientblue.png', legendaryOnly: true }
+const DEFAULT_BANNERS = [
+  { id: 'banner_gradient_blue', name: 'Gradient Blue', file: 'gradientblue.png', legendaryOnly: true },
+  { id: 'banner_gradient_yellow', name: 'Gradient Yellow', file: 'gradientyellow.png', price: 75000, currency: 'homs' }
 ];
+
+const BANNERS = (() => {
+  const list = Array.isArray(GAME_DATA.BANNERS) && GAME_DATA.BANNERS.length > 0
+    ? [...GAME_DATA.BANNERS]
+    : [...DEFAULT_BANNERS];
+  if (!list.some(b => b.id === 'banner_gradient_yellow' || b.file === 'gradientyellow.png')) {
+    list.push({
+      id: 'banner_gradient_yellow',
+      name: 'Gradient Yellow',
+      file: 'gradientyellow.png',
+      price: 75000,
+      currency: 'homs'
+    });
+  }
+  return list;
+})();
 
 let TITLES = [];
 let AVATARS = [];
@@ -584,11 +712,23 @@ function formatPrice(p) {
   return p.toFixed(2);
 }
 
+themeSelect.addEventListener('change', (e) => {
+  applyTheme(e.target.value);
+  state.theme = currentTheme;
+  if (currentUid) {
+    update(ref(db, 'users/' + currentUid), { theme: currentTheme });
+  }
+  showStatus('✅ Theme updated');
+});
+
 languageSelect.addEventListener('change', (e) => {
   setLanguage(e.target.value);
   if (currentUid) {
     update(ref(db, 'users/' + currentUid), { language: e.target.value });
   }
+  if (document.getElementById('page-shop').classList.contains('active')) renderShop();
+  if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
+  if (document.getElementById('page-inventory').classList.contains('active')) renderInventory();
 });
 
 hideTopToggle.addEventListener('change', async (e) => {
@@ -874,8 +1014,9 @@ async function loadLeaderboard() {
       const titleObj = TITLES.find(t => t.name === u.title) || CASE_TITLES.find(t => t.name === u.title) || TOP_TITLES.find(t => t.name === u.title);
       const titleColor = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
 
+      const localizedTitle = localizeCosmeticName(u.title);
       const safeNick = escapeHtml(u.nickname);
-      const safeTitle = escapeHtml(u.title);
+      const safeTitle = escapeHtml(localizedTitle);
       const safeAvatar = escapeHtml(u.avatar);
       const safeId = escapeHtml(u.publicId);
 
@@ -921,7 +1062,7 @@ async function loadLeaderboard() {
       el.addEventListener('click', () => {
         viewProfNick.innerText = u.nickname;
         viewProfId.innerText = 'ID: ' + safeId;
-        viewProfTitle.innerText = u.title;
+        viewProfTitle.innerText = localizedTitle;
         viewProfTitle.style.background = titleColor;
         viewProfXp.innerText = formatNumber(u.xp);
         viewProfPrestige.innerText = u.prestige;
@@ -1302,7 +1443,7 @@ window.inviteFriend = async function() {
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 
   await copyTextWithFallback(inviteLink);
-  showStatus('Приглашение скопировано');
+  showStatus(translations[currentLang]?.invite_copied || 'Приглашение скопировано');
 
   if (tg && typeof tg.openTelegramLink === 'function') {
     try {
@@ -1322,7 +1463,8 @@ function initGame(uid) {
     tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
     purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
     cases: { basic: 1 }, legendaryCases: 0, adWatches: 0,
-    usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false, language: 'en',
+    usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
+    language: currentLang, theme: currentTheme,
     streakCount: 0, lastStreakDay: '', lostStreakCount: 0,
     tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
     lastRewardMonth: getMonthKey(), lastSeenAt: Date.now(),
@@ -1373,6 +1515,7 @@ function initGame(uid) {
     state.referredBy = data.referredBy || '';
     state.invited = data.invited || 0;
     state.hideFromTop = data.hideFromTop || false;
+    state.theme = data.theme || currentTheme;
     state.streakCount = data.streakCount || 0;
     state.lastStreakDay = data.lastStreakDay || '';
     state.lostStreakCount = data.lostStreakCount || 0;
@@ -1381,6 +1524,10 @@ function initGame(uid) {
     state.coinBoostExpiresAt = data.coinBoostExpiresAt || 0;
     state.lastRewardMonth = data.lastRewardMonth || '';
     state.lastSeenAt = data.lastSeenAt || 0;
+
+    if (data.theme && data.theme !== currentTheme) {
+      applyTheme(data.theme);
+    }
 
     if (data.language && data.language !== currentLang) {
       setLanguage(data.language);
@@ -1466,11 +1613,18 @@ function initGame(uid) {
     renderUI();
 
     const rect = tapArea.getBoundingClientRect();
+    const posX = (typeof e.clientX === 'number' && e.clientX > 0)
+      ? (e.clientX - rect.left - 10)
+      : (rect.width / 2 - 15);
+    const posY = (typeof e.clientY === 'number' && e.clientY > 0)
+      ? (e.clientY - rect.top - 10)
+      : (rect.height / 2 - 15);
+
     const effect = document.createElement('div');
     effect.className = 'tap-effect';
     effect.innerText = `+${formatNumber(tapPower)}`;
-    effect.style.left = (e.clientX - rect.left - 10) + 'px';
-    effect.style.top = (e.clientY - rect.top - 10) + 'px';
+    effect.style.left = posX + 'px';
+    effect.style.top = posY + 'px';
     tapArea.appendChild(effect);
     setTimeout(() => effect.remove(), 800);
 
@@ -1589,6 +1743,7 @@ function renderShop() {
   shopListEl.innerHTML = '';
 
   if (currentShopTab === 'cosmetics') {
+    const t = translations[currentLang];
     const grid = document.createElement('div');
     grid.className = 'shop-grid';
 
@@ -1597,16 +1752,17 @@ function renderShop() {
       const isOwned = state.purchasedTitles.includes(item.name);
       const isHoms = item.currency === 'homs';
       const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
+      const labelName = localizeCosmeticName(item.name);
 
       const card = document.createElement('div');
       card.className = 'shop-card';
       card.innerHTML = `
         <div class="grid-preview" style="font-size:24px; background:${item.color};">🏆</div>
         <div class="shop-card-info">
-          <div class="shop-card-title" style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${item.name}</div>
+          <div class="shop-card-title" style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(labelName)}</div>
           <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
         </div>
-        <button class="shop-card-btn" data-title-name="${item.name}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
+        <button class="shop-card-btn" data-title-name="${escapeHtml(item.name)}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? t.owned : t.buy}</button>
       `;
       grid.appendChild(card);
     });
@@ -1617,12 +1773,12 @@ function renderShop() {
       const card = document.createElement('div');
       card.className = 'shop-card';
       card.innerHTML = `
-        <div class="grid-preview">${item.name}</div>
+        <div class="grid-preview">${escapeHtml(item.name)}</div>
         <div class="shop-card-info">
-          <div class="shop-card-title">Avatar</div>
+          <div class="shop-card-title">${escapeHtml(t.avatar_label)}</div>
           <div class="shop-card-price">${formatNumber(item.price)} 🪙</div>
         </div>
-        <button class="shop-card-btn" data-avatar-name="${item.name}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
+        <button class="shop-card-btn" data-avatar-name="${escapeHtml(item.name)}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? t.owned : t.buy}</button>
       `;
       grid.appendChild(card);
     });
@@ -1632,16 +1788,37 @@ function renderShop() {
       const isOwned = state.purchasedSkins.includes(item.id);
       const isHoms = item.currency === 'homs';
       const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
+      const labelName = localizeCosmeticName(item.name);
 
       const card = document.createElement('div');
       card.className = 'shop-card';
       card.innerHTML = `
-        <div class="grid-preview" style="background-image: url('${GITHUB_RAW}${item.file}');"></div>
+        <div class="grid-preview" style="background-image: url('${GITHUB_RAW}${escapeHtml(item.file)}');"></div>
         <div class="shop-card-info">
-          <div class="shop-card-title">Skin: ${item.name}</div>
+          <div class="shop-card-title">${escapeHtml(t.skin_prefix)}: ${escapeHtml(labelName)}</div>
           <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
         </div>
-        <button class="shop-card-btn" data-skin-id="${item.id}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? (translations[currentLang].owned || 'Owned') : (translations[currentLang].buy || 'Buy')}</button>
+        <button class="shop-card-btn" data-skin-id="${escapeHtml(item.id)}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? t.owned : t.buy}</button>
+      `;
+      grid.appendChild(card);
+    });
+
+    BANNERS.forEach(item => {
+      if (!item.file || !item.price || item.price <= 0) return;
+      const isOwned = state.purchasedBanners.includes(item.id);
+      const isHoms = item.currency === 'homs';
+      const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
+      const labelName = localizeCosmeticName(item.name);
+
+      const card = document.createElement('div');
+      card.className = 'shop-card';
+      card.innerHTML = `
+        <div class="grid-preview" style="background-image: url('${GITHUB_BANNERS}${escapeHtml(item.file)}');"></div>
+        <div class="shop-card-info">
+          <div class="shop-card-title">${escapeHtml(t.banner_prefix)}: ${escapeHtml(labelName)}</div>
+          <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
+        </div>
+        <button class="shop-card-btn" data-banner-id="${escapeHtml(item.id)}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? t.owned : t.buy}</button>
       `;
       grid.appendChild(card);
     });
@@ -1650,13 +1827,15 @@ function renderShop() {
 
     shopListEl.querySelectorAll('.shop-card-btn').forEach(btn => {
       if (btn.dataset.titleName) {
-        const item = TITLES.find(t => t.name === btn.dataset.titleName);
+        const item = TITLES.find(tItem => tItem.name === btn.dataset.titleName);
         btn.addEventListener('click', () => buyCosmetic({ name: item.name, price: item.price, type: 'title', currency: item.currency || 'coins' }));
       } else if (btn.dataset.avatarName) {
         const item = AVATARS.find(a => a.name === btn.dataset.avatarName);
         btn.addEventListener('click', () => buyCosmetic({ name: item.name, price: item.price, type: 'avatar', currency: 'coins' }));
       } else if (btn.dataset.skinId) {
         btn.addEventListener('click', () => buySkin(SKINS.find(s => s.id === btn.dataset.skinId)));
+      } else if (btn.dataset.bannerId) {
+        btn.addEventListener('click', () => buyBanner(BANNERS.find(b => b.id === btn.dataset.bannerId)));
       }
     });
     return;
@@ -1672,7 +1851,7 @@ function renderShop() {
       <div class="shop-card-title" style="color:#2ecc71;">${t.promo_title}</div>
       <div class="shop-card-desc">${t.promo_desc}</div>
       <div class="promo-code-display">
-        <span class="promo-code-text" id="my-promo-code" style="font-size:12px; letter-spacing:0; word-break:break-all;">${inviteLink}</span>
+        <span class="promo-code-text" id="my-promo-code" style="font-size:12px; letter-spacing:0; word-break:break-all;">${escapeHtml(inviteLink)}</span>
         <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
           <button class="shop-card-btn" id="btn-copy-promo" style="padding:6px 10px;">📋</button>
           <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${t.promo_share}</button>
@@ -1685,7 +1864,7 @@ function renderShop() {
     document.getElementById('btn-copy-promo').addEventListener('click', async () => {
       const link = getReferralInviteLink();
       await copyTextWithFallback(link);
-      showStatus('Приглашение скопировано');
+      showStatus(t.invite_copied || 'Приглашение скопировано');
     });
 
     document.getElementById('btn-share-promo').addEventListener('click', () => {
@@ -1751,11 +1930,11 @@ function renderShop() {
     card.className = 'shop-card';
     card.innerHTML = `
       <div class="shop-card-info">
-        <div class="shop-card-title">${item.title} <span style="font-size:10px; color:#888;">(Lvl ${currentLevel})</span></div>
-        <div class="shop-card-desc">${item.desc}</div>
+        <div class="shop-card-title">${escapeHtml(item.title)} <span style="font-size:10px; color:#888;">(Lvl ${currentLevel})</span></div>
+        <div class="shop-card-desc">${escapeHtml(item.desc)}</div>
         ${!isMaxed ? `<div class="shop-card-price">${formatNumber(price)} 🪙</div>` : `<div class="shop-card-price" style="color:#2ecc71;">${translations[currentLang].max || 'MAX'}</div>`}
       </div>
-      <button class="shop-card-btn" data-id="${item.id}" ${isMaxed || !canAfford ? 'disabled' : ''}>${isMaxed ? (translations[currentLang].max || 'Max') : (translations[currentLang].buy || 'Buy')}</button>
+      <button class="shop-card-btn" data-id="${escapeHtml(item.id)}" ${isMaxed || !canAfford ? 'disabled' : ''}>${isMaxed ? (translations[currentLang].max || 'Max') : (translations[currentLang].buy || 'Buy')}</button>
     `;
     shopListEl.appendChild(card);
   });
@@ -1811,8 +1990,9 @@ async function buyUpgrade(itemId) {
 }
 
 async function buySkin(item) {
+  if (!item) return;
   const isHoms = item.currency === 'homs';
-  await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data) return data;
     const bal = isHoms ? (data.homs || 0) : (data.coins || 0);
     if (bal < item.price) return;
@@ -1821,13 +2001,34 @@ async function buySkin(item) {
     if (!data.purchasedSkins.includes(item.id)) data.purchasedSkins.push(item.id);
     return data;
   });
-  showStatus('✅ Skin bought!');
-  renderShop();
+  if (res.committed) {
+    showStatus('✅ Skin bought!');
+    renderShop();
+  }
+}
+
+async function buyBanner(item) {
+  if (!item) return;
+  const isHoms = item.currency === 'homs';
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+    if (!data) return data;
+    const bal = isHoms ? (data.homs || 0) : (data.coins || 0);
+    if (bal < item.price) return;
+    if (isHoms) data.homs -= item.price; else data.coins -= item.price;
+    if (!data.purchasedBanners) data.purchasedBanners = [];
+    if (!data.purchasedBanners.includes(item.id)) data.purchasedBanners.push(item.id);
+    return data;
+  });
+  if (res.committed) {
+    showStatus('✅ Banner bought!');
+    renderShop();
+  }
 }
 
 async function buyCosmetic(item) {
+  if (!item) return;
   const isHoms = item.currency === 'homs';
-  await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data) return data;
     const bal = isHoms ? (data.homs || 0) : (data.coins || 0);
     if (bal < item.price) return;
@@ -1841,8 +2042,10 @@ async function buyCosmetic(item) {
     }
     return data;
   });
-  showStatus('✅ Purchased!');
-  renderShop();
+  if (res.committed) {
+    showStatus('✅ Purchased!');
+    renderShop();
+  }
 }
 
 function renderProfile() {
@@ -1866,11 +2069,12 @@ function renderProfile() {
   }
 
   const titleObj = TITLES.find(t => t.name === state.title) || CASE_TITLES.find(t => t.name === state.title) || TOP_TITLES.find(t => t.name === state.title);
+  const localizedTitle = localizeCosmeticName(state.title);
   if (titleObj) {
-    profTitle.innerText = titleObj.name;
+    profTitle.innerText = localizedTitle;
     profTitleBadge.style.background = titleObj.color;
   } else {
-    profTitle.innerText = state.title;
+    profTitle.innerText = localizedTitle;
     profTitleBadge.style.background = 'linear-gradient(90deg, #8a2be2, #da70d6)';
   }
 
@@ -1892,6 +2096,7 @@ function renderProfile() {
 }
 
 function renderInventory() {
+  const t = translations[currentLang];
   const cases = state.cases || {};
   const legendaryCount = state.legendaryCases || 0;
   const hasCases = Object.keys(cases).some(k => cases[k] > 0) || legendaryCount > 0;
@@ -1932,7 +2137,7 @@ function renderInventory() {
   invBanners.innerHTML = '';
   const noBannerEl = document.createElement('div');
   noBannerEl.className = `banner-item ${state.activeBanner === 'default' ? 'active' : ''}`;
-  noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">Default</div>`;
+  noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
   noBannerEl.addEventListener('click', async () => {
     await update(ref(db, 'users/' + currentUid), { activeBanner: 'default' });
     showStatus('✅ Banner reset!');
@@ -1945,8 +2150,8 @@ function renderInventory() {
     const el = document.createElement('div');
     el.className = `banner-item ${state.activeBanner === bannerId ? 'active' : ''}`;
     el.innerHTML = `
-      <div class="banner-preview" style="background-image: url('${GITHUB_BANNERS}${bObj.file}');"></div>
-      <div class="inventory-item-name">${bObj.name}</div>
+      <div class="banner-preview" style="background-image: url('${GITHUB_BANNERS}${escapeHtml(bObj.file)}');"></div>
+      <div class="inventory-item-name">${escapeHtml(localizeCosmeticName(bObj.name))}</div>
     `;
     el.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { activeBanner: bannerId });
@@ -1956,15 +2161,15 @@ function renderInventory() {
   });
 
   const availableTitles = [
-    ...TITLES.filter(t => (t.price === 0 && (t.reqPrestige === 0 || state.prestige >= t.reqPrestige)) || state.purchasedTitles.includes(t.name)),
-    ...CASE_TITLES.filter(t => state.purchasedTitles.includes(t.name)),
-    ...TOP_TITLES.filter(t => state.purchasedTitles.includes(t.name))
+    ...TITLES.filter(tItem => (tItem.price === 0 && (tItem.reqPrestige === 0 || state.prestige >= tItem.reqPrestige)) || state.purchasedTitles.includes(tItem.name)),
+    ...CASE_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name)),
+    ...TOP_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name))
   ];
   invTitles.innerHTML = '';
   availableTitles.forEach(tItem => {
     const el = document.createElement('div');
     el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${tItem.name}</div>`;
+    el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(localizeCosmeticName(tItem.name))}</div>`;
     el.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { title: tItem.name });
       showStatus('✅ Title equipped!');
@@ -1977,7 +2182,7 @@ function renderInventory() {
   availableAvatars.forEach(avName => {
     const el = document.createElement('div');
     el.className = `inventory-item ${state.avatar === avName ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon">${avName}</div>`;
+    el.innerHTML = `<div class="inventory-item-icon">${escapeHtml(avName)}</div>`;
     el.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { avatar: avName });
       showStatus('✅ Avatar changed!');
@@ -1988,7 +2193,7 @@ function renderInventory() {
   invSkins.innerHTML = '';
   const defaultEl = document.createElement('div');
   defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
-  defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">Default</div>`;
+  defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
   defaultEl.addEventListener('click', async () => {
     await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
     showStatus('✅ Skin changed!');
@@ -2000,7 +2205,7 @@ function renderInventory() {
     if (!skinObj || !skinObj.file) return;
     const el = document.createElement('div');
     el.className = `inventory-item ${state.activeSkin === skinId ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${skinObj.name}</div>`;
+    el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${escapeHtml(skinObj.file)}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${escapeHtml(localizeCosmeticName(skinObj.name))}</div>`;
     el.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
       showStatus('✅ Skin changed!');
@@ -2063,7 +2268,7 @@ window.openCasesBatch = async function(qty) {
           if (legBanner) {
             if (!data.purchasedBanners.includes(legBanner.id)) {
               data.purchasedBanners.push(legBanner.id);
-              summaryRewards.push(`Banner: ${legBanner.name}`);
+              summaryRewards.push(`Banner: ${localizeCosmeticName(legBanner.name)}`);
             } else {
               const homsBonus = 25 * multiplier;
               data.homs = (data.homs || 0) + homsBonus;
@@ -2082,7 +2287,7 @@ window.openCasesBatch = async function(qty) {
             summaryRewards.push(`+${homsBonus} Homs (Skin Duplicate)`);
           } else {
             data.purchasedSkins.push(randomSkin.id);
-            summaryRewards.push(`Skin: ${randomSkin.name}`);
+            summaryRewards.push(`Skin: ${localizeCosmeticName(randomSkin.name)}`);
           }
         } else if (rand < 45) {
           const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
@@ -2102,7 +2307,7 @@ window.openCasesBatch = async function(qty) {
             summaryRewards.push(`+${homsBonus} Homs (Title Duplicate)`);
           } else {
             data.purchasedTitles.push(randomTitle.name);
-            summaryRewards.push(`Title: ${randomTitle.name}`);
+            summaryRewards.push(`Title: ${localizeCosmeticName(randomTitle.name)}`);
           }
         } else {
           const xpReward = (Math.floor(Math.random() * 49000) + 1000) * multiplier;
@@ -2192,16 +2397,16 @@ function renderCryptoList() {
     card.className = 'crypto-card';
     card.innerHTML = `
       <div class="crypto-header">
-        <div class="crypto-symbol">${symbol}</div>
+        <div class="crypto-symbol">${escapeHtml(symbol)}</div>
         <div class="crypto-price ${isUp ? 'up' : 'down'}">${formatPrice(price)} 🪙</div>
       </div>
-      <canvas class="crypto-chart" id="chart-${symbol}" width="300" height="60"></canvas>
+      <canvas class="crypto-chart" id="chart-${escapeHtml(symbol)}" width="300" height="60"></canvas>
       <div class="crypto-actions">
-        <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${symbol}" data-symbol="${symbol}">
-        <button class="crypto-btn buy" data-symbol="${symbol}" data-action="buy">${translations[currentLang].buy || 'Buy'}</button>
-        <button class="crypto-btn sell" data-symbol="${symbol}" data-action="sell">${translations[currentLang].sell || 'Sell'}</button>
+        <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${escapeHtml(symbol)}" data-symbol="${escapeHtml(symbol)}">
+        <button class="crypto-btn buy" data-symbol="${escapeHtml(symbol)}" data-action="buy">${translations[currentLang].buy || 'Buy'}</button>
+        <button class="crypto-btn sell" data-symbol="${escapeHtml(symbol)}" data-action="sell">${translations[currentLang].sell || 'Sell'}</button>
       </div>
-      <div class="crypto-holdings">You have: <span>${holding}</span> ${symbol}</div>
+      <div class="crypto-holdings">You have: <span>${holding}</span> ${escapeHtml(symbol)}</div>
     `;
     cryptoListEl.appendChild(card);
     drawChart(document.getElementById('chart-' + symbol), history, isUp);
