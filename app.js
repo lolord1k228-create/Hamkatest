@@ -23,6 +23,10 @@ try { tg?.expand(); tg?.ready(); } catch(e) {}
 let AdController = null;
 const BOT_LINK = "https://t.me/hamka_game_bot";
 
+// Офлайн-фарм: максимум 3 години (10800 сек) і в 10 разів слабше (0.1)
+const OFFLINE_MAX_SECONDS = 3 * 3600;
+const OFFLINE_EARN_MULTIPLIER = 0.1;
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -343,13 +347,13 @@ const translations = {
       "Neon Hamster": "Неоновый Хомяк",
       "HomHamster": "Хом-Хомяк",
       "Gradient Blue": "Синий Градиент",
-      "Gradient Yellow": "Жёлтый Градиент"
+      "Gradient Yellow": "Жёлтый Градієнт"
     }
   }
 };
 
-let currentLang = localStorage.getItem('hamka_lang') || 'en';
-let currentTheme = localStorage.getItem('hamka_theme') || 'new';
+let currentLang = localStorage.getItem('hamka_lang') || 'uk';
+let currentTheme = localStorage.getItem('hamka_theme') || 'classic';
 
 function localizeCosmeticName(rawName) {
   const dict = translations[currentLang]?.cosmetic_names || {};
@@ -357,17 +361,17 @@ function localizeCosmeticName(rawName) {
 }
 
 function applyTheme(themeName) {
-  const normalized = themeName === 'classic' ? 'classic' : 'new';
+  const normalized = themeName === 'new' ? 'new' : 'classic';
   currentTheme = normalized;
   localStorage.setItem('hamka_theme', normalized);
-  document.body.classList.toggle('theme-classic', normalized === 'classic');
+  document.body.classList.toggle('theme-new', normalized === 'new');
 
   const themeSelect = document.getElementById('theme-select');
   if (themeSelect) themeSelect.value = normalized;
 }
 
 function setLanguage(lang) {
-  if (!translations[lang]) lang = 'en';
+  if (!translations[lang]) lang = 'uk';
   currentLang = lang;
   localStorage.setItem('hamka_lang', lang);
   document.documentElement.lang = lang;
@@ -415,7 +419,7 @@ const activeBoostBadge = document.getElementById('active-boost-badge');
 const activeBoostText = document.getElementById('active-boost-text');
 const bottomCoins = document.getElementById('bottom-coins');
 const energyDisplay = document.getElementById('energy-label-text');
-const energyDisplayBottom = document.getElementById('energy-label-bottom');
+const autoEnergyLabel = document.getElementById('auto-energy-label');
 const energyBar = document.getElementById('energy-bar');
 const hamster = document.getElementById('hamster');
 const tapArea = document.getElementById('tap-area');
@@ -491,7 +495,7 @@ const miniContentRoulette = document.getElementById('mini-content-roulette');
 
 let isLoginMode = true;
 let state = {
-  coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+  coins: 0, homs: 0, energy: 250, maxEnergy: 250, xp: 0, prestige: 0,
   title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
   activeSkin: 'default', activeBanner: 'default', holdings: {},
   purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
@@ -501,7 +505,7 @@ let state = {
   referredBy: '',
   invited: 0,
   hideFromTop: false,
-  theme: 'new',
+  theme: 'classic',
   streakCount: 0,
   lastStreakDay: '',
   claimedStreakDay: '',
@@ -1028,7 +1032,7 @@ async function loadLeaderboard() {
           const bgDiv = document.createElement('div');
           bgDiv.className = 'profile-banner-bg';
           bgDiv.style.height = '100%';
-          bgDiv.style.opacity = '0.35';
+          bgDiv.style.opacity = '0.55';
           bgDiv.style.backgroundImage = `url('${GITHUB_BANNERS}${escapeHtml(bObj.file)}')`;
           el.appendChild(bgDiv);
         }
@@ -1042,7 +1046,7 @@ async function loadLeaderboard() {
       inner.style.position = 'relative';
       inner.style.zIndex = '1';
       inner.innerHTML = `
-        <div style="font-size:16px; font-weight:800; color:#f5a623; width:25px;">#${i + 1}</div>
+        <div style="font-size:16px; font-weight:800; color:#f5b400; width:25px;">#${i + 1}</div>
         ${avatarHtml}
         <div class="lb-info">
           <div class="lb-name">${safeNick}</div>
@@ -1157,24 +1161,26 @@ async function processMonthlyTopAndStreak(uid, data) {
     }
   }
 
+  // Офлайн-фарм: до 3 годин (10800 сек) і в 10 разів слабше
   let offlineCoins = 0;
   let offlineXp = 0;
   const prevSeen = data.lastSeenAt || 0;
   if (prevSeen > 0 && nowMs > prevSeen + 2000) {
-    const elapsedSec = Math.min(86400, Math.floor((nowMs - prevSeen) / 1000));
+    const elapsedSec = Math.min(OFFLINE_MAX_SECONDS, Math.floor((nowMs - prevSeen) / 1000));
     const autoTap = data.autoTapRate || 0;
     const autoXp = data.autoXpRate || 0;
     if (autoTap > 0) {
       let boostedSec = 0;
       if (boostExpires > prevSeen && boostMult > 1) {
         const endBoost = Math.min(nowMs, boostExpires);
-        boostedSec = Math.max(0, Math.floor((endBoost - prevSeen) / 1000));
+        boostedSec = Math.max(0, Math.min(elapsedSec, Math.floor((endBoost - prevSeen) / 1000)));
       }
       const normalSec = Math.max(0, elapsedSec - boostedSec);
-      offlineCoins = normalSec * autoTap + boostedSec * autoTap * boostMult;
+      const rawOfflineCoins = normalSec * autoTap + boostedSec * autoTap * boostMult;
+      offlineCoins = rawOfflineCoins * OFFLINE_EARN_MULTIPLIER;
     }
     if (autoXp > 0) {
-      offlineXp = elapsedSec * autoXp;
+      offlineXp = elapsedSec * autoXp * OFFLINE_EARN_MULTIPLIER;
     }
   }
 
@@ -1222,8 +1228,6 @@ btnClaimStreak.addEventListener('click', async () => {
 
     let bonusCoins = 0;
     let bonusHoms = 0;
-    let bonusBasicCase = 0;
-    let bonusEpicCase = 0;
 
     const pickHoms = Math.random() < 0.5 && (d.homs || 0) > 0;
     if (pickHoms) {
@@ -1244,11 +1248,9 @@ btnClaimStreak.addEventListener('click', async () => {
     if (curStreak % 7 === 0) {
       if (!d.cases) d.cases = {};
       if (Math.random() < 0.5) {
-        bonusBasicCase = 1;
         d.cases.basic = (d.cases.basic || 0) + 1;
         jubileeText = ' + 1 Звичайний кейс (x1)';
       } else {
-        bonusEpicCase = 1;
         d.cases.epic = (d.cases.epic || 0) + 1;
         jubileeText = ' + 1 Епічний кейс (x5)';
       }
@@ -1483,7 +1485,7 @@ window.inviteFriend = async function() {
 function initGame(uid) {
   const userRef = ref(db, 'users/' + uid);
   const initialData = {
-    coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+    coins: 0, homs: 0, energy: 250, maxEnergy: 250, xp: 0, prestige: 0,
     title: 'Beginner', avatar: '🐭', holdings: {},
     nickname: '', publicId: '', activeSkin: 'default', activeBanner: 'default',
     tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
@@ -1519,8 +1521,8 @@ function initGame(uid) {
 
     state.coins = data.coins || 0;
     state.homs = data.homs || 0;
-    state.energy = data.energy ?? 200;
-    state.maxEnergy = data.maxEnergy ?? 200;
+    state.energy = data.energy ?? 250;
+    state.maxEnergy = data.maxEnergy ?? 250;
     state.xp = data.xp || 0;
     state.prestige = data.prestige || 0;
     state.title = data.title || 'Beginner';
@@ -1610,8 +1612,8 @@ function initGame(uid) {
         const tickCoins = (data.autoTapRate || 0) * curMult;
         if (tickCoins > 0) { data.coins = (data.coins || 0) + tickCoins; changed = true; }
         if (earnXp > 0) { data.xp = (data.xp || 0) + earnXp; changed = true; }
-        if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 200)) {
-          data.energy = Math.min(data.maxEnergy ?? 200, (data.energy || 0) + earnEnergy);
+        if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 250)) {
+          data.energy = Math.min(data.maxEnergy ?? 250, (data.energy || 0) + earnEnergy);
           changed = true;
         }
         return changed ? data : undefined;
@@ -1661,7 +1663,7 @@ function initGame(uid) {
     try {
       await runTransaction(userRef, (data) => {
         if (!data) data = {};
-        const curEnergy = data.energy ?? 200;
+        const curEnergy = data.energy ?? 250;
         if (curEnergy < 1) return;
         const txMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
         const txCoins = (data.tapPower || 1) * txMult;
@@ -1749,12 +1751,12 @@ function renderUI() {
   topHoms.innerText = homsStr;
   bottomCoins.innerText = coinsStr;
   autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate * mult);
+  autoEnergyLabel.innerText = formatNumber(state.upgrades.energyRate);
   renderBoostBadge();
 
   const energyPct = (state.energy / state.maxEnergy) * 100;
   energyBar.style.width = energyPct + '%';
   energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
-  energyDisplayBottom.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
 
   const { currentLvl, nextLvl } = getLevelInfo(state.xp);
   levelName.innerText = currentLvl.name;
@@ -1953,7 +1955,7 @@ function renderShop() {
     else if (item.id === 'energyRate') currentLevel = state.upgrades.energyRate - 1;
     else if (item.id === 'tap') currentLevel = state.upgrades.tapLevel;
     else if (item.id === 'xpTap') currentLevel = state.upgrades.xpPerTap - 1;
-    else if (item.id === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
+    else if (item.id === 'maxEnergy') currentLevel = (state.maxEnergy - 250) / 50;
 
     const price = getShopPrice(item.id, currentLevel);
     const isMaxed = currentLevel >= item.maxLevel || price === Infinity;
@@ -1989,7 +1991,7 @@ async function buyUpgrade(itemId) {
   else if (itemId === 'energyRate') currentLevel = state.upgrades.energyRate - 1;
   else if (itemId === 'tap') currentLevel = state.upgrades.tapLevel;
   else if (itemId === 'xpTap') currentLevel = state.upgrades.xpPerTap - 1;
-  else if (itemId === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
+  else if (itemId === 'maxEnergy') currentLevel = (state.maxEnergy - 250) / 50;
 
   const price = getShopPrice(itemId, currentLevel);
   let unlockedTap3Boost = false;
@@ -2011,7 +2013,7 @@ async function buyUpgrade(itemId) {
       }
     }
     else if (itemId === 'xpTap') data.xpPerTap = (data.xpPerTap || 1) + 1;
-    else if (itemId === 'maxEnergy') data.maxEnergy = (data.maxEnergy || 200) + 50;
+    else if (itemId === 'maxEnergy') data.maxEnergy = (data.maxEnergy || 250) + 50;
     return data;
   });
 
@@ -2397,12 +2399,15 @@ async function initCryptoSystem() {
   if (cryptoInterval) clearInterval(cryptoInterval);
   cryptoInterval = setInterval(async () => {
     for (const symbol of COINS) {
+      // PLAYERHOM рухається тільки від рішень (купівля/продаж) гравців
+      if (symbol === 'PLAYERHOM') continue;
       updateCryptoPrice(symbol);
     }
   }, 10000);
 }
 
 async function updateCryptoPrice(symbol) {
+  if (symbol === 'PLAYERHOM') return;
   const cRef = ref(db, 'crypto/' + symbol);
   try {
     await runTransaction(cRef, (data) => {
@@ -2430,8 +2435,8 @@ function renderCryptoList() {
 
     const price = info.price || INITIAL_PRICES[symbol];
     const history = info.history || [];
-    const firstPrice = history[0]?.p || price;
-    const isUp = price >= firstPrice;
+    const prevPrice = history.length > 1 ? history[history.length - 2].p : (history[0]?.p || price);
+    const isUp = price >= prevPrice;
     const holding = state.holdings?.[symbol] || 0;
     const qty = getQty(symbol);
 
@@ -2493,12 +2498,13 @@ function drawChart(canvas, history, isUp) {
 }
 
 async function tradeCrypto(symbol, action, qty) {
-  if (!currentUid) return;
+  if (!currentUid || qty <= 0) return;
   const info = cryptoState[symbol];
   if (!info) return;
 
-  const price = info.price;
+  const price = info.price || INITIAL_PRICES[symbol];
   const total = price * qty;
+  let traded = false;
 
   await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data) return data;
@@ -2508,14 +2514,38 @@ async function tradeCrypto(symbol, action, qty) {
       if ((data.coins || 0) < total) return;
       data.coins -= total;
       data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
+      traded = true;
     } else {
       const owned = data.holdings[symbol] || 0;
       if (owned < qty) return;
       data.coins = (data.coins || 0) + total;
       data.holdings[symbol] = owned - qty;
+      traded = true;
     }
     return data;
   });
+
+  if (!traded) {
+    showStatus(action === 'buy' ? '❌ Недостатньо монет' : '❌ Недостатньо монет активу');
+    return;
+  }
+
+  // Для PLAYERHOM курс змінюється лише від рішень гравців (купівля = ріст, продаж = падіння)
+  if (symbol === 'PLAYERHOM') {
+    const cRef = ref(db, 'crypto/PLAYERHOM');
+    await runTransaction(cRef, (cData) => {
+      const curPrice = cData?.price || INITIAL_PRICES.PLAYERHOM;
+      const step = Math.min(0.25, Math.max(0.015, qty * 0.015));
+      const nextPrice = action === 'buy'
+        ? curPrice * (1 + step)
+        : Math.max(1, curPrice * (1 - step));
+      const history = Array.isArray(cData?.history) ? [...cData.history] : [];
+      history.push({ t: Date.now(), p: nextPrice });
+      if (history.length > 30) history.shift();
+      return { price: nextPrice, history };
+    });
+  }
+
   showStatus('✅ Trade successful!');
 }
 
