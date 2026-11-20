@@ -78,12 +78,12 @@ const translations = {
     owned: "Owned",
     max: "MAX",
     open_case: "Open Case",
-    promo_title: "🎟 Referral Promo Code",
-    promo_desc: "Share your code! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
+    promo_title: "🎟 Referral Invite Link",
+    promo_desc: "Share your link! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
     promo_enter_placeholder: "Enter friend's promo code",
     promo_activate: "Activate",
     promo_share: "Share",
-    promo_already_used: "✅ You have already activated a referral promo code",
+    promo_already_used: "✅ You have already activated a referral code",
     invite_friend: "👥 Invite friend",
     invite_copied: "Приглашение скопировано"
   },
@@ -138,12 +138,12 @@ const translations = {
     owned: "Куплено",
     max: "МАКС",
     open_case: "Відкрити кейс",
-    promo_title: "🎟 Реферальний промокод",
-    promo_desc: "Ділися кодом! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
+    promo_title: "🎟 Реферальне посилання",
+    promo_desc: "Ділися посиланням! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
     promo_enter_placeholder: "Введіть промокод друга",
     promo_activate: "Активувати",
     promo_share: "Поділитися",
-    promo_already_used: "✅ Ви вже активували реферальний промокод",
+    promo_already_used: "✅ Ви вже активували реферальне запрошення",
     invite_friend: "👥 Запросити друга",
     invite_copied: "Приглашение скопировано"
   },
@@ -198,12 +198,12 @@ const translations = {
     owned: "Куплено",
     max: "МАКС",
     open_case: "Открыть кейс",
-    promo_title: "🎟 Реферальный промокод",
-    promo_desc: "Делись кодом! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
+    promo_title: "🎟 Реферальная ссылка",
+    promo_desc: "Делись ссылкой! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
     promo_enter_placeholder: "Введите промокод друга",
     promo_activate: "Активировать",
     promo_share: "Поделиться",
-    promo_already_used: "✅ Вы уже активировали реферальный промокод",
+    promo_already_used: "✅ Вы уже активировали реферальное приглашение",
     invite_friend: "👥 Пригласить друга",
     invite_copied: "Приглашение скопировано"
   }
@@ -339,10 +339,26 @@ let userDataReady = false;
 let pendingStartParam = null;
 let referralProcessing = false;
 
+function extractReferralCode(rawValue) {
+  if (typeof rawValue !== 'string') return '';
+  const trimmed = rawValue.trim();
+  if (!trimmed) return '';
+  const startappMatch = trimmed.match(/[?&]startapp=([^&#]+)/i);
+  if (startappMatch && startappMatch[1]) {
+    try {
+      return decodeURIComponent(startappMatch[1]).trim();
+    } catch (e) {
+      return startappMatch[1].trim();
+    }
+  }
+  return trimmed;
+}
+
 try {
   const sp = tg?.initDataUnsafe?.start_param;
-  if (typeof sp === 'string' && sp.trim().length > 0) {
-    pendingStartParam = sp.trim();
+  const parsed = extractReferralCode(sp);
+  if (parsed.length > 0) {
+    pendingStartParam = parsed;
   }
 } catch(e) {}
 
@@ -770,13 +786,14 @@ window.adminAddCase = async () => {
 
 async function applyReferralCode(rawCode, fromManualInput = false) {
   if (!currentUid || !userDataReady) {
-    if (typeof rawCode === 'string' && rawCode.trim().length > 0) {
-      pendingStartParam = rawCode.trim();
+    const parsed = extractReferralCode(rawCode);
+    if (parsed.length > 0) {
+      pendingStartParam = parsed;
     }
     return false;
   }
 
-  const code = String(rawCode || '').trim();
+  const code = extractReferralCode(rawCode);
   if (!code) {
     if (fromManualInput) showStatus('❌ [ERR_1] Enter code');
     return false;
@@ -894,9 +911,13 @@ async function copyTextWithFallback(text) {
   }
 }
 
-window.inviteFriend = async function() {
+function getReferralInviteLink() {
   const refCode = state.publicId || currentUid || '';
-  const inviteLink = `${BOT_LINK}?startapp=${encodeURIComponent(refCode)}`;
+  return `${BOT_LINK}?startapp=${encodeURIComponent(refCode)}`;
+}
+
+window.inviteFriend = async function() {
+  const inviteLink = getReferralInviteLink();
   const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!`;
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 
@@ -1218,6 +1239,7 @@ function renderShop() {
 
   if (currentShopTab === 'cases') {
     const t = translations[currentLang];
+    const inviteLink = getReferralInviteLink();
     const promoBox = document.createElement('div');
     promoBox.className = 'promo-box';
 
@@ -1232,24 +1254,28 @@ function renderShop() {
       <div class="shop-card-title" style="color:#2ecc71;">${t.promo_title}</div>
       <div class="shop-card-desc">${t.promo_desc}</div>
       <div class="promo-code-display">
-        <span class="promo-code-text" id="my-promo-code">${state.publicId}</span>
-        <div style="display:flex; gap:6px;">
+        <span class="promo-code-text" id="my-promo-code" style="font-size:12px; letter-spacing:0; word-break:break-all;">${inviteLink}</span>
+        <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
           <button class="shop-card-btn" id="btn-copy-promo" style="padding:6px 10px;">📋</button>
           <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${t.promo_share}</button>
         </div>
       </div>
+      <button class="invite-friend-btn" id="btn-shop-invite-friend" style="width:100%; margin-top:8px;">${t.invite_friend}</button>
       ${enterHtml}
     `;
     shopListEl.appendChild(promoBox);
 
     document.getElementById('btn-copy-promo').addEventListener('click', async () => {
-      const inviteLink = `${BOT_LINK}?startapp=${encodeURIComponent(state.publicId)}`;
-      const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!\n🤖 Бот: ${inviteLink}\n🎟 Мій промокод: ${state.publicId}`;
-      await copyTextWithFallback(shareText);
-      showStatus('✅ Copied with bot link!');
+      const link = getReferralInviteLink();
+      await copyTextWithFallback(link);
+      showStatus('Приглашение скопировано');
     });
 
     document.getElementById('btn-share-promo').addEventListener('click', () => {
+      window.inviteFriend();
+    });
+
+    document.getElementById('btn-shop-invite-friend').addEventListener('click', () => {
       window.inviteFriend();
     });
 
