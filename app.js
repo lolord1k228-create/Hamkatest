@@ -114,8 +114,8 @@ const translations = {
     settings_title: "⚙️ Settings",
     lang_label: "Language / Мова / Язык",
     theme_label: "Theme / Тема / Тема",
-    theme_new: "New Dark (New)",
-    theme_classic: "Classic (Old)",
+    theme_new: "New Dark (Нова)",
+    theme_classic: "Classic (Стара)",
     hide_top_label: "Hide me from Leaderboard",
     logout_btn: "🚪 Log out",
     all: "All",
@@ -137,6 +137,7 @@ const translations = {
     invite_friend: "👥 Invite friend",
     invite_copied: "Invitation copied",
     streak_title: "🔥 Daily Streak",
+    claim_streak_btn: "🎁 Claim Reward",
     avatar_label: "Avatar",
     skin_prefix: "Skin",
     banner_prefix: "Banner",
@@ -226,6 +227,7 @@ const translations = {
     invite_friend: "👥 Запросити друга",
     invite_copied: "Запрошення скопійовано",
     streak_title: "🔥 Денна серія",
+    claim_streak_btn: "🎁 Забрати нагороду",
     avatar_label: "Аватарка",
     skin_prefix: "Скін",
     banner_prefix: "Банер",
@@ -315,6 +317,7 @@ const translations = {
     invite_friend: "👥 Пригласить друга",
     invite_copied: "Приглашение скопировано",
     streak_title: "🔥 Дневная серия",
+    claim_streak_btn: "🎁 Забрать награду",
     avatar_label: "Аватарка",
     skin_prefix: "Скин",
     banner_prefix: "Баннер",
@@ -441,6 +444,7 @@ const prestigeInfo = document.getElementById('prestige-info');
 
 const streakDaysBadge = document.getElementById('streak-days-badge');
 const streakDesc = document.getElementById('streak-desc');
+const btnClaimStreak = document.getElementById('btn-claim-streak');
 const btnRestoreStreak = document.getElementById('btn-restore-streak');
 
 const invCases = document.getElementById('inv-cases');
@@ -500,6 +504,7 @@ let state = {
   theme: 'new',
   streakCount: 0,
   lastStreakDay: '',
+  claimedStreakDay: '',
   lostStreakCount: 0,
   tap3BoostGranted: false,
   coinBoostMult: 1,
@@ -558,26 +563,10 @@ const SKINS = GAME_DATA.SKINS || [
   { id: 'skin_hom', name: 'HomHamster', file: 'homhamster.png', price: 1500, currency: 'homs' }
 ];
 
-const DEFAULT_BANNERS = [
+const BANNERS = [
   { id: 'banner_gradient_blue', name: 'Gradient Blue', file: 'gradientblue.png', legendaryOnly: true },
   { id: 'banner_gradient_yellow', name: 'Gradient Yellow', file: 'gradientyellow.png', price: 75000, currency: 'homs' }
 ];
-
-const BANNERS = (() => {
-  const list = Array.isArray(GAME_DATA.BANNERS) && GAME_DATA.BANNERS.length > 0
-    ? [...GAME_DATA.BANNERS]
-    : [...DEFAULT_BANNERS];
-  if (!list.some(b => b.id === 'banner_gradient_yellow' || b.file === 'gradientyellow.png')) {
-    list.push({
-      id: 'banner_gradient_yellow',
-      name: 'Gradient Yellow',
-      file: 'gradientyellow.png',
-      price: 75000,
-      currency: 'homs'
-    });
-  }
-  return list;
-})();
 
 let TITLES = [];
 let AVATARS = [];
@@ -683,6 +672,10 @@ function getPreviousMonthKey(date = new Date()) {
 
 function getStreakRestoreCost(streakNum) {
   return Math.max(1, (streakNum * 10) - 1);
+}
+
+function canClaimStreakReward(todayKey = getTodayKey()) {
+  return state.streakCount > 0 && state.claimedStreakDay !== todayKey;
 }
 
 function getQty(symbol) {
@@ -879,15 +872,18 @@ onAuthStateChanged(auth, async (user) => {
 
 document.querySelectorAll('.menu-item[data-page]').forEach(item => {
   item.addEventListener('click', () => {
+    const pageId = item.dataset.page;
     document.querySelectorAll('.menu-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     item.classList.add('active');
-    document.getElementById('page-' + item.dataset.page).classList.add('active');
-    if (item.dataset.page === 'shop') renderShop();
-    if (item.dataset.page === 'profile') renderProfile();
-    if (item.dataset.page === 'inventory') renderInventory();
-    if (item.dataset.page === 'top') loadLeaderboard();
-    if (item.dataset.page === 'minigames') {
+    document.getElementById('page-' + pageId).classList.add('active');
+    document.body.classList.toggle('on-tap-page', pageId === 'tap');
+
+    if (pageId === 'shop') renderShop();
+    if (pageId === 'profile') renderProfile();
+    if (pageId === 'inventory') renderInventory();
+    if (pageId === 'top') loadLeaderboard();
+    if (pageId === 'minigames') {
       minitabCrypto.classList.add('active');
       minitabRoulette.classList.remove('active');
       miniContentCrypto.style.display = 'block';
@@ -1138,10 +1134,6 @@ async function processMonthlyTopAndStreak(uid, data) {
   let newStreak = data.streakCount || 0;
   let lostStreak = data.lostStreakCount || 0;
   let streakChanged = false;
-  let bonusCoins = 0;
-  let bonusHoms = 0;
-  let bonusBasicCase = 0;
-  let bonusEpicCase = 0;
 
   if (data.lastStreakDay !== todayKey) {
     if (!data.lastStreakDay || data.lastStreakDay === yesterdayKey) {
@@ -1158,32 +1150,9 @@ async function processMonthlyTopAndStreak(uid, data) {
       streakChanged = true;
     }
 
-    if (newStreak > 0) {
-      const pickHoms = Math.random() < 0.5 && (data.homs || 0) > 0;
-      if (pickHoms) {
-        bonusHoms = Math.max(1, (data.homs || 0) * 0.01);
-      } else if ((data.coins || 0) > 0) {
-        bonusCoins = Math.max(1, (data.coins || 0) * 0.01);
-      } else if ((data.homs || 0) > 0) {
-        bonusHoms = Math.max(1, (data.homs || 0) * 0.01);
-      }
-
-      let jubileeText = '';
-      if (newStreak % 7 === 0) {
-        if (Math.random() < 0.5) {
-          bonusBasicCase = 1;
-          jubileeText = ' + 1 Звичайний кейс (x1)!';
-        } else {
-          bonusEpicCase = 1;
-          jubileeText = ' + 1 Епічний кейс (x5)!';
-        }
-      }
-
-      const currText = bonusHoms > 0
-        ? `+${formatNumber(bonusHoms)} Хомів (1%)`
-        : `+${formatNumber(bonusCoins)} Монет (1%)`;
-      rewardStatusMsg = rewardStatusMsg || `🔥 День ${newStreak}: ${currText}${jubileeText}`;
-    } else if (lostStreak > 0) {
+    if (newStreak > 0 && !rewardStatusMsg) {
+      rewardStatusMsg = `🔥 День ${newStreak}! Зайди у Профіль та натисни «Забрати нагороду»`;
+    } else if (lostStreak > 0 && !rewardStatusMsg) {
       rewardStatusMsg = `⚠️ Серію збито! Можна відновити за ${getStreakRestoreCost(lostStreak)} 🐹`;
     }
   }
@@ -1224,11 +1193,6 @@ async function processMonthlyTopAndStreak(uid, data) {
         d.lastStreakDay = todayKey;
         d.streakCount = newStreak;
         d.lostStreakCount = lostStreak;
-        d.coins = (d.coins || 0) + bonusCoins;
-        d.homs = (d.homs || 0) + bonusHoms;
-        if (!d.cases) d.cases = {};
-        if (bonusBasicCase > 0) d.cases.basic = (d.cases.basic || 0) + bonusBasicCase;
-        if (bonusEpicCase > 0) d.cases.epic = (d.cases.epic || 0) + bonusEpicCase;
       }
 
       if (offlineCoins > 0) d.coins = (d.coins || 0) + offlineCoins;
@@ -1241,6 +1205,68 @@ async function processMonthlyTopAndStreak(uid, data) {
     await update(ref(db, 'users/' + uid), { lastSeenAt: nowMs });
   }
 }
+
+btnClaimStreak.addEventListener('click', async () => {
+  if (!currentUid) return;
+  const todayKey = getTodayKey();
+  if (!canClaimStreakReward(todayKey)) {
+    showStatus('✅ Нагороду за сьогодні вже забрано');
+    return;
+  }
+
+  let rewardSummary = '';
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (d) => {
+    if (!d) return d;
+    const curStreak = d.streakCount || 0;
+    if (curStreak <= 0 || d.claimedStreakDay === todayKey) return;
+
+    let bonusCoins = 0;
+    let bonusHoms = 0;
+    let bonusBasicCase = 0;
+    let bonusEpicCase = 0;
+
+    const pickHoms = Math.random() < 0.5 && (d.homs || 0) > 0;
+    if (pickHoms) {
+      bonusHoms = Math.max(1, (d.homs || 0) * 0.01);
+      d.homs = (d.homs || 0) + bonusHoms;
+    } else if ((d.coins || 0) > 0) {
+      bonusCoins = Math.max(1, (d.coins || 0) * 0.01);
+      d.coins = (d.coins || 0) + bonusCoins;
+    } else if ((d.homs || 0) > 0) {
+      bonusHoms = Math.max(1, (d.homs || 0) * 0.01);
+      d.homs = (d.homs || 0) + bonusHoms;
+    } else {
+      bonusCoins = 10;
+      d.coins = (d.coins || 0) + bonusCoins;
+    }
+
+    let jubileeText = '';
+    if (curStreak % 7 === 0) {
+      if (!d.cases) d.cases = {};
+      if (Math.random() < 0.5) {
+        bonusBasicCase = 1;
+        d.cases.basic = (d.cases.basic || 0) + 1;
+        jubileeText = ' + 1 Звичайний кейс (x1)';
+      } else {
+        bonusEpicCase = 1;
+        d.cases.epic = (d.cases.epic || 0) + 1;
+        jubileeText = ' + 1 Епічний кейс (x5)';
+      }
+    }
+
+    d.claimedStreakDay = todayKey;
+    const currText = bonusHoms > 0
+      ? `+${formatNumber(bonusHoms)} 🐹`
+      : `+${formatNumber(bonusCoins)} 🪙`;
+    rewardSummary = `🎁 Забрано: ${currText}${jubileeText}`;
+    return d;
+  });
+
+  if (res.committed && rewardSummary) {
+    showStatus(rewardSummary);
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+  }
+});
 
 btnRestoreStreak.addEventListener('click', async () => {
   if (!currentUid || !state.lostStreakCount) return;
@@ -1266,7 +1292,7 @@ btnRestoreStreak.addEventListener('click', async () => {
   });
 
   if (res.committed) {
-    showStatus(`✅ Серію ${restoredNum} дн. відновлено!`);
+    showStatus(`✅ Серію ${restoredNum} дн. відновлено! Тепер натисни «Забрати нагороду»`);
     try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
   }
 });
@@ -1465,7 +1491,7 @@ function initGame(uid) {
     cases: { basic: 1 }, legendaryCases: 0, adWatches: 0,
     usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
     language: currentLang, theme: currentTheme,
-    streakCount: 0, lastStreakDay: '', lostStreakCount: 0,
+    streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
     tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
     lastRewardMonth: getMonthKey(), lastSeenAt: Date.now(),
     createdAt: Date.now()
@@ -1518,6 +1544,7 @@ function initGame(uid) {
     state.theme = data.theme || currentTheme;
     state.streakCount = data.streakCount || 0;
     state.lastStreakDay = data.lastStreakDay || '';
+    state.claimedStreakDay = data.claimedStreakDay || '';
     state.lostStreakCount = data.lostStreakCount || 0;
     state.tap3BoostGranted = data.tap3BoostGranted || false;
     state.coinBoostMult = data.coinBoostMult || 1;
@@ -1889,9 +1916,13 @@ function renderShop() {
 
     document.getElementById('btn-buy-case-ad').addEventListener('click', async () => {
       if (state.adWatches >= 5) {
-        await update(ref(db, 'users/' + currentUid), {
-          adWatches: 0,
-          cases: { ...state.cases, basic: (state.cases.basic || 0) + 1 }
+        await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+          if (!data) return data;
+          if ((data.adWatches || 0) < 5) return;
+          data.adWatches = (data.adWatches || 0) - 5;
+          if (!data.cases) data.cases = {};
+          data.cases.basic = (data.cases.basic || 0) + 1;
+          return data;
         });
         showStatus('✅ Case received!');
       } else {
@@ -1899,12 +1930,14 @@ function renderShop() {
         try {
           const result = await AdController.show();
           if (result && result.done) {
+            let updatedWatches = state.adWatches;
             await runTransaction(ref(db, 'users/' + currentUid), (data) => {
               if (!data) return data;
-              data.adWatches = (data.adWatches || 0) + 1;
+              updatedWatches = (data.adWatches || 0) + 1;
+              data.adWatches = updatedWatches;
               return data;
             });
-            showStatus(`✅ Ad credited! (${state.adWatches + 1}/5)`);
+            showStatus(`✅ Ad credited! (${updatedWatches}/5)`);
           }
         } catch(e) { showStatus('❌ Ad not completed'); }
       }
@@ -2082,6 +2115,14 @@ function renderProfile() {
   prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
 
   streakDaysBadge.innerText = `${state.streakCount} дн.`;
+  btnClaimStreak.innerText = translations[currentLang]?.claim_streak_btn || '🎁 Забрати нагороду';
+
+  if (canClaimStreakReward()) {
+    btnClaimStreak.style.display = 'block';
+  } else {
+    btnClaimStreak.style.display = 'none';
+  }
+
   if (state.lostStreakCount > 0) {
     const restoreCost = getStreakRestoreCost(state.lostStreakCount);
     streakDesc.innerText = `Серія ${state.lostStreakCount} дн. злетіла через пропуск. Відновити можна за ${restoreCost} 🐹.`;
@@ -2091,7 +2132,8 @@ function renderProfile() {
   } else {
     btnRestoreStreak.style.display = 'none';
     const toJubilee = 7 - (state.streakCount % 7 || 7);
-    streakDesc.innerText = `+1% випадкової валюти щодня. До ювілейного кейсу (50/50 x1 або x5): ${toJubilee} дн.`;
+    const claimHint = canClaimStreakReward() ? 'Нагорода очікує — натисни «Забрати нагороду»!' : 'Нагороду за сьогодні забрано.';
+    streakDesc.innerText = `${claimHint} До ювілейного кейсу (50/50 x1 або x5): ${toJubilee} дн.`;
   }
 }
 
