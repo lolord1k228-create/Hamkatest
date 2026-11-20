@@ -64,6 +64,7 @@ const translations = {
     prestige: "Prestige",
     prestige_title: "🌟 Prestige",
     cases_title: "📦 Cases",
+    banners_title: "🖼️ Banners",
     titles_title: "Titles",
     avatars_title: "Avatars",
     skins_title: "Skins",
@@ -87,12 +88,10 @@ const translations = {
     open_case: "Open Case",
     promo_title: "🎟 Referral Invite Link",
     promo_desc: "Share your link! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
-    promo_enter_placeholder: "Enter friend's promo code",
-    promo_activate: "Activate",
     promo_share: "Share",
-    promo_already_used: "✅ You have already activated a referral code",
     invite_friend: "👥 Invite friend",
-    invite_copied: "Приглашение скопировано"
+    invite_copied: "Приглашение скопировано",
+    streak_title: "🔥 Daily Streak"
   },
   uk: {
     loading: "Завантаження...",
@@ -124,6 +123,7 @@ const translations = {
     prestige: "Престиж",
     prestige_title: "🌟 Престиж",
     cases_title: "📦 Кейси",
+    banners_title: "🖼️ Банери",
     titles_title: "Титули",
     avatars_title: "Аватарки",
     skins_title: "Скіни",
@@ -147,12 +147,10 @@ const translations = {
     open_case: "Відкрити кейс",
     promo_title: "🎟 Реферальне посилання",
     promo_desc: "Ділися посиланням! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
-    promo_enter_placeholder: "Введіть промокод друга",
-    promo_activate: "Активувати",
     promo_share: "Поділитися",
-    promo_already_used: "✅ Ви вже активували реферальне запрошення",
     invite_friend: "👥 Запросити друга",
-    invite_copied: "Приглашение скопировано"
+    invite_copied: "Приглашение скопировано",
+    streak_title: "🔥 Денна серія"
   },
   ru: {
     loading: "Загрузка...",
@@ -184,6 +182,7 @@ const translations = {
     prestige: "Престиж",
     prestige_title: "🌟 Престиж",
     cases_title: "📦 Кейсы",
+    banners_title: "🖼️ Баннеры",
     titles_title: "Титулы",
     avatars_title: "Аватарки",
     skins_title: "Скины",
@@ -207,12 +206,10 @@ const translations = {
     open_case: "Открыть кейс",
     promo_title: "🎟 Реферальная ссылка",
     promo_desc: "Делись ссылкой! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
-    promo_enter_placeholder: "Введите промокод друга",
-    promo_activate: "Активировать",
     promo_share: "Поделиться",
-    promo_already_used: "✅ Вы уже активировали реферальное приглашение",
     invite_friend: "👥 Пригласить друга",
-    invite_copied: "Приглашение скопировано"
+    invite_copied: "Приглашение скопировано",
+    streak_title: "🔥 Дневная серия"
   }
 };
 
@@ -249,6 +246,8 @@ const adminBtnBadge = document.getElementById('admin-btn-badge');
 const tapCoinDisplay = document.getElementById('tap-coin-display');
 const topCoins = document.getElementById('top-coins');
 const topHoms = document.getElementById('top-homs');
+const activeBoostBadge = document.getElementById('active-boost-badge');
+const activeBoostText = document.getElementById('active-boost-text');
 const bottomCoins = document.getElementById('bottom-coins');
 const energyDisplay = document.getElementById('energy-label-text');
 const energyDisplayBottom = document.getElementById('energy-label-bottom');
@@ -266,6 +265,7 @@ const xpBar = document.getElementById('xp-bar');
 const levelName = document.getElementById('level-name');
 const autoTapLabel = document.getElementById('auto-tap-label');
 
+const profBanner = document.getElementById('prof-banner');
 const profAvatar = document.getElementById('prof-avatar');
 const profNickname = document.getElementById('prof-nickname');
 const profPublicId = document.getElementById('prof-public-id');
@@ -277,13 +277,19 @@ const profXp = document.getElementById('prof-xp');
 const profPrestige = document.getElementById('prof-prestige');
 const prestigeInfo = document.getElementById('prestige-info');
 
+const streakDaysBadge = document.getElementById('streak-days-badge');
+const streakDesc = document.getElementById('streak-desc');
+const btnRestoreStreak = document.getElementById('btn-restore-streak');
+
+const invCases = document.getElementById('inv-cases');
+const invBanners = document.getElementById('inv-banners');
 const invTitles = document.getElementById('inv-titles');
 const invAvatars = document.getElementById('inv-avatars');
 const invSkins = document.getElementById('inv-skins');
-const invCases = document.getElementById('inv-cases');
 const casesSection = document.getElementById('cases-section');
 
 const modalViewProfile = document.getElementById('modal-view-profile');
+const viewProfBanner = document.getElementById('view-prof-banner');
 const viewProfAvatar = document.getElementById('view-prof-avatar');
 const viewProfNick = document.getElementById('view-prof-nick');
 const viewProfId = document.getElementById('view-prof-id');
@@ -320,14 +326,22 @@ let isLoginMode = true;
 let state = {
   coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
   title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
-  activeSkin: 'default', holdings: {},
-  purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [],
+  activeSkin: 'default', activeBanner: 'default', holdings: {},
+  purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
   cases: {}, legendaryCases: 0,
   adWatches: 0,
   usedReferralCode: false,
   referredBy: '',
   invited: 0,
   hideFromTop: false,
+  streakCount: 0,
+  lastStreakDay: '',
+  lostStreakCount: 0,
+  tap3BoostGranted: false,
+  coinBoostMult: 1,
+  coinBoostExpiresAt: 0,
+  lastRewardMonth: '',
+  lastSeenAt: 0,
   upgrades: {
     tapLevel: 0, tapPower: 1, xpPerTap: 1,
     autoTapRate: 0, autoXpRate: 0, energyRate: 1, caseChance: 0
@@ -345,6 +359,7 @@ let selectedCaseTypeToOpen = null;
 let userDataReady = false;
 let pendingStartParam = null;
 let referralProcessing = false;
+let dailyCheckDone = false;
 
 function extractReferralCode(rawValue) {
   if (typeof rawValue !== 'string') return '';
@@ -369,11 +384,18 @@ try {
   }
 } catch(e) {}
 
-const GITHUB_RAW = "https://raw.githubusercontent.com/lolord1k228-create/hamka-game/main/skins/";
+const GITHUB_BASE = "https://raw.githubusercontent.com/lolord1k228-create/hamka-game/main/";
+const GITHUB_RAW = GITHUB_BASE + "skins/";
+const GITHUB_BANNERS = GITHUB_BASE + "Banners/";
+
 const SKINS = GAME_DATA.SKINS || [
   { id: 'skin_ai', name: 'AIHamster', file: 'ai_hamster.png', price: 50000 },
   { id: 'skin_neon', name: 'Neon Hamster', file: 'hamster.png', price: 5000000 },
   { id: 'skin_hom', name: 'HomHamster', file: 'homhamster.png', price: 1500, currency: 'homs' }
+];
+
+const BANNERS = GAME_DATA.BANNERS || [
+  { id: 'banner_gradient_blue', name: 'Gradient Blue', file: 'gradientblue.png', legendaryOnly: true }
 ];
 
 let TITLES = [];
@@ -396,7 +418,7 @@ const LEVELS = GAME_DATA.LEVELS || [
   { name: '0 beginner', xp: 0 },
   { name: '1 beginner', xp: 50 },
   { name: '2 beginner', xp: 200 },
-  { name: '3 beginner', xp: 500 },
+  { name: '3 beginner', xp": 500 },
   { name: '4 beginner', xp: 1500 },
   { name: 'bronze 1', xp: 5000 },
   { name: 'bronze 2', xp: 10000 },
@@ -414,14 +436,14 @@ const INITIAL_PRICES = GAME_DATA.INITIAL_PRICES || { OLDHAM: 100, NEWHAM: 250, H
 
 const SHOP_ITEMS = GAME_DATA.SHOP_ITEMS || {
   auto: [
-    { id: 'autoTap', title: 'Auto Tap', desc: '+1 coin/sec', basePrice: 200, multiplier: 2, maxLevel: 999 },
+    { id: 'autoTap', title: 'Auto Tap', desc: '+1 coin/sec', basePrice: 200, multiplier: 1.5, maxLevel: 999 },
     { id: 'autoXp', title: 'Auto XP', desc: '+1 XP/sec', basePrice: 1500, multiplier: 2, maxLevel: 999 },
     { id: 'energyRate', title: '+Energy Regen', desc: '+1 energy/sec', basePrice: 1000, multiplier: 10, maxLevel: 999 },
   ],
   upgrade: [
-    { id: 'tap', title: 'Tap Power', desc: '+1 coin per tap', basePrice: 50, multiplier: 10, maxLevel: 9, prices: [50, 200, 2000, 5000, 20000, 50000, 150000, 500000, 2000000] },
-    { id: 'xpTap', title: 'XP Tap', desc: '+1 XP per tap', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
-    { id: 'maxEnergy', title: 'Max Energy', desc: '+50 max energy', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
+    { id: "tap", "title": "Tap Power", "desc": "+1 coin per tap", "basePrice": 50, "multiplier": 10, "maxLevel": 9, "prices": [50, 200, 2000, 4000, 5000, 6500, 7500, 10000, 20000] },
+    { id: "xpTap", "title": "XP Tap", "desc": "+1 XP per tap", "basePrice": 50000, "multiplier": 10, "maxLevel": 999, "prices": [50000, 500000, 5000000, 50000000, 500000000] },
+    { id: "maxEnergy", "title": "Max Energy", "desc": "+50 max energy", "basePrice": 1500, "multiplier": 1.5, "maxLevel": 999, "prices": [1500, 5000] },
   ]
 };
 
@@ -430,8 +452,56 @@ function getShopPrice(itemId, level) {
   const item = allItems.find(i => i.id === itemId);
   if (!item) return 0;
   if (item.prices && level < item.prices.length) return item.prices[level];
-  if (item.prices && level >= item.prices.length) return Infinity;
+  if (item.prices && level >= item.prices.length) {
+    const lastPrice = item.prices[item.prices.length - 1];
+    const extraLevels = level - (item.prices.length - 1);
+    return Math.floor(lastPrice * Math.pow(item.multiplier, extraLevels));
+  }
   return Math.floor(item.basePrice * Math.pow(item.multiplier, level));
+}
+
+function getActiveCoinMultiplier(now = Date.now()) {
+  if (state.coinBoostExpiresAt && now < state.coinBoostExpiresAt) {
+    return state.coinBoostMult || 1;
+  }
+  return 1;
+}
+
+function formatDurationLeft(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}г ${m}хв`;
+  if (m > 0) return `${m}хв ${s}с`;
+  return `${s}с`;
+}
+
+function getTodayKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getYesterdayKey(date = new Date()) {
+  const yDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+  return getTodayKey(yDate);
+}
+
+function getMonthKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+function getPreviousMonthKey(date = new Date()) {
+  const prev = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+  return getMonthKey(prev);
+}
+
+function getStreakRestoreCost(streakNum) {
+  return Math.max(1, (streakNum * 10) - 1);
 }
 
 function getQty(symbol) {
@@ -444,7 +514,7 @@ function showStatus(text) {
   statusEl.innerText = text;
   statusEl.classList.add('show');
   clearTimeout(showStatus._t);
-  showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2500);
+  showStatus._t = setTimeout(() => statusEl.classList.remove('show'), 2600);
 }
 
 function formatNumber(num) {
@@ -568,6 +638,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUid = user.uid;
     userDataReady = false;
+    dailyCheckDone = false;
     loadingScreen.style.display = 'none';
     authScreen.classList.add('hidden');
     gameScreen.classList.add('visible');
@@ -585,6 +656,7 @@ onAuthStateChanged(auth, (user) => {
   } else {
     currentUid = null;
     userDataReady = false;
+    dailyCheckDone = false;
     loadingScreen.style.display = 'none';
     authScreen.classList.remove('hidden');
     gameScreen.classList.remove('visible');
@@ -650,10 +722,10 @@ async function loadGameData() {
         { id: 'slvr', name: 'Silver Hamster', price: 0, color: 'linear-gradient(90deg, #c0c0c0, #808080)', reqPrestige: 2 },
         { id: 'gld', name: 'Gold Hamster', price: 0, color: 'linear-gradient(90deg, #ffd700, #b8860b)', reqPrestige: 3 },
         { id: 'crypto_baron', name: 'Crypto Baron', price: 10000, color: 'linear-gradient(90deg, #ff9800, #ff5722)', reqPrestige: 0 },
-        { id: 'tap_god', name: 'Tap God', price: 50000, color: 'linear-gradient(90deg, #00bcd4, #2196f3)', reqPrestige: 0 },
-        { id: 'h_mag', name: 'Хом\'яковий Магнат', price: 100, currency: 'homs', color: 'linear-gradient(90deg, #2ecc71, #27ae60)', reqPrestige: 0 },
+        { id: "tap_god", "name": "Tap God", "price": 50000, "color": "linear-gradient(90deg, #00bcd4, #2196f3)", "reqPrestige": 0 },
+        { id: 'h_mag', name: "Хом'яковий Магнат", price: 100, currency: 'homs', color: 'linear-gradient(90deg, #2ecc71, #27ae60)', reqPrestige: 0 },
         { id: 'h_lord', name: 'Володар Хомів', price: 500, currency: 'homs', color: 'linear-gradient(90deg, #9b59b6, #8e44ad)', reqPrestige: 0 },
-        { id: 'h_leg', name: 'Легендарний Хом\'як', price: 2000, currency: 'homs', color: 'linear-gradient(90deg, #f1c40f, #e67e22)', reqPrestige: 0 }
+        { id: 'h_leg', name: "Легендарний Хом'як", price: 2000, currency: 'homs', color: 'linear-gradient(90deg, #f1c40f, #e67e22)', reqPrestige: 0 }
       ];
     }
 
@@ -674,6 +746,20 @@ async function loadGameData() {
   } catch (err) {}
 }
 
+function applyBannerStyle(element, bannerId) {
+  if (!element) return;
+  if (!bannerId || bannerId === 'default') {
+    element.style.backgroundImage = 'none';
+    return;
+  }
+  const bObj = BANNERS.find(b => b.id === bannerId);
+  if (bObj && bObj.file) {
+    element.style.backgroundImage = `url('${GITHUB_BANNERS}${bObj.file}')`;
+  } else {
+    element.style.backgroundImage = 'none';
+  }
+}
+
 async function loadLeaderboard() {
   leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Loading...</div>';
   try {
@@ -686,11 +772,21 @@ async function loadLeaderboard() {
       arr.push({
         uid, nickname: u.nickname || 'Player', avatar: u.avatar || '🐭',
         title: u.title || 'Beginner', activeSkin: u.activeSkin || 'default',
+        activeBanner: u.activeBanner || 'default',
         publicId: u.publicId || '000000', xp: u.xp || 0, prestige: u.prestige || 0
       });
     }
     arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
     const top10 = arr.slice(0, 10);
+
+    const curMonth = getMonthKey();
+    if (top10.length > 0) {
+      try {
+        await set(ref(db, 'monthly_top_snapshots/' + curMonth), top10.slice(0, 3).map((x, idx) => ({
+          rank: idx + 1, uid: x.uid, nickname: x.nickname
+        })));
+      } catch (e) {}
+    }
 
     leaderboardList.innerHTML = '';
     top10.forEach((u, i) => {
@@ -713,7 +809,26 @@ async function loadLeaderboard() {
         if (skinObj && skinObj.file) avatarHtml = `<div class="lb-avatar" style="background-image: url('${GITHUB_RAW}${skinObj.file}');"></div>`;
       }
 
-      el.innerHTML = `
+      if (u.activeBanner && u.activeBanner !== 'default') {
+        const bObj = BANNERS.find(b => b.id === u.activeBanner);
+        if (bObj && bObj.file) {
+          const bgDiv = document.createElement('div');
+          bgDiv.className = 'profile-banner-bg';
+          bgDiv.style.height = '100%';
+          bgDiv.style.opacity = '0.35';
+          bgDiv.style.backgroundImage = `url('${GITHUB_BANNERS}${bObj.file}')`;
+          el.appendChild(bgDiv);
+        }
+      }
+
+      const inner = document.createElement('div');
+      inner.style.display = 'flex';
+      inner.style.alignItems = 'center';
+      inner.style.gap = '10px';
+      inner.style.width = '100%';
+      inner.style.position = 'relative';
+      inner.style.zIndex = '1';
+      inner.innerHTML = `
         <div style="font-size:16px; font-weight:800; color:#f5a623; width:25px;">#${i + 1}</div>
         ${avatarHtml}
         <div class="lb-info">
@@ -725,6 +840,8 @@ async function loadLeaderboard() {
           <div class="lb-prestige">🌟 ${u.prestige}</div>
         </div>
       `;
+      el.appendChild(inner);
+
       el.addEventListener('click', () => {
         viewProfNick.innerText = u.nickname;
         viewProfId.innerText = 'ID: ' + u.publicId;
@@ -732,12 +849,210 @@ async function loadLeaderboard() {
         viewProfTitle.style.background = titleColor;
         viewProfXp.innerText = formatNumber(u.xp);
         viewProfPrestige.innerText = u.prestige;
+        applyBannerStyle(viewProfBanner, u.activeBanner);
         modalViewProfile.classList.add('show');
       });
       leaderboardList.appendChild(el);
     });
   } catch (err) {}
 }
+
+async function processMonthlyTopAndStreak(uid, data) {
+  if (dailyCheckDone) return;
+  dailyCheckDone = true;
+
+  const nowDate = new Date();
+  const nowMs = Date.now();
+  const todayKey = getTodayKey(nowDate);
+  const yesterdayKey = getYesterdayKey(nowDate);
+  const curMonth = getMonthKey(nowDate);
+  const prevMonth = getPreviousMonthKey(nowDate);
+
+  let monthlyRewardApplied = false;
+  let boostMult = data.coinBoostMult || 1;
+  let boostExpires = data.coinBoostExpiresAt || 0;
+  if (nowMs >= boostExpires) {
+    boostMult = 1;
+    boostExpires = 0;
+  }
+
+  let rewardStatusMsg = '';
+
+  if (data.lastRewardMonth && data.lastRewardMonth !== curMonth) {
+    try {
+      const snapSnap = await get(ref(db, 'monthly_top_snapshots/' + prevMonth));
+      let rank = 0;
+      if (snapSnap.exists()) {
+        const list = snapSnap.val() || [];
+        const found = list.find(item => item && item.uid === uid);
+        if (found) rank = Number(found.rank) || 0;
+      }
+      if (!rank) {
+        const usersSnap = await get(ref(db, 'users'));
+        if (usersSnap.exists()) {
+          const allUsers = usersSnap.val() || {};
+          const sorted = Object.keys(allUsers)
+            .filter(k => !allUsers[k]?.hideFromTop)
+            .sort((a, b) => (allUsers[b]?.prestige || 0) - (allUsers[a]?.prestige || 0) || (allUsers[b]?.xp || 0) - (allUsers[a]?.xp || 0));
+          const idx = sorted.indexOf(uid);
+          if (idx >= 0 && idx < 3) rank = idx + 1;
+        }
+      }
+
+      if (rank === 1) {
+        boostMult = 3;
+        boostExpires = nowMs + 5 * 3600 * 1000;
+        monthlyRewardApplied = true;
+        rewardStatusMsg = '🏆 #1 за місяць! Буст монет x3 на 5 год!';
+      } else if (rank === 2) {
+        boostMult = 3;
+        boostExpires = nowMs + 2 * 3600 * 1000;
+        monthlyRewardApplied = true;
+        rewardStatusMsg = '🥈 #2 за місяць! Буст монет x3 на 2 год!';
+      } else if (rank === 3) {
+        boostMult = 2;
+        boostExpires = nowMs + 1 * 3600 * 1000;
+        monthlyRewardApplied = true;
+        rewardStatusMsg = '🥉 #3 за місяць! Буст монет x2 на 1 год!';
+      }
+    } catch (e) {}
+  }
+
+  let newStreak = data.streakCount || 0;
+  let lostStreak = data.lostStreakCount || 0;
+  let streakChanged = false;
+  let bonusCoins = 0;
+  let bonusHoms = 0;
+  let bonusBasicCase = 0;
+  let bonusEpicCase = 0;
+
+  if (data.lastStreakDay !== todayKey) {
+    if (!data.lastStreakDay || data.lastStreakDay === yesterdayKey) {
+      newStreak = (data.streakCount || 0) + 1;
+      lostStreak = 0;
+      streakChanged = true;
+    } else if ((data.streakCount || 0) > 0) {
+      lostStreak = data.streakCount || 0;
+      newStreak = 0;
+      streakChanged = true;
+    } else {
+      newStreak = 1;
+      lostStreak = 0;
+      streakChanged = true;
+    }
+
+    if (newStreak > 0) {
+      const pickHoms = Math.random() < 0.5 && (data.homs || 0) > 0;
+      if (pickHoms) {
+        bonusHoms = Math.max(1, (data.homs || 0) * 0.01);
+      } else if ((data.coins || 0) > 0) {
+        bonusCoins = Math.max(1, (data.coins || 0) * 0.01);
+      } else if ((data.homs || 0) > 0) {
+        bonusHoms = Math.max(1, (data.homs || 0) * 0.01);
+      }
+
+      let jubileeText = '';
+      if (newStreak % 7 === 0) {
+        if (Math.random() < 0.5) {
+          bonusBasicCase = 1;
+          jubileeText = ' + 1 Звичайний кейс (x1)!';
+        } else {
+          bonusEpicCase = 1;
+          jubileeText = ' + 1 Епічний кейс (x5)!';
+        }
+      }
+
+      const currText = bonusHoms > 0
+        ? `+${formatNumber(bonusHoms)} Хомів (1%)`
+        : `+${formatNumber(bonusCoins)} Монет (1%)`;
+      rewardStatusMsg = rewardStatusMsg || `🔥 День ${newStreak}: ${currText}${jubileeText}`;
+    } else if (lostStreak > 0) {
+      rewardStatusMsg = `⚠️ Серію збито! Можна відновити за ${getStreakRestoreCost(lostStreak)} 🐹`;
+    }
+  }
+
+  let offlineCoins = 0;
+  let offlineXp = 0;
+  const prevSeen = data.lastSeenAt || 0;
+  if (prevSeen > 0 && nowMs > prevSeen + 2000) {
+    const elapsedSec = Math.min(86400, Math.floor((nowMs - prevSeen) / 1000));
+    const autoTap = data.autoTapRate || 0;
+    const autoXp = data.autoXpRate || 0;
+    if (autoTap > 0) {
+      let boostedSec = 0;
+      if (boostExpires > prevSeen && boostMult > 1) {
+        const endBoost = Math.min(nowMs, boostExpires);
+        boostedSec = Math.max(0, Math.floor((endBoost - prevSeen) / 1000));
+      }
+      const normalSec = Math.max(0, elapsedSec - boostedSec);
+      offlineCoins = normalSec * autoTap + boostedSec * autoTap * boostMult;
+    }
+    if (autoXp > 0) {
+      offlineXp = elapsedSec * autoXp;
+    }
+  }
+
+  if (monthlyRewardApplied || streakChanged || offlineCoins > 0 || offlineXp > 0 || data.lastRewardMonth !== curMonth) {
+    await runTransaction(ref(db, 'users/' + uid), (d) => {
+      if (!d) return d;
+      d.lastRewardMonth = curMonth;
+      d.lastSeenAt = nowMs;
+
+      if (monthlyRewardApplied) {
+        d.coinBoostMult = boostMult;
+        d.coinBoostExpiresAt = boostExpires;
+      }
+
+      if (streakChanged) {
+        d.lastStreakDay = todayKey;
+        d.streakCount = newStreak;
+        d.lostStreakCount = lostStreak;
+        d.coins = (d.coins || 0) + bonusCoins;
+        d.homs = (d.homs || 0) + bonusHoms;
+        if (!d.cases) d.cases = {};
+        if (bonusBasicCase > 0) d.cases.basic = (d.cases.basic || 0) + bonusBasicCase;
+        if (bonusEpicCase > 0) d.cases.epic = (d.cases.epic || 0) + bonusEpicCase;
+      }
+
+      if (offlineCoins > 0) d.coins = (d.coins || 0) + offlineCoins;
+      if (offlineXp > 0) d.xp = (d.xp || 0) + offlineXp;
+      return d;
+    });
+
+    if (rewardStatusMsg) showStatus(rewardStatusMsg);
+  } else {
+    await update(ref(db, 'users/' + uid), { lastSeenAt: nowMs });
+  }
+}
+
+btnRestoreStreak.addEventListener('click', async () => {
+  if (!currentUid || !state.lostStreakCount) return;
+  const cost = getStreakRestoreCost(state.lostStreakCount);
+  if ((state.homs || 0) < cost) {
+    showStatus('❌ Недостатньо Хомів');
+    return;
+  }
+  const todayKey = getTodayKey();
+  const restoredNum = state.lostStreakCount;
+
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (d) => {
+    if (!d) return d;
+    const lost = d.lostStreakCount || 0;
+    if (lost <= 0) return;
+    const reqHoms = getStreakRestoreCost(lost);
+    if ((d.homs || 0) < reqHoms) return;
+    d.homs -= reqHoms;
+    d.streakCount = lost;
+    d.lostStreakCount = 0;
+    d.lastStreakDay = todayKey;
+    return d;
+  });
+
+  if (res.committed) {
+    showStatus(`✅ Серію ${restoredNum} дн. відновлено!`);
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+  }
+});
 
 btnChangeNickname.addEventListener('click', () => {
   newNicknameInput.value = state.nickname;
@@ -801,31 +1116,17 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
   }
 
   const code = extractReferralCode(rawCode);
-  if (!code) {
-    if (fromManualInput) showStatus('❌ [ERR_1] Enter code');
-    return false;
-  }
-  if (code.length < 3 || code.length > 12) {
-    if (fromManualInput) showStatus('❌ Invalid code length');
-    return false;
-  }
-  if (code === state.publicId || code === currentUid) {
-    if (fromManualInput) showStatus('❌ [ERR_3] Own code');
-    return false;
-  }
-  if (state.usedReferralCode) {
-    if (fromManualInput) showStatus('❌ [ERR_4] Already activated');
-    return false;
-  }
+  if (!code) return false;
+  if (code.length < 3 || code.length > 12) return false;
+  if (code === state.publicId || code === currentUid) return false;
+  if (state.usedReferralCode) return false;
   if (referralProcessing) return false;
 
   referralProcessing = true;
-  if (fromManualInput) showStatus('⏳ Searching...');
 
   try {
     const usersSnap = await get(ref(db, 'users'));
     if (!usersSnap.exists()) {
-      if (fromManualInput) showStatus('❌ [ERR_5] Database empty');
       referralProcessing = false;
       return false;
     }
@@ -845,7 +1146,6 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
     }
 
     if (!referrerUid) {
-      if (fromManualInput) showStatus('❌ [ERR_6] Code not found');
       referralProcessing = false;
       return false;
     }
@@ -861,7 +1161,6 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
     });
 
     if (!res1.committed) {
-      if (fromManualInput) showStatus('❌ [ERR_7] User tx failed (Rules)');
       referralProcessing = false;
       return false;
     }
@@ -874,7 +1173,6 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
     });
 
     if (!res2.committed) {
-      if (fromManualInput) showStatus('❌ [ERR_8] Referrer tx failed (Rules)');
       referralProcessing = false;
       return false;
     }
@@ -885,10 +1183,6 @@ async function applyReferralCode(rawCode, fromManualInput = false) {
     referralProcessing = false;
     return true;
   } catch (err) {
-    if (fromManualInput) {
-      alert(`Firebase Error:\n${err.code || ''}\n${err.message}`);
-      showStatus('❌ [ERR_SYS] ' + (err.code || err.message));
-    }
     referralProcessing = false;
     return false;
   }
@@ -945,11 +1239,14 @@ function initGame(uid) {
   const initialData = {
     coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
     title: 'Beginner', avatar: '🐭', holdings: {},
-    nickname: '', publicId: '', activeSkin: 'default',
+    nickname: '', publicId: '', activeSkin: 'default', activeBanner: 'default',
     tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
-    purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [],
+    purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
     cases: { basic: 1 }, legendaryCases: 0, adWatches: 0,
     usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false, language: 'en',
+    streakCount: 0, lastStreakDay: '', lostStreakCount: 0,
+    tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
+    lastRewardMonth: getMonthKey(), lastSeenAt: Date.now(),
     createdAt: Date.now()
   };
 
@@ -967,7 +1264,7 @@ function initGame(uid) {
     }
   }).catch(err => {});
 
-  unsubscribeUserData = onValue(userRef, (snapshot) => {
+  unsubscribeUserData = onValue(userRef, async (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
     if (pendingTap) return;
@@ -986,14 +1283,24 @@ function initGame(uid) {
     state.purchasedTitles = data.purchasedTitles || [];
     state.purchasedAvatars = data.purchasedAvatars || [];
     state.purchasedSkins = data.purchasedSkins || [];
+    state.purchasedBanners = data.purchasedBanners || [];
     state.cases = data.cases || {};
     state.legendaryCases = data.legendaryCases || 0;
     state.activeSkin = data.activeSkin || 'default';
+    state.activeBanner = data.activeBanner || 'default';
     state.adWatches = data.adWatches || 0;
     state.usedReferralCode = data.usedReferralCode || false;
     state.referredBy = data.referredBy || '';
     state.invited = data.invited || 0;
     state.hideFromTop = data.hideFromTop || false;
+    state.streakCount = data.streakCount || 0;
+    state.lastStreakDay = data.lastStreakDay || '';
+    state.lostStreakCount = data.lostStreakCount || 0;
+    state.tap3BoostGranted = data.tap3BoostGranted || false;
+    state.coinBoostMult = data.coinBoostMult || 1;
+    state.coinBoostExpiresAt = data.coinBoostExpiresAt || 0;
+    state.lastRewardMonth = data.lastRewardMonth || '';
+    state.lastSeenAt = data.lastSeenAt || 0;
 
     if (data.language && data.language !== currentLang) {
       setLanguage(data.language);
@@ -1010,6 +1317,10 @@ function initGame(uid) {
 
     hideTopToggle.checked = state.hideFromTop;
     userDataReady = true;
+
+    if (!dailyCheckDone) {
+      await processMonthlyTopAndStreak(uid, data);
+    }
 
     renderUI();
     checkAutoPrestige();
@@ -1029,7 +1340,9 @@ function initGame(uid) {
 
   if (gameLoop) clearInterval(gameLoop);
   gameLoop = setInterval(async () => {
-    const earn = state.upgrades.autoTapRate;
+    const now = Date.now();
+    const mult = getActiveCoinMultiplier(now);
+    const earn = state.upgrades.autoTapRate * mult;
     const earnXp = state.upgrades.autoXpRate;
     const earnEnergy = state.upgrades.energyRate;
 
@@ -1037,7 +1350,9 @@ function initGame(uid) {
       await runTransaction(userRef, (data) => {
         if (!data) return data;
         let changed = false;
-        if (earn > 0) { data.coins = (data.coins || 0) + earn; changed = true; }
+        const curMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
+        const tickCoins = (data.autoTapRate || 0) * curMult;
+        if (tickCoins > 0) { data.coins = (data.coins || 0) + tickCoins; changed = true; }
         if (earnXp > 0) { data.xp = (data.xp || 0) + earnXp; changed = true; }
         if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 200)) {
           data.energy = Math.min(data.maxEnergy ?? 200, (data.energy || 0) + earnEnergy);
@@ -1045,6 +1360,11 @@ function initGame(uid) {
         }
         return changed ? data : undefined;
       });
+    }
+
+    renderBoostBadge();
+    if (document.getElementById('page-profile').classList.contains('active')) {
+      renderProfile();
     }
   }, 1000);
 
@@ -1054,7 +1374,8 @@ function initGame(uid) {
     lastTapTime = now;
 
     if (state.energy < 1) { showStatus("❌ No energy!"); return; }
-    const tapPower = state.upgrades.tapPower;
+    const mult = getActiveCoinMultiplier(now);
+    const tapPower = state.upgrades.tapPower * mult;
     const xpPerTap = state.upgrades.xpPerTap;
 
     state.energy = Math.max(0, state.energy - 1);
@@ -1065,7 +1386,7 @@ function initGame(uid) {
     const rect = tapArea.getBoundingClientRect();
     const effect = document.createElement('div');
     effect.className = 'tap-effect';
-    effect.innerText = `+${tapPower}`;
+    effect.innerText = `+${formatNumber(tapPower)}`;
     effect.style.left = (e.clientX - rect.left - 10) + 'px';
     effect.style.top = (e.clientY - rect.top - 10) + 'px';
     tapArea.appendChild(effect);
@@ -1079,9 +1400,11 @@ function initGame(uid) {
         if (!data) data = {};
         const curEnergy = data.energy ?? 200;
         if (curEnergy < 1) return;
+        const txMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
+        const txCoins = (data.tapPower || 1) * txMult;
         data.energy = curEnergy - 1;
-        data.coins = (data.coins || 0) + tapPower;
-        data.xp = (data.xp || 0) + xpPerTap;
+        data.coins = (data.coins || 0) + txCoins;
+        data.xp = (data.xp || 0) + (data.xpPerTap || 1);
         return data;
       });
     } catch (err) {} finally { pendingTap = false; }
@@ -1142,15 +1465,28 @@ function getLevelInfo(xp) {
   return { currentLvl, nextLvl };
 }
 
+function renderBoostBadge() {
+  const now = Date.now();
+  const mult = getActiveCoinMultiplier(now);
+  if (mult > 1 && state.coinBoostExpiresAt > now) {
+    activeBoostBadge.classList.add('active');
+    activeBoostText.innerText = `x${mult} (${formatDurationLeft(state.coinBoostExpiresAt - now)})`;
+  } else {
+    activeBoostBadge.classList.remove('active');
+  }
+}
+
 function renderUI() {
   const coinsStr = formatNumber(state.coins);
   const homsStr = formatNumber(state.homs);
+  const mult = getActiveCoinMultiplier();
 
   tapCoinDisplay.innerText = coinsStr;
   topCoins.innerText = coinsStr;
   topHoms.innerText = homsStr;
   bottomCoins.innerText = coinsStr;
-  autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate);
+  autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate * mult);
+  renderBoostBadge();
 
   const energyPct = (state.energy / state.maxEnergy) * 100;
   energyBar.style.width = energyPct + '%';
@@ -1250,13 +1586,6 @@ function renderShop() {
     const promoBox = document.createElement('div');
     promoBox.className = 'promo-box';
 
-    const enterHtml = state.usedReferralCode
-      ? `<div style="font-size:12px; color:#2ecc71; margin-top:10px; font-weight:600;">${t.promo_already_used}</div>`
-      : `<div class="promo-input-row">
-           <input type="text" class="promo-input" id="ref-promo-input" placeholder="${t.promo_enter_placeholder}">
-           <button class="shop-card-btn" id="btn-activate-promo">${t.promo_activate}</button>
-         </div>`;
-
     promoBox.innerHTML = `
       <div class="shop-card-title" style="color:#2ecc71;">${t.promo_title}</div>
       <div class="shop-card-desc">${t.promo_desc}</div>
@@ -1268,7 +1597,6 @@ function renderShop() {
         </div>
       </div>
       <button class="invite-friend-btn" id="btn-shop-invite-friend" style="width:100%; margin-top:8px;">${t.invite_friend}</button>
-      ${enterHtml}
     `;
     shopListEl.appendChild(promoBox);
 
@@ -1285,16 +1613,6 @@ function renderShop() {
     document.getElementById('btn-shop-invite-friend').addEventListener('click', () => {
       window.inviteFriend();
     });
-
-    const btnActivate = document.getElementById('btn-activate-promo');
-    if (btnActivate) {
-      btnActivate.addEventListener('click', async () => {
-        const code = document.getElementById('ref-promo-input').value.trim();
-        btnActivate.disabled = true;
-        const ok = await applyReferralCode(code, true);
-        if (!ok) btnActivate.disabled = false;
-      });
-    }
 
     const adCaseCard = document.createElement('div');
     adCaseCard.className = 'shop-card';
@@ -1380,18 +1698,34 @@ async function buyUpgrade(itemId) {
   else if (itemId === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
 
   const price = getShopPrice(itemId, currentLevel);
+  let unlockedTap3Boost = false;
+
   await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data || (data.coins || 0) < price) return;
     data.coins -= price;
     if (itemId === 'autoTap') data.autoTapRate = (data.autoTapRate || 0) + 1;
     else if (itemId === 'autoXp') data.autoXpRate = (data.autoXpRate || 0) + 1;
     else if (itemId === 'energyRate') data.energyRate = (data.energyRate || 1) + 1;
-    else if (itemId === 'tap') { data.tapLevel = (data.tapLevel || 0) + 1; data.tapPower = (data.tapPower || 1) + 1; }
+    else if (itemId === 'tap') {
+      data.tapLevel = (data.tapLevel || 0) + 1;
+      data.tapPower = (data.tapPower || 1) + 1;
+      if (data.tapLevel >= 3 && !data.tap3BoostGranted) {
+        data.tap3BoostGranted = true;
+        data.coinBoostMult = Math.max(data.coinBoostMult || 1, 2);
+        data.coinBoostExpiresAt = Math.max(data.coinBoostExpiresAt || 0, Date.now() + 10 * 60 * 1000);
+        unlockedTap3Boost = true;
+      }
+    }
     else if (itemId === 'xpTap') data.xpPerTap = (data.xpPerTap || 1) + 1;
     else if (itemId === 'maxEnergy') data.maxEnergy = (data.maxEnergy || 200) + 50;
     return data;
   });
-  showStatus('✅ Upgrade purchased!');
+
+  if (unlockedTap3Boost) {
+    showStatus('⚡ 3 рівень тапу! Активовано x2 монет на 10 хв!');
+  } else {
+    showStatus('✅ Upgrade purchased!');
+  }
 }
 
 async function buySkin(item) {
@@ -1436,6 +1770,7 @@ function renderProfile() {
   profPrestige.innerText = state.prestige;
   profNickname.innerText = state.nickname;
   profPublicId.innerText = 'ID: ' + state.publicId;
+  applyBannerStyle(profBanner, state.activeBanner);
 
   if (state.activeSkin !== 'default') {
     const skinObj = SKINS.find(s => s.id === state.activeSkin);
@@ -1459,6 +1794,19 @@ function renderProfile() {
 
   const req = getPrestigeReq(state.prestige);
   prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
+
+  streakDaysBadge.innerText = `${state.streakCount} дн.`;
+  if (state.lostStreakCount > 0) {
+    const restoreCost = getStreakRestoreCost(state.lostStreakCount);
+    streakDesc.innerText = `Серія ${state.lostStreakCount} дн. злетіла через пропуск. Відновити можна за ${restoreCost} 🐹.`;
+    btnRestoreStreak.style.display = 'block';
+    btnRestoreStreak.innerText = `🔁 Відновити ${state.lostStreakCount} дн. за ${restoreCost} 🐹`;
+    btnRestoreStreak.disabled = (state.homs || 0) < restoreCost;
+  } else {
+    btnRestoreStreak.style.display = 'none';
+    const toJubilee = 7 - (state.streakCount % 7 || 7);
+    streakDesc.innerText = `+1% випадкової валюти щодня. До ювілейного кейсу (50/50 x1 або x5): ${toJubilee} дн.`;
+  }
 }
 
 function renderInventory() {
@@ -1472,12 +1820,13 @@ function renderInventory() {
     for (const type in cases) {
       const count = cases[type];
       if (count <= 0) continue;
+      const isEpic = type === 'epic';
       const el = document.createElement('div');
-      el.className = 'case-item';
+      el.className = `case-item ${isEpic ? 'epic' : ''}`;
       el.innerHTML = `
         <div class="case-count-badge">${count}</div>
-        <div class="case-icon">📦</div>
-        <div class="case-name">Basic Case</div>
+        <div class="case-icon">${isEpic ? '💠' : '📦'}</div>
+        <div class="case-name">${isEpic ? 'Epic Case (x5)' : 'Basic Case'}</div>
       `;
       el.addEventListener('click', () => openCaseModal(type, count));
       invCases.appendChild(el);
@@ -1497,6 +1846,32 @@ function renderInventory() {
   } else {
     casesSection.style.display = 'none';
   }
+
+  invBanners.innerHTML = '';
+  const noBannerEl = document.createElement('div');
+  noBannerEl.className = `banner-item ${state.activeBanner === 'default' ? 'active' : ''}`;
+  noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">Default</div>`;
+  noBannerEl.addEventListener('click', async () => {
+    await update(ref(db, 'users/' + currentUid), { activeBanner: 'default' });
+    showStatus('✅ Banner reset!');
+  });
+  invBanners.appendChild(noBannerEl);
+
+  state.purchasedBanners.forEach(bannerId => {
+    const bObj = BANNERS.find(b => b.id === bannerId);
+    if (!bObj || !bObj.file) return;
+    const el = document.createElement('div');
+    el.className = `banner-item ${state.activeBanner === bannerId ? 'active' : ''}`;
+    el.innerHTML = `
+      <div class="banner-preview" style="background-image: url('${GITHUB_BANNERS}${bObj.file}');"></div>
+      <div class="inventory-item-name">${bObj.name}</div>
+    `;
+    el.addEventListener('click', async () => {
+      await update(ref(db, 'users/' + currentUid), { activeBanner: bannerId });
+      showStatus('✅ Banner equipped!');
+    });
+    invBanners.appendChild(el);
+  });
 
   const availableTitles = [
     ...TITLES.filter(t => (t.price === 0 && (t.reqPrestige === 0 || state.prestige >= t.reqPrestige)) || state.purchasedTitles.includes(t.name)),
@@ -1554,7 +1929,7 @@ function renderInventory() {
 
 function openCaseModal(type, count) {
   selectedCaseTypeToOpen = type;
-  const titleText = type === 'legendary' ? 'Open Legendary Case' : 'Open Case';
+  const titleText = type === 'legendary' ? 'Open Legendary Case' : (type === 'epic' ? 'Open Epic Case (x5)' : 'Open Case');
   document.getElementById('case-modal-title').innerText = titleText;
   document.getElementById('case-modal-count').innerText = `Available: ${count}`;
   document.getElementById('modal-case-qty').classList.add('show');
@@ -1565,6 +1940,7 @@ window.openCasesBatch = async function(qty) {
   if (!currentUid || !selectedCaseTypeToOpen) return;
 
   const isLegendary = selectedCaseTypeToOpen === 'legendary';
+  const isEpic = selectedCaseTypeToOpen === 'epic';
   const currentCount = isLegendary ? (state.legendaryCases || 0) : (state.cases[selectedCaseTypeToOpen] || 0);
   let openNum = qty === 'all' ? currentCount : parseInt(qty);
   if (openNum > currentCount) openNum = currentCount;
@@ -1572,14 +1948,14 @@ window.openCasesBatch = async function(qty) {
 
   caseOpenOverlay.classList.add('show');
   caseOpeningBox.style.display = 'block';
-  caseOpeningBox.innerText = isLegendary ? '🌟' : '📦';
+  caseOpeningBox.innerText = isLegendary ? '🌟' : (isEpic ? '💠' : '📦');
   caseRewardText.innerText = '';
   btnCloseCase.style.display = 'none';
 
   setTimeout(async () => {
     caseOpeningBox.style.display = 'none';
     let summaryRewards = [];
-    const multiplier = isLegendary ? 10 : 1;
+    const multiplier = isLegendary ? 10 : (isEpic ? 5 : 1);
 
     await runTransaction(ref(db, 'users/' + currentUid), (data) => {
       if (!data) return data;
@@ -1595,8 +1971,24 @@ window.openCasesBatch = async function(qty) {
       if (!data.purchasedTitles) data.purchasedTitles = [];
       if (!data.purchasedAvatars) data.purchasedAvatars = [];
       if (!data.purchasedSkins) data.purchasedSkins = [];
+      if (!data.purchasedBanners) data.purchasedBanners = [];
 
       for (let i = 0; i < openNum; i++) {
+        if (isLegendary && Math.random() < 0.25) {
+          const legBanner = BANNERS.find(b => b.id === 'banner_gradient_blue') || BANNERS[0];
+          if (legBanner) {
+            if (!data.purchasedBanners.includes(legBanner.id)) {
+              data.purchasedBanners.push(legBanner.id);
+              summaryRewards.push(`Banner: ${legBanner.name}`);
+            } else {
+              const homsBonus = 25 * multiplier;
+              data.homs = (data.homs || 0) + homsBonus;
+              summaryRewards.push(`+${homsBonus} Homs (Banner Duplicate)`);
+            }
+            continue;
+          }
+        }
+
         const rand = Math.random() * 100;
         if (rand < 20) {
           const randomSkin = SKINS[Math.floor(Math.random() * SKINS.length)];
@@ -1679,7 +2071,7 @@ async function updateCryptoPrice(symbol) {
     await runTransaction(cRef, (data) => {
       if (!data) return data;
       const currentPrice = data.price || INITIAL_PRICES[symbol];
-      const isGrowth = Math.random() < 0.4;
+      const isGrowth = Math.random() < 0.5;
       const percent = (Math.random() * 0.03) + 0.005;
       let newPrice = isGrowth ? currentPrice * (1 + percent) : currentPrice * (1 - percent);
       newPrice = Math.max(1, newPrice);
@@ -1790,16 +2182,33 @@ async function tradeCrypto(symbol, action, qty) {
   showStatus('✅ Trade successful!');
 }
 
-function initRoulette() {
+const ROULETTE_REWARDS = [
+  { type: 'coins', val: 1000, icon: '🪙', text: '+1,000 Coins' },
+  { type: 'xp', val: 500, icon: '⭐', text: '+500 XP' },
+  { type: 'homs', val: 10, icon: '🐹', text: '+10 Homs' },
+  { type: 'case', val: 1, icon: '📦', text: '+1 Basic Case' },
+  { type: 'leg_case', val: 1, icon: '🌟', text: '+1 Legendary Case' }
+];
+const ROULETTE_ITEM_WIDTH = 60;
+const ROULETTE_TOTAL_SLOTS = 45;
+const ROULETTE_TARGET_INDEX = 32;
+
+function buildRouletteStrip(targetReward) {
   if (!rouletteStrip) return;
   rouletteStrip.innerHTML = '';
-  const items = ['🪙', '⭐', '📦', '🐹', '🪙', '⭐', '🪙', '🐹'];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < ROULETTE_TOTAL_SLOTS; i++) {
+    const itemObj = i === ROULETTE_TARGET_INDEX
+      ? targetReward
+      : ROULETTE_REWARDS[Math.floor(Math.random() * ROULETTE_REWARDS.length)];
     const div = document.createElement('div');
     div.className = 'roulette-item';
-    div.innerText = items[i % items.length];
+    div.innerText = itemObj.icon;
     rouletteStrip.appendChild(div);
   }
+}
+
+function initRoulette() {
+  buildRouletteStrip(ROULETTE_REWARDS[0]);
 }
 
 btnSpinRoulette.addEventListener('click', async () => {
@@ -1807,23 +2216,23 @@ btnSpinRoulette.addEventListener('click', async () => {
   try {
     const result = await AdController.show();
     if (result && result.done) {
-      const randomOffset = Math.floor(Math.random() * 15) * 60 + 900;
-      rouletteStrip.style.transition = 'transform 3s cubic-bezier(0.1, 0.8, 0.2, 1)';
-      rouletteStrip.style.transform = `translateX(-${randomOffset}px)`;
+      const reward = ROULETTE_REWARDS[Math.floor(Math.random() * ROULETTE_REWARDS.length)];
+      buildRouletteStrip(reward);
+
+      rouletteStrip.style.transition = 'none';
+      rouletteStrip.style.transform = 'translateX(0px)';
+      void rouletteStrip.offsetWidth;
+
+      const containerWidth = rouletteStrip.parentElement?.clientWidth || 300;
+      const centerOffset = (containerWidth / 2) - (ROULETTE_ITEM_WIDTH / 2);
+      const jitter = Math.floor(Math.random() * 21) - 10;
+      const targetTranslate = Math.max(0, (ROULETTE_TARGET_INDEX * ROULETTE_ITEM_WIDTH) - centerOffset + jitter);
+
+      btnSpinRoulette.disabled = true;
+      rouletteStrip.style.transition = 'transform 3s cubic-bezier(0.12, 0.85, 0.22, 1)';
+      rouletteStrip.style.transform = `translateX(-${targetTranslate}px)`;
 
       setTimeout(async () => {
-        rouletteStrip.style.transition = 'none';
-        rouletteStrip.style.transform = 'translateX(0)';
-
-        const rewards = [
-          { type: 'coins', val: 1000, text: '+1,000 Coins' },
-          { type: 'xp', val: 500, text: '+500 XP' },
-          { type: 'homs', val: 10, text: '+10 Homs' },
-          { type: 'case', val: 1, text: '+1 Basic Case' },
-          { type: 'leg_case', val: 1, text: '+1 Legendary Case' }
-        ];
-        const reward = rewards[Math.floor(Math.random() * rewards.length)];
-
         await runTransaction(ref(db, 'users/' + currentUid), (data) => {
           if (!data) return data;
           if (reward.type === 'coins') data.coins = (data.coins || 0) + reward.val;
@@ -1839,9 +2248,13 @@ btnSpinRoulette.addEventListener('click', async () => {
           return data;
         });
 
+        btnSpinRoulette.disabled = false;
         showStatus(`🎁 Reward: ${reward.text}`);
         try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
       }, 3100);
     }
-  } catch(e) { showStatus('❌ Ad not completed'); }
+  } catch(e) {
+    btnSpinRoulette.disabled = false;
+    showStatus('❌ Ad not completed');
+  }
 });
