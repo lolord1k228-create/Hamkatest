@@ -18,7 +18,7 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 
 const tg = window.Telegram?.WebApp;
-try { tg?.expand(); tg?.ready(); } catch(e) {}
+try { tg?.expand(); tg?.ready(); } catch (e) {}
 
 let AdController = null;
 const BOT_LINK = "https://t.me/hamka_game_bot";
@@ -73,6 +73,7 @@ const translations = {
     register: "Register",
     auth_hint: "🔒 Choose login method",
     btn_login: "👉 Login",
+    btn_register: "📝 Register",
     or: "or",
     btn_tg: "📱 Login via Telegram",
     season: "🏆 Season 1",
@@ -101,11 +102,9 @@ const translations = {
     avatars_title: "Avatars",
     skins_title: "Skins",
     top_title: "🏆 Leaderboard",
+    month_rewards_btn: "🏅 End-of-month rewards",
+    month_rewards_title: "🏅 End-of-month rewards",
     settings_title: "⚙️ Settings",
-    layout_style_label: "Layout & Buttons Style",
-    layout_classic: "Classic (Before Update)",
-    layout_new: "New Style",
-    reload_on_style_change: "Reload app on style switch (when needed)",
     lang_label: "Language / Мова / Язык",
     hide_top_label: "Hide me from Leaderboard",
     logout_btn: "🚪 Log out",
@@ -125,7 +124,6 @@ const translations = {
     promo_title: "🎟 Referral Invite Link",
     promo_desc: "Share your link! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
     promo_share: "Share",
-    invite_friend: "👥 Invite friend",
     invite_copied: "Invitation copied",
     streak_title: "🔥 Daily Streak",
     claim_streak_btn: "🎁 Claim Reward",
@@ -141,6 +139,7 @@ const translations = {
     register: "Реєстрація",
     auth_hint: "🔒 Виберіть спосіб входу",
     btn_login: "👉 Увійти",
+    btn_register: "📝 Зареєструватися",
     or: "або",
     btn_tg: "📱 Увійти через Telegram",
     season: "🏆 Сезон 1",
@@ -169,11 +168,9 @@ const translations = {
     avatars_title: "Аватарки",
     skins_title: "Скіни",
     top_title: "🏆 Топ гравців",
+    month_rewards_btn: "🏅 Нагороди в кінці місяця",
+    month_rewards_title: "🏅 Нагороди в кінці місяця",
     settings_title: "⚙️ Налаштування",
-    layout_style_label: "Стиль кнопок і карток",
-    layout_classic: "Старий стиль (як до оновлення)",
-    layout_new: "Новий стиль",
-    reload_on_style_change: "Перезапускати сайт при зміні стилю (якщо треба)",
     lang_label: "Мова / Language / Язык",
     hide_top_label: "Не показувати мене в топі",
     logout_btn: "🚪 Вийти з акаунта",
@@ -193,7 +190,6 @@ const translations = {
     promo_title: "🎟 Реферальне посилання",
     promo_desc: "Ділися посиланням! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
     promo_share: "Поділитися",
-    invite_friend: "👥 Запросити друга",
     invite_copied: "Запрошення скопійовано",
     streak_title: "🔥 Денна серія",
     claim_streak_btn: "🎁 Забрати нагороду",
@@ -209,6 +205,7 @@ const translations = {
     register: "Регистрация",
     auth_hint: "🔒 Выберите способ входа",
     btn_login: "👉 Войти",
+    btn_register: "📝 Зарегистрироваться",
     or: "или",
     btn_tg: "📱 Войти через Telegram",
     season: "🏆 Сезон 1",
@@ -237,11 +234,9 @@ const translations = {
     avatars_title: "Аватарки",
     skins_title: "Скины",
     top_title: "🏆 Топ игроков",
+    month_rewards_btn: "🏅 Награды в конце месяца",
+    month_rewards_title: "🏅 Награды в конце месяца",
     settings_title: "⚙️ Настройки",
-    layout_style_label: "Стиль кнопок и карточек",
-    layout_classic: "Старый стиль (как до обновления)",
-    layout_new: "Новый стиль",
-    reload_on_style_change: "Перезапускать сайт при смене стиля (если нужно)",
     lang_label: "Язык / Language / Мова",
     hide_top_label: "Не показывать меня в топе",
     logout_btn: "🚪 Выйти из аккаунта",
@@ -261,7 +256,6 @@ const translations = {
     promo_title: "🎟 Реферальная ссылка",
     promo_desc: "Делись ссылкой! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
     promo_share: "Поделиться",
-    invite_friend: "👥 Пригласить друга",
     invite_copied: "Приглашение скопировано",
     streak_title: "🔥 Дневная серия",
     claim_streak_btn: "🎁 Забрать награду",
@@ -273,24 +267,43 @@ const translations = {
 };
 
 let currentLang = localStorage.getItem('hamka_lang') || 'uk';
-let currentLayout = localStorage.getItem('hamka_layout_style') || 'classic';
-let reloadOnStyleChange = localStorage.getItem('hamka_reload_on_style') !== 'false';
-
-function setLanguage(lang) {
-  if (!translations[lang]) lang = 'uk';
-  currentLang = lang;
-  localStorage.setItem('hamka_lang', lang);
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) el.innerText = translations[lang][key];
-  });
-  const langSelect = document.getElementById('language-select');
-  if (langSelect) langSelect.value = lang;
-}
+let isLoginMode = true;
+let state = {
+  coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+  title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
+  activeSkin: 'default', activeBanner: 'default', holdings: {},
+  purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
+  cases: {}, legendaryCases: 0, adWatches: 0,
+  usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
+  streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
+  tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
+  lastRewardMonth: '', lastSeenAt: 0,
+  upgrades: {
+    tapLevel: 0, tapPower: 1, xpPerTap: 1,
+    autoTapRate: 0, autoXpRate: 0, energyRate: 1
+  }
+};
+let pendingTap = false;
+let lastTapTime = 0;
+let unsubscribeUserData = null;
+let unsubscribeCrypto = null;
+let gameLoop = null;
+let cryptoInterval = null;
+let renderDebounceTimer = null;
+let currentUid = null;
+let currentShopTab = 'auto';
+let isAdmin = false;
+let selectedCaseTypeToOpen = null;
+let userDataReady = false;
+let pendingStartParam = null;
+let referralProcessing = false;
+let dailyCheckDone = false;
+let cryptoState = {};
 
 const loadingScreen = document.getElementById('loading-screen');
 const authScreen = document.getElementById('auth-screen');
 const gameScreen = document.getElementById('game-screen');
+const authForm = document.getElementById('auth-form');
 const tabLogin = document.getElementById('tab-login');
 const tabRegister = document.getElementById('tab-register');
 const authNickname = document.getElementById('auth-nickname');
@@ -316,6 +329,7 @@ const statusEl = document.getElementById('status');
 const cryptoListEl = document.getElementById('crypto-list');
 const shopListEl = document.getElementById('shop-list');
 const leaderboardList = document.getElementById('leaderboard-list');
+const btnMonthRewards = document.getElementById('btn-month-rewards');
 
 const xpDisplay = document.getElementById('xp-display');
 const xpNext = document.getElementById('xp-next');
@@ -372,8 +386,6 @@ const btnCloseCase = document.getElementById('btn-close-case');
 const btnSpinRoulette = document.getElementById('btn-spin-roulette');
 const rouletteStrip = document.getElementById('roulette-strip');
 
-const layoutStyleSelect = document.getElementById('layout-style-select');
-const reloadStyleToggle = document.getElementById('reload-style-toggle');
 const languageSelect = document.getElementById('language-select');
 const hideTopToggle = document.getElementById('hide-top-toggle');
 const btnLogout = document.getElementById('btn-logout');
@@ -383,42 +395,44 @@ const minitabRoulette = document.getElementById('minitab-roulette');
 const miniContentCrypto = document.getElementById('mini-content-crypto');
 const miniContentRoulette = document.getElementById('mini-content-roulette');
 
-if (layoutStyleSelect) {
-  layoutStyleSelect.value = currentLayout === 'new' ? 'new' : 'classic';
-}
-if (reloadStyleToggle) {
-  reloadStyleToggle.checked = reloadOnStyleChange;
+function showAuthFallback() {
+  if (loadingScreen) loadingScreen.style.display = 'none';
+  if (authScreen && !currentUid) authScreen.classList.remove('hidden');
 }
 
-let isLoginMode = true;
-let state = {
-  coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
-  title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
-  activeSkin: 'default', activeBanner: 'default', holdings: {},
-  purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
-  cases: {}, legendaryCases: 0, adWatches: 0,
-  usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
-  streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
-  tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
-  lastRewardMonth: '', lastSeenAt: 0,
-  upgrades: {
-    tapLevel: 0, tapPower: 1, xpPerTap: 1,
-    autoTapRate: 0, autoXpRate: 0, energyRate: 1
+setTimeout(() => {
+  if (loadingScreen && loadingScreen.style.display !== 'none' && !currentUid) {
+    showAuthFallback();
   }
-};
-let pendingTap = false;
-let lastTapTime = 0;
-let unsubscribeUserData = null;
-let gameLoop = null;
-let cryptoInterval = null;
-let currentUid = null;
-let currentShopTab = 'auto';
-let isAdmin = false;
-let selectedCaseTypeToOpen = null;
-let userDataReady = false;
-let pendingStartParam = null;
-let referralProcessing = false;
-let dailyCheckDone = false;
+}, 4000);
+
+function setLanguage(lang) {
+  if (!translations[lang]) lang = 'uk';
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('hamka_lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) el.innerText = translations[lang][key];
+  });
+  if (languageSelect) languageSelect.value = lang;
+  setAuthMode(isLoginMode);
+}
+
+function setAuthMode(loginMode) {
+  isLoginMode = loginMode;
+  const t = translations[currentLang] || translations.uk;
+  if (loginMode) {
+    tabLogin?.classList.add('active');
+    tabRegister?.classList.remove('active');
+    if (authSubmit) authSubmit.innerHTML = t.btn_login;
+  } else {
+    tabRegister?.classList.add('active');
+    tabLogin?.classList.remove('active');
+    if (authSubmit) authSubmit.innerHTML = t.btn_register;
+  }
+  if (authError) authError.innerText = '';
+}
 
 function extractReferralCode(rawValue) {
   if (typeof rawValue !== 'string') return '';
@@ -435,7 +449,7 @@ try {
   const sp = tg?.initDataUnsafe?.start_param;
   const parsed = extractReferralCode(sp);
   if (parsed.length > 0) pendingStartParam = parsed;
-} catch(e) {}
+} catch (e) {}
 
 const GITHUB_BASE = "https://raw.githubusercontent.com/lolord1k228-create/hamka-game/main/";
 const GITHUB_RAW = GITHUB_BASE + "skins/";
@@ -449,7 +463,10 @@ const SKINS = [
 
 const BANNERS = [
   { id: 'banner_gradient_blue', name: 'Gradient Blue', file: 'gradientblue.png', legendaryOnly: true },
-  { id: 'banner_gradient_yellow', name: 'Gradient Yellow', file: 'gradientyellow.png', price: 75000, currency: 'homs' }
+  { id: 'banner_gradient_yellow', name: 'Gradient Yellow', file: 'gradientyellow.png', price: 75000, currency: 'homs' },
+  { id: 'banner_prestige_1', name: 'Prestige 1 Banner', file: 'gradientprestige1.png', reqPrestige: 1 },
+  { id: 'banner_prestige_3', name: 'Prestige 3 Banner', file: 'gradientprestige3.png', reqPrestige: 3 },
+  { id: 'banner_prestige_5', name: 'Prestige 5 Banner', file: 'gradientprestige5.png', reqPrestige: 5 }
 ];
 
 let TITLES = [];
@@ -496,8 +513,8 @@ const SHOP_ITEMS = {
   ],
   upgrade: [
     { id: 'tap', title: 'Tap Power', desc: '+1 coin per tap', basePrice: 50, multiplier: 10, maxLevel: 9, prices: [50, 200, 2000, 5000, 20000, 50000, 150000, 500000, 2000000] },
-    { id: 'xpTap', title: 'XP Tap', desc: '+1 XP per tap', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
-    { id: 'maxEnergy', title: 'Max Energy', desc: '+50 max energy', basePrice: 50000, multiplier: 10, maxLevel: 999, prices: [50000, 500000, 5000000, 50000000, 500000000] },
+    { id: 'xpTap', title: 'XP Tap', desc: '+1 XP per tap', basePrice: 50000, multiplier: 10, maxLevel: 5, prices: [50000, 500000, 5000000, 50000000, 500000000] },
+    { id: 'maxEnergy', title: 'Max Energy', desc: '+50 max energy', basePrice: 50000, multiplier: 10, maxLevel: 5, prices: [50000, 500000, 5000000, 50000000, 500000000] },
   ]
 };
 
@@ -560,7 +577,7 @@ function canClaimStreakReward(todayKey = getTodayKey()) {
 
 function getQty(symbol) {
   const v = localStorage.getItem('qty_' + symbol);
-  return v ? Math.max(1, parseInt(v) || 1) : 1;
+  return v ? Math.max(1, parseInt(v, 10) || 1) : 1;
 }
 function setQty(symbol, val) { localStorage.setItem('qty_' + symbol, val); }
 
@@ -585,83 +602,126 @@ function formatPrice(p) {
   return p.toFixed(2);
 }
 
-function applyLayoutStyle(styleName, { allowReload = false } = {}) {
-  const normalized = styleName === 'new' ? 'new' : 'classic';
-  const changed = currentLayout !== normalized;
-  currentLayout = normalized;
-  localStorage.setItem('hamka_layout_style', normalized);
-  document.documentElement.setAttribute('data-layout', normalized);
+function touchLastSeen() {
+  if (!currentUid) return;
+  update(ref(db, 'users/' + currentUid), { lastSeenAt: Date.now() }).catch(() => {});
+}
 
-  if (layoutStyleSelect && layoutStyleSelect.value !== normalized) {
-    layoutStyleSelect.value = normalized;
-  }
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) touchLastSeen();
+});
+window.addEventListener('pagehide', touchLastSeen);
 
-  if (allowReload && changed && reloadOnStyleChange) {
-    window.location.reload();
+function initModalsAndCases() {
+  document.querySelectorAll('#modal-case-qty .modal-btn.confirm').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.qty || btn.innerText.trim().toLowerCase();
+      if (typeof window.openCasesBatch === 'function') {
+        window.openCasesBatch(q);
+      }
+    });
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', (e) => {
+      if (e.target === ov || e.target.closest('.modal-btn.cancel')) {
+        ov.classList.remove('show');
+      }
+    });
+  });
+
+  if (adminBtnBadge) {
+    adminBtnBadge.addEventListener('click', () => {
+      if (!isAdmin) return;
+      document.getElementById('modal-admin')?.classList.add('show');
+    });
   }
 }
 
-if (layoutStyleSelect) {
-  layoutStyleSelect.addEventListener('change', (e) => {
-    applyLayoutStyle(e.target.value, { allowReload: true });
-    if (document.getElementById('page-shop').classList.contains('active')) renderShop();
-    if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
-    if (document.getElementById('page-inventory').classList.contains('active')) renderInventory();
+initModalsAndCases();
+
+function renderCryptoListPreservingFocus() {
+  const activeEl = document.activeElement;
+  const activeSymbol = activeEl?.classList?.contains('crypto-input') ? activeEl.dataset.symbol : null;
+  const selStart = activeSymbol ? activeEl.selectionStart : null;
+  const selEnd = activeSymbol ? activeEl.selectionEnd : null;
+
+  renderCryptoList();
+
+  if (activeSymbol) {
+    const nextInput = document.getElementById('qty-' + activeSymbol);
+    if (nextInput) {
+      nextInput.focus({ preventScroll: true });
+      if (typeof selStart === 'number' && typeof selEnd === 'number') {
+        try { nextInput.setSelectionRange(selStart, selEnd); } catch (_) {}
+      }
+    }
+  }
+}
+
+function scheduleUiRefresh({ shop = false, profile = false, inventory = false, crypto = false } = {}) {
+  renderUI();
+  checkAutoPrestige();
+  updateHamsterSkin();
+
+  clearTimeout(renderDebounceTimer);
+  renderDebounceTimer = setTimeout(() => {
+    if (shop && document.getElementById('page-shop')?.classList.contains('active')) {
+      renderShop();
+    }
+    if (profile && document.getElementById('page-profile')?.classList.contains('active')) {
+      renderProfile();
+    }
+    if (inventory && document.getElementById('page-inventory')?.classList.contains('active')) {
+      renderInventory();
+    }
+    if (crypto && document.getElementById('page-minigames')?.classList.contains('active')) {
+      renderCryptoListPreservingFocus();
+    }
+  }, 180);
+}
+
+if (btnMonthRewards) {
+  btnMonthRewards.addEventListener('click', () => {
+    document.getElementById('modal-month-rewards')?.classList.add('show');
   });
 }
 
-if (reloadStyleToggle) {
-  reloadStyleToggle.addEventListener('change', (e) => {
-    reloadOnStyleChange = e.target.checked;
-    localStorage.setItem('hamka_reload_on_style', String(reloadOnStyleChange));
-  });
-}
-
-languageSelect.addEventListener('change', (e) => {
+languageSelect?.addEventListener('change', (e) => {
   setLanguage(e.target.value);
   if (currentUid) {
-    update(ref(db, 'users/' + currentUid), { language: e.target.value });
+    update(ref(db, 'users/' + currentUid), { language: e.target.value }).catch(() => {});
   }
+  scheduleUiRefresh({ shop: true, profile: true, inventory: true, crypto: true });
 });
 
-hideTopToggle.addEventListener('change', async (e) => {
+hideTopToggle?.addEventListener('change', async (e) => {
   const val = e.target.checked;
   state.hideFromTop = val;
   if (currentUid) {
-    await update(ref(db, 'users/' + currentUid), { hideFromTop: val });
-    showStatus('✅ Updated settings');
+    try {
+      await update(ref(db, 'users/' + currentUid), { hideFromTop: val });
+      showStatus('✅ Updated settings');
+    } catch (err) {}
   }
 });
 
-btnLogout.addEventListener('click', async () => {
+btnLogout?.addEventListener('click', async () => {
   try {
+    touchLastSeen();
     await signOut(auth);
     showStatus('Logged out');
-  } catch(e) {}
+  } catch (e) {}
 });
 
-setAuthMode(true);
-function setAuthMode(loginMode) {
-  isLoginMode = loginMode;
-  if (loginMode) {
-    tabLogin.classList.add('active');
-    tabRegister.classList.remove('active');
-    authSubmit.innerHTML = '👉 Login';
-  } else {
-    tabRegister.classList.add('active');
-    tabLogin.classList.remove('active');
-    authSubmit.innerHTML = '📝 Register';
-  }
-  authError.innerText = '';
-}
-tabLogin.addEventListener('click', () => setAuthMode(true));
-tabRegister.addEventListener('click', () => setAuthMode(false));
+setLanguage(currentLang);
+tabLogin?.addEventListener('click', () => setAuthMode(true));
+tabRegister?.addEventListener('click', () => setAuthMode(false));
 
 async function autoLoginTelegram() {
   const tgUser = tg?.initDataUnsafe?.user;
   if (!tgUser) {
-    loadingScreen.style.display = 'none';
-    authScreen.classList.remove('hidden');
+    showAuthFallback();
     return;
   }
   const email = `tg_${tgUser.id}@hamka.test`;
@@ -672,28 +732,26 @@ async function autoLoginTelegram() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (createErr) {
-      loadingScreen.style.display = 'none';
-      authScreen.classList.remove('hidden');
+      showAuthFallback();
     }
   }
 }
 
-autoLoginTelegram();
-
-authSubmit.addEventListener('click', async () => {
-  const nick = authNickname.value.trim();
-  const password = authPassword.value;
+async function handleAuthSubmit(e) {
+  if (e) e.preventDefault();
+  const nick = authNickname?.value.trim() || '';
+  const password = authPassword?.value || '';
   if (!isValidNickname(nick)) {
-    authError.innerText = 'Nickname: 3-16 chars (letters, numbers, _, ., -)';
+    if (authError) authError.innerText = 'Nickname: 3-16 chars (letters, numbers, _, ., -)';
     return;
   }
   if (password.length < 6) {
-    authError.innerText = 'Password min 6 chars';
+    if (authError) authError.innerText = 'Password min 6 chars';
     return;
   }
 
-  authSubmit.disabled = true;
-  authError.innerText = '';
+  if (authSubmit) authSubmit.disabled = true;
+  if (authError) authError.innerText = '';
   try {
     if (isLoginMode) {
       const legacyCandidates = getLegacyEmailCandidates(nick);
@@ -719,87 +777,95 @@ authSubmit.addEventListener('click', async () => {
       await createUserWithEmailAndPassword(auth, getRegisterEmail(nick), password);
     }
   } catch (err) {
-    authError.innerText = err.message;
+    if (authError) authError.innerText = err.message;
   } finally {
-    authSubmit.disabled = false;
+    if (authSubmit) authSubmit.disabled = false;
   }
-});
+}
 
-tgLoginBtn.addEventListener('click', async () => {
+authForm?.addEventListener('submit', handleAuthSubmit);
+
+tgLoginBtn?.addEventListener('click', async () => {
   const tgUser = tg?.initDataUnsafe?.user;
-  if (!tgUser) { authError.innerText = 'Open via Telegram bot'; return; }
+  if (!tgUser) { if (authError) authError.innerText = 'Open via Telegram bot'; return; }
   try {
     await signInWithEmailAndPassword(auth, `tg_${tgUser.id}@hamka.test`, `Tg_${tgUser.id}_SecurePass_2026!`);
   } catch (e) {
     try {
       await createUserWithEmailAndPassword(auth, `tg_${tgUser.id}@hamka.test`, `Tg_${tgUser.id}_SecurePass_2026!`);
-    } catch (err) {}
+    } catch (err) {
+      if (authError) authError.innerText = err.message;
+    }
   }
 });
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUid = user.uid;
     userDataReady = false;
     dailyCheckDone = false;
-    loadingScreen.style.display = 'none';
-    authScreen.classList.add('hidden');
-    gameScreen.classList.add('visible');
+    if (loadingScreen) loadingScreen.style.display = 'none';
+    if (authScreen) authScreen.classList.add('hidden');
+    if (gameScreen) gameScreen.classList.add('visible');
 
     if (typeof window.Adsgram !== 'undefined') {
       try { AdController = window.Adsgram.init({ blockId: "59759" }); } catch (e) {}
     }
 
-    loadGameData().then(() => {
-      initGame(user.uid);
-      initCryptoSystem();
-      checkAdminStatus(user.uid);
-      initRoulette();
-    });
+    try { await loadGameData(); } catch (e) {}
+    try { initGame(user.uid); } catch (e) {}
+    try { initCryptoSystem(); } catch (e) {}
+    try { checkAdminStatus(user.uid); } catch (e) {}
+    try { initRoulette(); } catch (e) {}
   } else {
     currentUid = null;
+    isAdmin = false;
+    if (adminBtnBadge) adminBtnBadge.style.display = 'none';
     userDataReady = false;
     dailyCheckDone = false;
-    loadingScreen.style.display = 'none';
-    authScreen.classList.remove('hidden');
-    gameScreen.classList.remove('visible');
+    if (loadingScreen) loadingScreen.style.display = 'none';
+    if (authScreen) authScreen.classList.remove('hidden');
+    if (gameScreen) gameScreen.classList.remove('visible');
     if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
+    if (unsubscribeCrypto) { unsubscribeCrypto(); unsubscribeCrypto = null; }
     if (gameLoop) { clearInterval(gameLoop); gameLoop = null; }
     if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
   }
 });
+
+autoLoginTelegram();
 
 document.querySelectorAll('.menu-item[data-page]').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.menu-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     item.classList.add('active');
-    document.getElementById('page-' + item.dataset.page).classList.add('active');
+    document.getElementById('page-' + item.dataset.page)?.classList.add('active');
     if (item.dataset.page === 'shop') renderShop();
     if (item.dataset.page === 'profile') renderProfile();
     if (item.dataset.page === 'inventory') renderInventory();
     if (item.dataset.page === 'top') loadLeaderboard();
     if (item.dataset.page === 'minigames') {
-      minitabCrypto.classList.add('active');
-      minitabRoulette.classList.remove('active');
-      miniContentCrypto.style.display = 'block';
-      miniContentRoulette.style.display = 'none';
+      minitabCrypto?.classList.add('active');
+      minitabRoulette?.classList.remove('active');
+      if (miniContentCrypto) miniContentCrypto.style.display = 'block';
+      if (miniContentRoulette) miniContentRoulette.style.display = 'none';
     }
   });
 });
 
-minitabCrypto.addEventListener('click', () => {
+minitabCrypto?.addEventListener('click', () => {
   minitabCrypto.classList.add('active');
-  minitabRoulette.classList.remove('active');
-  miniContentCrypto.style.display = 'block';
-  miniContentRoulette.style.display = 'none';
+  minitabRoulette?.classList.remove('active');
+  if (miniContentCrypto) miniContentCrypto.style.display = 'block';
+  if (miniContentRoulette) miniContentRoulette.style.display = 'none';
 });
 
-minitabRoulette.addEventListener('click', () => {
-  minitabCrypto.classList.remove('active');
+minitabRoulette?.addEventListener('click', () => {
+  minitabCrypto?.classList.remove('active');
   minitabRoulette.classList.add('active');
-  miniContentCrypto.style.display = 'none';
-  miniContentRoulette.style.display = 'block';
+  if (miniContentCrypto) miniContentCrypto.style.display = 'none';
+  if (miniContentRoulette) miniContentRoulette.style.display = 'block';
 });
 
 document.querySelectorAll('.shop-tab[data-shop-tab]').forEach(tab => {
@@ -859,7 +925,22 @@ function applyBannerStyle(element, bannerId) {
   }
 }
 
+async function syncPrestigeBanners(uid, prestigeLvl) {
+  const unlockedIds = BANNERS
+    .filter(b => b.reqPrestige && prestigeLvl >= b.reqPrestige)
+    .map(b => b.id);
+
+  const missing = unlockedIds.filter(id => !state.purchasedBanners.includes(id));
+  if (missing.length > 0 && uid) {
+    const nextBanners = Array.from(new Set([...state.purchasedBanners, ...missing]));
+    state.purchasedBanners = nextBanners;
+    await update(ref(db, 'users/' + uid), { purchasedBanners: nextBanners });
+    showStatus(`🖼️ Відкрито банер за престиж ${prestigeLvl}!`);
+  }
+}
+
 async function loadLeaderboard() {
+  if (!leaderboardList) return;
   leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Loading...</div>';
   try {
     const snap = await get(ref(db, 'users'));
@@ -878,15 +959,6 @@ async function loadLeaderboard() {
     arr.sort((a, b) => b.prestige - a.prestige || b.xp - a.xp);
     const top10 = arr.slice(0, 10);
 
-    const curMonth = getMonthKey();
-    if (top10.length > 0) {
-      try {
-        await set(ref(db, 'monthly_top_snapshots/' + curMonth), top10.slice(0, 3).map((x, idx) => ({
-          rank: idx + 1, uid: x.uid, nickname: x.nickname
-        })));
-      } catch (e) {}
-    }
-
     leaderboardList.innerHTML = '';
     top10.forEach((u, i) => {
       const el = document.createElement('div');
@@ -895,7 +967,7 @@ async function loadLeaderboard() {
       if (i < 3 && u.uid === currentUid) {
         const topTitle = TOP_TITLES[i].name;
         if (!state.purchasedTitles.includes(topTitle)) {
-          update(ref(db, 'users/' + currentUid), { purchasedTitles: [...state.purchasedTitles, topTitle] });
+          update(ref(db, 'users/' + currentUid), { purchasedTitles: [...state.purchasedTitles, topTitle] }).catch(() => {});
         }
       }
 
@@ -945,14 +1017,16 @@ async function loadLeaderboard() {
       el.appendChild(inner);
 
       el.addEventListener('click', () => {
-        viewProfNick.innerText = u.nickname;
-        viewProfId.innerText = 'ID: ' + safeId;
-        viewProfTitle.innerText = u.title;
-        viewProfTitle.style.background = titleColor;
-        viewProfXp.innerText = formatNumber(u.xp);
-        viewProfPrestige.innerText = u.prestige;
+        if (viewProfNick) viewProfNick.innerText = u.nickname;
+        if (viewProfId) viewProfId.innerText = 'ID: ' + safeId;
+        if (viewProfTitle) {
+          viewProfTitle.innerText = u.title;
+          viewProfTitle.style.background = titleColor;
+        }
+        if (viewProfXp) viewProfXp.innerText = formatNumber(u.xp);
+        if (viewProfPrestige) viewProfPrestige.innerText = u.prestige;
         applyBannerStyle(viewProfBanner, u.activeBanner);
-        modalViewProfile.classList.add('show');
+        modalViewProfile?.classList.add('show');
       });
       leaderboardList.appendChild(el);
     });
@@ -1040,13 +1114,12 @@ async function processMonthlyTopAndStreak(uid, data) {
     }
 
     if (newStreak > 0 && !rewardStatusMsg) {
-      rewardStatusMsg = `🔥 День ${newStreak}! Зайди у Профіль та натисни «Забрати нагороду»`;
+      rewardStatusMsg = `🔥 День ${newStreak}! Зайди у Профіль та натисни «Забрати»`;
     } else if (lostStreak > 0 && !rewardStatusMsg) {
       rewardStatusMsg = `⚠️ Серію збито! Можна відновити за ${getStreakRestoreCost(lostStreak)} 🐹`;
     }
   }
 
-  // Офлайн-фарм: до 3 годин (10800 сек) і в 10 разів слабше
   let offlineCoins = 0;
   let offlineXp = 0;
   const prevSeen = data.lastSeenAt || 0;
@@ -1090,11 +1163,11 @@ async function processMonthlyTopAndStreak(uid, data) {
 
     if (rewardStatusMsg) showStatus(rewardStatusMsg);
   } else {
-    await update(ref(db, 'users/' + uid), { lastSeenAt: nowMs });
+    await update(ref(db, 'users/' + uid), { lastSeenAt: nowMs }).catch(() => {});
   }
 }
 
-btnClaimStreak.addEventListener('click', async () => {
+btnClaimStreak?.addEventListener('click', async () => {
   if (!currentUid) return;
   const todayKey = getTodayKey();
   if (!canClaimStreakReward(todayKey)) {
@@ -1145,11 +1218,11 @@ btnClaimStreak.addEventListener('click', async () => {
 
   if (res.committed && rewardSummary) {
     showStatus(rewardSummary);
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
   }
 });
 
-btnRestoreStreak.addEventListener('click', async () => {
+btnRestoreStreak?.addEventListener('click', async () => {
   if (!currentUid || !state.lostStreakCount) return;
   const cost = getStreakRestoreCost(state.lostStreakCount);
   if ((state.homs || 0) < cost) {
@@ -1173,24 +1246,24 @@ btnRestoreStreak.addEventListener('click', async () => {
   });
 
   if (res.committed) {
-    showStatus(`✅ Серію ${restoredNum} дн. відновлено! Тепер натисни «Забрати нагороду»`);
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+    showStatus(`✅ Серію ${restoredNum} дн. відновлено! Тепер натисни «Забрати»`);
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
   }
 });
 
-btnChangeNickname.addEventListener('click', () => {
-  newNicknameInput.value = state.nickname;
-  modalNickname.classList.add('show');
+btnChangeNickname?.addEventListener('click', () => {
+  if (newNicknameInput) newNicknameInput.value = state.nickname;
+  modalNickname?.classList.add('show');
 });
 
-btnSaveNickname.addEventListener('click', async () => {
-  const newNick = newNicknameInput.value.trim();
+btnSaveNickname?.addEventListener('click', async () => {
+  const newNick = newNicknameInput?.value.trim() || '';
   if (!isValidNickname(newNick)) {
     showStatus('❌ 3-16 символів (літери, цифри, _, ., -)');
     return;
   }
   await update(ref(db, 'users/' + currentUid), { nickname: newNick });
-  modalNickname.classList.remove('show');
+  modalNickname?.classList.remove('show');
   showStatus('✅ Saved!');
 });
 
@@ -1199,26 +1272,26 @@ async function checkAdminStatus(uid) {
     const snap = await get(ref(db, 'admins/' + uid));
     if (snap.exists() && snap.val() === true) {
       isAdmin = true;
-      adminBtnBadge.style.display = 'flex';
+      if (adminBtnBadge) adminBtnBadge.style.display = 'flex';
     }
   } catch (e) {}
 }
 
 window.adminAddCoins = async () => {
   if (!isAdmin || !currentUid) return;
-  const amount = parseInt(document.getElementById('admin-coins-input').value) || 0;
+  const amount = parseInt(document.getElementById('admin-coins-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.coins = (d.coins || 0) + amount; return d; });
   showStatus('✅ Added coins');
 };
 window.adminAddHoms = async () => {
   if (!isAdmin || !currentUid) return;
-  const amount = parseInt(document.getElementById('admin-homs-input').value) || 0;
+  const amount = parseInt(document.getElementById('admin-homs-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.homs = (d.homs || 0) + amount; return d; });
   showStatus('✅ Added Homs');
 };
 window.adminAddXp = async () => {
   if (!isAdmin || !currentUid) return;
-  const amount = parseInt(document.getElementById('admin-xp-input').value) || 0;
+  const amount = parseInt(document.getElementById('admin-xp-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.xp = (d.xp || 0) + amount; return d; });
   showStatus('✅ Added XP');
 };
@@ -1266,7 +1339,8 @@ async function applyReferralCode(rawCode) {
     if (!referrerUid) { referralProcessing = false; return false; }
 
     const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
-      if (!data || data.usedReferralCode) return;
+      if (!data) return data;
+      if (data.usedReferralCode) return data;
       data.usedReferralCode = true;
       data.referredBy = referrerUid;
       if (!data.cases) data.cases = {};
@@ -1274,20 +1348,26 @@ async function applyReferralCode(rawCode) {
       return data;
     });
 
-    if (!res1.committed) { referralProcessing = false; return false; }
+    if (!res1.committed || !res1.snapshot?.val()?.usedReferralCode) {
+      referralProcessing = false;
+      return false;
+    }
 
     const res2 = await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
-      if (!data) return data;
-      data.legendaryCases = (data.legendaryCases || 0) + 1;
-      data.invited = (data.invited || 0) + 1;
-      return data;
+      const target = data && typeof data === 'object' ? { ...data } : {};
+      target.legendaryCases = (Number(target.legendaryCases) || 0) + 1;
+      target.invited = (Number(target.invited) || 0) + 1;
+      return target;
     });
 
-    if (!res2.committed) { referralProcessing = false; return false; }
+    if (!res2.committed) {
+      referralProcessing = false;
+      return false;
+    }
 
     pendingStartParam = null;
-    showStatus(`Тебя пригласил ${referrerNick}`);
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+    showStatus(`Тебе запросив ${referrerNick} (+1 Легендарний кейс другу)`);
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
     referralProcessing = false;
     return true;
   } catch (err) {
@@ -1325,13 +1405,10 @@ function getReferralInviteLink() {
   return `${BOT_LINK}?startapp=${encodeURIComponent(refCode)}`;
 }
 
-window.inviteFriend = async function() {
+window.shareReferralLink = function () {
   const inviteLink = getReferralInviteLink();
   const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!`;
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-
-  await copyTextWithFallback(inviteLink);
-  showStatus(translations[currentLang]?.invite_copied || 'Приглашение скопировано');
 
   if (tg && typeof tg.openTelegramLink === 'function') {
     try { tg.openTelegramLink(shareUrl); return; } catch (e) {}
@@ -1340,12 +1417,13 @@ window.inviteFriend = async function() {
 };
 
 function initGame(uid) {
+  if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
   const userRef = ref(db, 'users/' + uid);
 
   get(userRef).then((snap) => {
     if (!snap.exists()) {
       const tgUser = tg?.initDataUnsafe?.user;
-      const generatedId = tgUser ? 'tg_' + tgUser.id : Math.floor(100000 + Math.random() * 900000).toString();
+      const generatedId = tgUser ? 'tg_' + tgUser.id : uid.slice(0, 8);
       const rawNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
       const defaultNick = isValidNickname(rawNick) ? rawNick.trim() : ('Player_' + generatedId).slice(0, 16);
 
@@ -1362,20 +1440,21 @@ function initGame(uid) {
         tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
         lastRewardMonth: getMonthKey(), lastSeenAt: Date.now(),
         createdAt: Date.now()
-      });
+      }).catch(() => {});
     }
-  }).catch(err => {});
+  }).catch(() => {});
 
   unsubscribeUserData = onValue(userRef, async (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
-    if (pendingTap) return;
 
     state.coins = data.coins || 0;
     state.homs = data.homs || 0;
-    state.energy = data.energy ?? 200;
+    if (!pendingTap) {
+      state.energy = data.energy ?? 200;
+      state.xp = data.xp || 0;
+    }
     state.maxEnergy = data.maxEnergy ?? 200;
-    state.xp = data.xp || 0;
     state.prestige = data.prestige || 0;
     state.title = data.title || 'Beginner';
     state.avatar = data.avatar || '🐭';
@@ -1407,8 +1486,6 @@ function initGame(uid) {
 
     if (data.language && data.language !== currentLang) {
       setLanguage(data.language);
-    } else {
-      setLanguage(currentLang);
     }
 
     state.upgrades.tapLevel = data.tapLevel || 0;
@@ -1418,21 +1495,16 @@ function initGame(uid) {
     state.upgrades.autoXpRate = data.autoXpRate || 0;
     state.upgrades.energyRate = data.energyRate || 1;
 
-    hideTopToggle.checked = state.hideFromTop;
+    if (hideTopToggle) hideTopToggle.checked = state.hideFromTop;
     userDataReady = true;
 
     if (!dailyCheckDone) {
       try { await processMonthlyTopAndStreak(uid, data); } catch (e) {}
     }
 
-    renderUI();
-    checkAutoPrestige();
-    updateHamsterSkin();
+    try { await syncPrestigeBanners(uid, state.prestige); } catch (e) {}
 
-    if (document.getElementById('page-shop').classList.contains('active')) renderShop();
-    if (document.getElementById('page-profile').classList.contains('active')) renderProfile();
-    if (document.getElementById('page-inventory').classList.contains('active')) renderInventory();
-    renderCryptoList();
+    scheduleUiRefresh({ shop: true, profile: true, inventory: true, crypto: true });
 
     if (pendingStartParam && !state.usedReferralCode && !referralProcessing) {
       const sp = pendingStartParam;
@@ -1450,71 +1522,78 @@ function initGame(uid) {
     const earnEnergy = state.upgrades.energyRate;
 
     if (earn > 0 || earnXp > 0 || (state.energy < state.maxEnergy && earnEnergy > 0)) {
-      await runTransaction(userRef, (data) => {
-        if (!data) return data;
-        let changed = false;
-        const curMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
-        const tickCoins = (data.autoTapRate || 0) * curMult;
-        if (tickCoins > 0) { data.coins = (data.coins || 0) + tickCoins; changed = true; }
-        if (earnXp > 0) { data.xp = (data.xp || 0) + earnXp; changed = true; }
-        if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 200)) {
-          data.energy = Math.min(data.maxEnergy ?? 200, (data.energy || 0) + earnEnergy);
-          changed = true;
-        }
-        return changed ? data : undefined;
-      });
+      try {
+        await runTransaction(userRef, (data) => {
+          if (!data) return data;
+          let changed = false;
+          const curMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
+          const tickCoins = (data.autoTapRate || 0) * curMult;
+          if (tickCoins > 0) { data.coins = (data.coins || 0) + tickCoins; changed = true; }
+          if (earnXp > 0) { data.xp = (data.xp || 0) + earnXp; changed = true; }
+          if (earnEnergy > 0 && (data.energy ?? 0) < (data.maxEnergy ?? 200)) {
+            data.energy = Math.min(data.maxEnergy ?? 200, (data.energy || 0) + earnEnergy);
+            changed = true;
+          }
+          return changed ? data : undefined;
+        });
+      } catch (e) {}
     }
 
     renderBoostBadge();
-    if (document.getElementById('page-profile').classList.contains('active')) {
+    if (document.getElementById('page-profile')?.classList.contains('active')) {
       renderProfile();
     }
   }, 1000);
 
-  hamster.onclick = async (e) => {
-    const now = Date.now();
-    if (now - lastTapTime < 60) return;
-    lastTapTime = now;
+  if (hamster) {
+    hamster.onclick = async (e) => {
+      const now = Date.now();
+      if (now - lastTapTime < 60) return;
+      lastTapTime = now;
 
-    if (state.energy < 1) { showStatus("❌ No energy!"); return; }
-    const mult = getActiveCoinMultiplier(now);
-    const tapPower = state.upgrades.tapPower * mult;
-    const xpPerTap = state.upgrades.xpPerTap;
+      if (state.energy < 1) { showStatus("❌ No energy!"); return; }
+      const mult = getActiveCoinMultiplier(now);
+      const tapPower = state.upgrades.tapPower * mult;
+      const xpPerTap = state.upgrades.xpPerTap;
 
-    state.energy = Math.max(0, state.energy - 1);
-    state.coins += tapPower;
-    state.xp += xpPerTap;
-    renderUI();
+      state.energy = Math.max(0, state.energy - 1);
+      state.coins += tapPower;
+      state.xp += xpPerTap;
+      renderUI();
 
-    const rect = tapArea.getBoundingClientRect();
-    const effect = document.createElement('div');
-    effect.className = 'tap-effect';
-    effect.innerText = `+${formatNumber(tapPower)}`;
-    effect.style.left = (e.clientX - rect.left - 10) + 'px';
-    effect.style.top = (e.clientY - rect.top - 10) + 'px';
-    tapArea.appendChild(effect);
-    setTimeout(() => effect.remove(), 800);
+      if (tapArea) {
+        const rect = tapArea.getBoundingClientRect();
+        const effect = document.createElement('div');
+        effect.className = 'tap-effect';
+        effect.innerText = `+${formatNumber(tapPower)}`;
+        effect.style.left = (e.clientX - rect.left - 10) + 'px';
+        effect.style.top = (e.clientY - rect.top - 10) + 'px';
+        tapArea.appendChild(effect);
+        setTimeout(() => effect.remove(), 800);
+      }
 
-    try { tg?.HapticFeedback?.impactOccurred('light'); } catch(e) {}
+      try { tg?.HapticFeedback?.impactOccurred('light'); } catch (err) {}
 
-    pendingTap = true;
-    try {
-      await runTransaction(userRef, (data) => {
-        if (!data) data = {};
-        const curEnergy = data.energy ?? 200;
-        if (curEnergy < 1) return;
-        const txMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
-        const txCoins = (data.tapPower || 1) * txMult;
-        data.energy = curEnergy - 1;
-        data.coins = (data.coins || 0) + txCoins;
-        data.xp = (data.xp || 0) + (data.xpPerTap || 1);
-        return data;
-      });
-    } catch (err) {} finally { pendingTap = false; }
-  };
+      pendingTap = true;
+      try {
+        await runTransaction(userRef, (data) => {
+          if (!data) data = {};
+          const curEnergy = data.energy ?? 200;
+          if (curEnergy < 1) return;
+          const txMult = (data.coinBoostExpiresAt && now < data.coinBoostExpiresAt) ? (data.coinBoostMult || 1) : 1;
+          const txCoins = (data.tapPower || 1) * txMult;
+          data.energy = curEnergy - 1;
+          data.coins = (data.coins || 0) + txCoins;
+          data.xp = (data.xp || 0) + (data.xpPerTap || 1);
+          return data;
+        });
+      } catch (err) {} finally { pendingTap = false; }
+    };
+  }
 }
 
 function updateHamsterSkin() {
+  if (!hamster) return;
   if (state.activeSkin === 'default') {
     hamster.style.backgroundImage = 'none';
     hamster.innerText = '🐭';
@@ -1538,21 +1617,30 @@ async function checkAutoPrestige() {
   const req = getPrestigeReq(state.prestige);
   if (state.xp >= req && currentUid) {
     const userRef = ref(db, 'users/' + currentUid);
-    const newPrestige = state.prestige + 1;
+    const nextPrestigeNum = state.prestige + 1;
 
-    prestigeText.innerText = `PRESTIGE ${newPrestige}`;
-    prestigeOverlay.classList.add('show');
-    setTimeout(() => prestigeOverlay.classList.remove('show'), 2500);
+    if (prestigeText) prestigeText.innerText = `PRESTIGE ${nextPrestigeNum}`;
+    prestigeOverlay?.classList.add('show');
+    setTimeout(() => prestigeOverlay?.classList.remove('show'), 2500);
 
     await runTransaction(userRef, (data) => {
       if (!data) return data;
       if ((data.xp || 0) >= req) {
         data.xp = (data.xp || 0) - req;
-        data.prestige = (data.prestige || 0) + 1;
+        const p = (data.prestige || 0) + 1;
+        data.prestige = p;
+
+        const banners = Array.isArray(data.purchasedBanners) ? [...data.purchasedBanners] : [];
+        for (const b of BANNERS) {
+          if (b.reqPrestige && p >= b.reqPrestige && !banners.includes(b.id)) {
+            banners.push(b.id);
+          }
+        }
+        data.purchasedBanners = banners;
       }
       return data;
     });
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
   }
 }
 
@@ -1572,10 +1660,10 @@ function renderBoostBadge() {
   const now = Date.now();
   const mult = getActiveCoinMultiplier(now);
   if (mult > 1 && state.coinBoostExpiresAt > now) {
-    activeBoostBadge.classList.add('active');
-    activeBoostText.innerText = `x${mult} (${formatDurationLeft(state.coinBoostExpiresAt - now)})`;
+    activeBoostBadge?.classList.add('active');
+    if (activeBoostText) activeBoostText.innerText = `x${mult} (${formatDurationLeft(state.coinBoostExpiresAt - now)})`;
   } else {
-    activeBoostBadge.classList.remove('active');
+    activeBoostBadge?.classList.remove('active');
   }
 }
 
@@ -1584,26 +1672,26 @@ function renderUI() {
   const homsStr = formatNumber(state.homs);
   const mult = getActiveCoinMultiplier();
 
-  tapCoinDisplay.innerText = coinsStr;
-  topCoins.innerText = coinsStr;
-  topHoms.innerText = homsStr;
-  bottomCoins.innerText = coinsStr;
-  autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate * mult);
+  if (tapCoinDisplay) tapCoinDisplay.innerText = coinsStr;
+  if (topCoins) topCoins.innerText = coinsStr;
+  if (topHoms) topHoms.innerText = homsStr;
+  if (bottomCoins) bottomCoins.innerText = coinsStr;
+  if (autoTapLabel) autoTapLabel.innerText = formatNumber(state.upgrades.autoTapRate * mult);
   if (autoEnergyLabel) autoEnergyLabel.innerText = formatNumber(state.upgrades.energyRate);
   renderBoostBadge();
 
   const energyPct = (state.energy / state.maxEnergy) * 100;
-  energyBar.style.width = energyPct + '%';
-  energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
-  energyDisplayBottom.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
+  if (energyBar) energyBar.style.width = energyPct + '%';
+  if (energyDisplay) energyDisplay.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
+  if (energyDisplayBottom) energyDisplayBottom.innerText = Math.floor(state.energy) + '/' + state.maxEnergy;
 
   const { currentLvl, nextLvl } = getLevelInfo(state.xp);
-  levelName.innerText = currentLvl.name;
-  xpDisplay.innerText = formatNumber(state.xp);
-  xpNext.innerText = nextLvl.xp === currentLvl.xp ? 'MAX' : formatNumber(nextLvl.xp);
+  if (levelName) levelName.innerText = currentLvl.name;
+  if (xpDisplay) xpDisplay.innerText = formatNumber(state.xp);
+  if (xpNext) xpNext.innerText = nextLvl.xp === currentLvl.xp ? 'MAX' : formatNumber(nextLvl.xp);
 
   const lvlProgress = nextLvl.xp === currentLvl.xp ? 100 : ((state.xp - currentLvl.xp) / (nextLvl.xp - currentLvl.xp)) * 100;
-  xpBar.style.width = Math.min(100, Math.max(0, lvlProgress)) + '%';
+  if (xpBar) xpBar.style.width = Math.min(100, Math.max(0, lvlProgress)) + '%';
 }
 
 function renderShop() {
@@ -1721,16 +1809,14 @@ function renderShop() {
           <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${t.promo_share}</button>
         </div>
       </div>
-      <button class="invite-friend-btn" id="btn-shop-invite-friend">${t.invite_friend}</button>
     `;
     shopListEl.appendChild(promoBox);
 
-    document.getElementById('btn-copy-promo').addEventListener('click', async () => {
+    document.getElementById('btn-copy-promo')?.addEventListener('click', async () => {
       await copyTextWithFallback(getReferralInviteLink());
       showStatus(t.invite_copied);
     });
-    document.getElementById('btn-share-promo').addEventListener('click', () => window.inviteFriend());
-    document.getElementById('btn-shop-invite-friend').addEventListener('click', () => window.inviteFriend());
+    document.getElementById('btn-share-promo')?.addEventListener('click', () => window.shareReferralLink());
 
     const adCaseCard = document.createElement('div');
     adCaseCard.className = 'shop-card';
@@ -1744,7 +1830,7 @@ function renderShop() {
     `;
     shopListEl.appendChild(adCaseCard);
 
-    document.getElementById('btn-buy-case-ad').addEventListener('click', async () => {
+    document.getElementById('btn-buy-case-ad')?.addEventListener('click', async () => {
       if (state.adWatches >= 5) {
         await runTransaction(ref(db, 'users/' + currentUid), (data) => {
           if (!data || (data.adWatches || 0) < 5) return;
@@ -1768,7 +1854,7 @@ function renderShop() {
             });
             showStatus(`✅ Ad credited! (${updatedWatches}/5)`);
           }
-        } catch(e) { showStatus('❌ Ad not completed'); }
+        } catch (e) { showStatus('❌ Ad not completed'); }
       }
     });
     return;
@@ -1820,10 +1906,12 @@ async function buyUpgrade(itemId) {
   else if (itemId === 'xpTap') currentLevel = state.upgrades.xpPerTap - 1;
   else if (itemId === 'maxEnergy') currentLevel = (state.maxEnergy - 200) / 50;
 
+  if (currentLevel >= item.maxLevel) return;
   const price = getShopPrice(itemId, currentLevel);
+  if (!Number.isFinite(price)) return;
   let unlockedTap3Boost = false;
 
-  await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data || (data.coins || 0) < price) return;
     data.coins -= price;
     if (itemId === 'autoTap') data.autoTapRate = (data.autoTapRate || 0) + 1;
@@ -1843,6 +1931,11 @@ async function buyUpgrade(itemId) {
     else if (itemId === 'maxEnergy') data.maxEnergy = (data.maxEnergy || 200) + 50;
     return data;
   });
+
+  if (!res.committed) {
+    showStatus('❌ Недостатньо монет або помилка покупки');
+    return;
+  }
 
   if (unlockedTap3Boost) {
     showStatus('⚡ 3 рівень тапу! Активовано x2 монет на 10 хв!');
@@ -1902,52 +1995,55 @@ async function buyCosmetic(item) {
 }
 
 function renderProfile() {
-  profCoins.innerText = formatNumber(state.coins);
-  profHoms.innerText = formatNumber(state.homs);
-  profXp.innerText = formatNumber(state.xp);
-  profPrestige.innerText = state.prestige;
-  profNickname.innerText = state.nickname;
-  profPublicId.innerText = 'ID: ' + state.publicId;
+  if (profCoins) profCoins.innerText = formatNumber(state.coins);
+  if (profHoms) profHoms.innerText = formatNumber(state.homs);
+  if (profXp) profXp.innerText = formatNumber(state.xp);
+  if (profPrestige) profPrestige.innerText = state.prestige;
+  if (profNickname) profNickname.innerText = state.nickname;
+  if (profPublicId) profPublicId.innerText = 'ID: ' + state.publicId;
   applyBannerStyle(profBanner, state.activeBanner);
 
-  if (state.activeSkin !== 'default') {
-    const skinObj = SKINS.find(s => s.id === state.activeSkin);
-    if (skinObj && skinObj.file) {
-      profAvatar.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
-      profAvatar.innerText = '';
+  if (profAvatar) {
+    if (state.activeSkin !== 'default') {
+      const skinObj = SKINS.find(s => s.id === state.activeSkin);
+      if (skinObj && skinObj.file) {
+        profAvatar.style.backgroundImage = `url('${GITHUB_RAW}${skinObj.file}')`;
+        profAvatar.innerText = '';
+      }
+    } else {
+      profAvatar.style.backgroundImage = 'none';
+      profAvatar.innerText = state.avatar;
     }
-  } else {
-    profAvatar.style.backgroundImage = 'none';
-    profAvatar.innerText = state.avatar;
   }
 
   const titleObj = TITLES.find(t => t.name === state.title) || CASE_TITLES.find(t => t.name === state.title) || TOP_TITLES.find(t => t.name === state.title);
-  if (titleObj) {
-    profTitle.innerText = state.title;
-    profTitleBadge.style.background = titleObj.color;
-  } else {
-    profTitle.innerText = state.title;
-    profTitleBadge.style.background = 'linear-gradient(90deg, #8a2be2, #da70d6)';
+  if (profTitle) profTitle.innerText = state.title;
+  if (profTitleBadge) {
+    profTitleBadge.style.background = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
   }
 
   const req = getPrestigeReq(state.prestige);
-  prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
+  if (prestigeInfo) prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
 
-  streakDaysBadge.innerText = `${state.streakCount} дн.`;
-  btnClaimStreak.innerText = translations[currentLang]?.claim_streak_btn || '🎁 Забрати нагороду';
-  btnClaimStreak.style.display = canClaimStreakReward() ? 'block' : 'none';
+  if (streakDaysBadge) streakDaysBadge.innerText = `${state.streakCount} дн.`;
+  if (btnClaimStreak) {
+    btnClaimStreak.innerText = translations[currentLang]?.claim_streak_btn || '🎁 Забрати';
+    btnClaimStreak.style.display = canClaimStreakReward() ? 'block' : 'none';
+  }
 
-  if (state.lostStreakCount > 0) {
-    const restoreCost = getStreakRestoreCost(state.lostStreakCount);
-    streakDesc.innerText = `Серія ${state.lostStreakCount} дн. злетіла через пропуск. Відновити можна за ${restoreCost} 🐹.`;
-    btnRestoreStreak.style.display = 'block';
-    btnRestoreStreak.innerText = `🔁 Відновити ${state.lostStreakCount} дн. за ${restoreCost} 🐹`;
-    btnRestoreStreak.disabled = (state.homs || 0) < restoreCost;
-  } else {
-    btnRestoreStreak.style.display = 'none';
-    const toJubilee = 7 - (state.streakCount % 7 || 7);
-    const claimHint = canClaimStreakReward() ? 'Нагорода очікує — натисни «Забрати нагороду»!' : 'Нагороду за сьогодні забрано.';
-    streakDesc.innerText = `${claimHint} До ювілейного кейсу (50/50 x1 або x5): ${toJubilee} дн.`;
+  if (streakDesc && btnRestoreStreak) {
+    if (state.lostStreakCount > 0) {
+      const restoreCost = getStreakRestoreCost(state.lostStreakCount);
+      streakDesc.innerText = `Збито ${state.lostStreakCount} дн. Відновити: ${restoreCost} 🐹.`;
+      btnRestoreStreak.style.display = 'block';
+      btnRestoreStreak.innerText = `🔁 ${restoreCost} 🐹`;
+      btnRestoreStreak.disabled = (state.homs || 0) < restoreCost;
+    } else {
+      btnRestoreStreak.style.display = 'none';
+      const toJubilee = 7 - (state.streakCount % 7 || 7);
+      const claimHint = canClaimStreakReward() ? 'Нагорода готова!' : 'Забрано сьогодні.';
+      streakDesc.innerText = `${claimHint} До кейсу: ${toJubilee} дн.`;
+    }
   }
 }
 
@@ -1957,146 +2053,163 @@ function renderInventory() {
   const legendaryCount = state.legendaryCases || 0;
   const hasCases = Object.keys(cases).some(k => cases[k] > 0) || legendaryCount > 0;
 
-  if (hasCases) {
-    casesSection.style.display = 'block';
-    invCases.innerHTML = '';
-    for (const type in cases) {
-      const count = cases[type];
-      if (count <= 0) continue;
-      const isEpic = type === 'epic';
-      const el = document.createElement('div');
-      el.className = `case-item ${isEpic ? 'epic' : ''}`;
-      el.innerHTML = `
-        <div class="case-count-badge">${count}</div>
-        <div class="case-icon">${isEpic ? '💠' : '📦'}</div>
-        <div class="case-name">${isEpic ? 'Epic Case (x5)' : 'Basic Case'}</div>
-      `;
-      el.addEventListener('click', () => openCaseModal(type, count));
-      invCases.appendChild(el);
-    }
+  if (casesSection && invCases) {
+    if (hasCases) {
+      casesSection.style.display = 'block';
+      invCases.innerHTML = '';
+      for (const type in cases) {
+        const count = cases[type];
+        if (count <= 0) continue;
+        const isEpic = type === 'epic';
+        const el = document.createElement('div');
+        el.className = `case-item ${isEpic ? 'epic' : ''}`;
+        el.innerHTML = `
+          <div class="case-count-badge">${count}</div>
+          <div class="case-icon">${isEpic ? '💠' : '📦'}</div>
+          <div class="case-name">${isEpic ? 'Epic Case (x5)' : 'Basic Case'}</div>
+        `;
+        el.addEventListener('click', () => openCaseModal(type, count));
+        invCases.appendChild(el);
+      }
 
-    if (legendaryCount > 0) {
-      const el = document.createElement('div');
-      el.className = 'case-item legendary';
-      el.innerHTML = `
-        <div class="case-count-badge">${legendaryCount}</div>
-        <div class="case-icon">🌟</div>
-        <div class="case-name">Legendary Case</div>
-      `;
-      el.addEventListener('click', () => openCaseModal('legendary', legendaryCount));
-      invCases.appendChild(el);
+      if (legendaryCount > 0) {
+        const el = document.createElement('div');
+        el.className = 'case-item legendary';
+        el.innerHTML = `
+          <div class="case-count-badge">${legendaryCount}</div>
+          <div class="case-icon">🌟</div>
+          <div class="case-name">Legendary Case</div>
+        `;
+        el.addEventListener('click', () => openCaseModal('legendary', legendaryCount));
+        invCases.appendChild(el);
+      }
+    } else {
+      casesSection.style.display = 'none';
     }
-  } else {
-    casesSection.style.display = 'none';
   }
 
-  invBanners.innerHTML = '';
-  const noBannerEl = document.createElement('div');
-  noBannerEl.className = `banner-item ${state.activeBanner === 'default' ? 'active' : ''}`;
-  noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
-  noBannerEl.addEventListener('click', async () => {
-    await update(ref(db, 'users/' + currentUid), { activeBanner: 'default' });
-    showStatus('✅ Banner reset!');
-  });
-  invBanners.appendChild(noBannerEl);
-
-  state.purchasedBanners.forEach(bannerId => {
-    const bObj = BANNERS.find(b => b.id === bannerId);
-    if (!bObj || !bObj.file) return;
-    const el = document.createElement('div');
-    el.className = `banner-item ${state.activeBanner === bannerId ? 'active' : ''}`;
-    el.innerHTML = `
-      <div class="banner-preview" style="background-image: url('${GITHUB_BANNERS}${escapeHtml(bObj.file)}');"></div>
-      <div class="inventory-item-name">${escapeHtml(bObj.name)}</div>
-    `;
-    el.addEventListener('click', async () => {
-      await update(ref(db, 'users/' + currentUid), { activeBanner: bannerId });
-      showStatus('✅ Banner equipped!');
+  if (invBanners) {
+    invBanners.innerHTML = '';
+    const noBannerEl = document.createElement('div');
+    noBannerEl.className = `banner-item ${state.activeBanner === 'default' ? 'active' : ''}`;
+    noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
+    noBannerEl.addEventListener('click', async () => {
+      await update(ref(db, 'users/' + currentUid), { activeBanner: 'default' });
+      showStatus('✅ Banner reset!');
     });
-    invBanners.appendChild(el);
-  });
+    invBanners.appendChild(noBannerEl);
 
-  const availableTitles = [
-    ...TITLES.filter(tItem => (tItem.price === 0 && (tItem.reqPrestige === 0 || state.prestige >= tItem.reqPrestige)) || state.purchasedTitles.includes(tItem.name)),
-    ...CASE_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name)),
-    ...TOP_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name))
-  ];
-  invTitles.innerHTML = '';
-  availableTitles.forEach(tItem => {
-    const el = document.createElement('div');
-    el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(tItem.name)}</div>`;
-    el.addEventListener('click', async () => {
-      await update(ref(db, 'users/' + currentUid), { title: tItem.name });
-      showStatus('✅ Title equipped!');
+    const visibleBanners = BANNERS.filter(b =>
+      state.purchasedBanners.includes(b.id) || (b.reqPrestige && state.prestige >= b.reqPrestige)
+    );
+
+    visibleBanners.forEach(bObj => {
+      if (!bObj || !bObj.file) return;
+      const el = document.createElement('div');
+      el.className = `banner-item ${state.activeBanner === bObj.id ? 'active' : ''}`;
+      el.innerHTML = `
+        <div class="banner-preview" style="background-image: url('${GITHUB_BANNERS}${escapeHtml(bObj.file)}');"></div>
+        <div class="inventory-item-name">${escapeHtml(bObj.name)}</div>
+      `;
+      el.addEventListener('click', async () => {
+        await update(ref(db, 'users/' + currentUid), { activeBanner: bObj.id });
+        showStatus('✅ Banner equipped!');
+      });
+      invBanners.appendChild(el);
     });
-    invTitles.appendChild(el);
-  });
+  }
 
-  const availableAvatars = ['🐭', ...state.purchasedAvatars];
-  invAvatars.innerHTML = '';
-  availableAvatars.forEach(avName => {
-    const el = document.createElement('div');
-    el.className = `inventory-item ${state.avatar === avName ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon">${escapeHtml(avName)}</div>`;
-    el.addEventListener('click', async () => {
-      await update(ref(db, 'users/' + currentUid), { avatar: avName });
-      showStatus('✅ Avatar changed!');
+  if (invTitles) {
+    const availableTitles = [
+      ...TITLES.filter(tItem => (tItem.price === 0 && (tItem.reqPrestige === 0 || state.prestige >= tItem.reqPrestige)) || state.purchasedTitles.includes(tItem.name)),
+      ...CASE_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name)),
+      ...TOP_TITLES.filter(tItem => state.purchasedTitles.includes(tItem.name))
+    ];
+    invTitles.innerHTML = '';
+    availableTitles.forEach(tItem => {
+      const el = document.createElement('div');
+      el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
+      el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(tItem.name)}</div>`;
+      el.addEventListener('click', async () => {
+        await update(ref(db, 'users/' + currentUid), { title: tItem.name });
+        showStatus('✅ Title equipped!');
+      });
+      invTitles.appendChild(el);
     });
-    invAvatars.appendChild(el);
-  });
+  }
 
-  invSkins.innerHTML = '';
-  const defaultEl = document.createElement('div');
-  defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
-  defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
-  defaultEl.addEventListener('click', async () => {
-    await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
-    showStatus('✅ Skin changed!');
-  });
-  invSkins.appendChild(defaultEl);
+  if (invAvatars) {
+    const availableAvatars = ['🐭', ...state.purchasedAvatars];
+    invAvatars.innerHTML = '';
+    availableAvatars.forEach(avName => {
+      const el = document.createElement('div');
+      el.className = `inventory-item ${state.avatar === avName ? 'active' : ''}`;
+      el.innerHTML = `<div class="inventory-item-icon">${escapeHtml(avName)}</div>`;
+      el.addEventListener('click', async () => {
+        await update(ref(db, 'users/' + currentUid), { avatar: avName });
+        showStatus('✅ Avatar changed!');
+      });
+      invAvatars.appendChild(el);
+    });
+  }
 
-  state.purchasedSkins.forEach(skinId => {
-    const skinObj = SKINS.find(s => s.id === skinId);
-    if (!skinObj || !skinObj.file) return;
-    const el = document.createElement('div');
-    el.className = `inventory-item ${state.activeSkin === skinId ? 'active' : ''}`;
-    el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${escapeHtml(skinObj.name)}</div>`;
-    el.addEventListener('click', async () => {
-      await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
+  if (invSkins) {
+    invSkins.innerHTML = '';
+    const defaultEl = document.createElement('div');
+    defaultEl.className = `inventory-item ${state.activeSkin === 'default' ? 'active' : ''}`;
+    defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
+    defaultEl.addEventListener('click', async () => {
+      await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
       showStatus('✅ Skin changed!');
     });
-    invSkins.appendChild(el);
-  });
+    invSkins.appendChild(defaultEl);
+
+    state.purchasedSkins.forEach(skinId => {
+      const skinObj = SKINS.find(s => s.id === skinId);
+      if (!skinObj || !skinObj.file) return;
+      const el = document.createElement('div');
+      el.className = `inventory-item ${state.activeSkin === skinId ? 'active' : ''}`;
+      el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${escapeHtml(skinObj.name)}</div>`;
+      el.addEventListener('click', async () => {
+        await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
+        showStatus('✅ Skin changed!');
+      });
+      invSkins.appendChild(el);
+    });
+  }
 }
 
 function openCaseModal(type, count) {
   selectedCaseTypeToOpen = type;
   const titleText = type === 'legendary' ? 'Open Legendary Case' : (type === 'epic' ? 'Open Epic Case (x5)' : 'Open Case');
-  document.getElementById('case-modal-title').innerText = titleText;
-  document.getElementById('case-modal-count').innerText = `Available: ${count}`;
-  document.getElementById('modal-case-qty').classList.add('show');
+  const titleEl = document.getElementById('case-modal-title');
+  const countEl = document.getElementById('case-modal-count');
+  if (titleEl) titleEl.innerText = titleText;
+  if (countEl) countEl.innerText = `Available: ${count}`;
+  document.getElementById('modal-case-qty')?.classList.add('show');
 }
 
-window.openCasesBatch = async function(qty) {
-  document.getElementById('modal-case-qty').classList.remove('show');
+window.openCasesBatch = async function (qty) {
+  document.getElementById('modal-case-qty')?.classList.remove('show');
   if (!currentUid || !selectedCaseTypeToOpen) return;
 
   const isLegendary = selectedCaseTypeToOpen === 'legendary';
   const isEpic = selectedCaseTypeToOpen === 'epic';
   const currentCount = isLegendary ? (state.legendaryCases || 0) : (state.cases[selectedCaseTypeToOpen] || 0);
-  let openNum = qty === 'all' ? currentCount : parseInt(qty);
+  let openNum = qty === 'all' ? currentCount : parseInt(qty, 10);
   if (openNum > currentCount) openNum = currentCount;
   if (openNum <= 0) return;
 
-  caseOpenOverlay.classList.add('show');
-  caseOpeningBox.style.display = 'block';
-  caseOpeningBox.innerText = isLegendary ? '🌟' : (isEpic ? '💠' : '📦');
-  caseRewardText.innerText = '';
-  btnCloseCase.style.display = 'none';
+  caseOpenOverlay?.classList.add('show');
+  if (caseOpeningBox) {
+    caseOpeningBox.style.display = 'block';
+    caseOpeningBox.innerText = isLegendary ? '🌟' : (isEpic ? '💠' : '📦');
+  }
+  if (caseRewardText) caseRewardText.innerText = '';
+  if (btnCloseCase) btnCloseCase.style.display = 'none';
 
   setTimeout(async () => {
-    caseOpeningBox.style.display = 'none';
+    if (caseOpeningBox) caseOpeningBox.style.display = 'none';
     const summaryRewards = [];
     const multiplier = isLegendary ? 10 : (isEpic ? 5 : 1);
 
@@ -2175,43 +2288,45 @@ window.openCasesBatch = async function(qty) {
     });
 
     if (!res.committed) {
-      caseRewardText.innerText = '❌ Не вдалося відкрити кейс (онови дані та спробуй ще раз)';
-      btnCloseCase.style.display = 'block';
+      if (caseRewardText) caseRewardText.innerText = '❌ Не вдалося відкрити кейс (онови дані та спробуй ще раз)';
+      if (btnCloseCase) btnCloseCase.style.display = 'block';
       return;
     }
 
-    caseRewardText.innerText = summaryRewards.join('\n');
-    btnCloseCase.style.display = 'block';
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+    if (caseRewardText) caseRewardText.innerText = summaryRewards.join('\n');
+    if (btnCloseCase) btnCloseCase.style.display = 'block';
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
   }, 1500);
 };
 
-btnCloseCase.addEventListener('click', () => {
-  caseOpenOverlay.classList.remove('show');
+btnCloseCase?.addEventListener('click', () => {
+  caseOpenOverlay?.classList.remove('show');
 });
 
-let cryptoState = {};
 async function initCryptoSystem() {
+  if (unsubscribeCrypto) { unsubscribeCrypto(); unsubscribeCrypto = null; }
+  if (cryptoInterval) { clearInterval(cryptoInterval); cryptoInterval = null; }
+
   for (const symbol of COINS) {
-    const cRef = ref(db, 'crypto/' + symbol);
-    const snap = await get(cRef);
-    if (!snap.exists()) {
-      const price = INITIAL_PRICES[symbol];
-      await set(cRef, { price: price, history: [{ t: Date.now(), p: price }] });
-    }
+    try {
+      const cRef = ref(db, 'crypto/' + symbol);
+      const snap = await get(cRef);
+      if (!snap.exists()) {
+        const price = INITIAL_PRICES[symbol];
+        await set(cRef, { price: price, history: [{ t: Date.now(), p: price }] });
+      }
+    } catch (e) {}
   }
 
-  onValue(ref(db, 'crypto'), (snap) => {
+  unsubscribeCrypto = onValue(ref(db, 'crypto'), (snap) => {
     const data = snap.val();
     if (!data) return;
     cryptoState = data;
-    renderCryptoList();
+    renderCryptoListPreservingFocus();
   });
 
-  if (cryptoInterval) clearInterval(cryptoInterval);
   cryptoInterval = setInterval(async () => {
     for (const symbol of COINS) {
-      // PLAYERHOM рухається тільки від рішень (купівля/продаж) гравців
       if (symbol === 'PLAYERHOM') continue;
       updateCryptoPrice(symbol);
     }
@@ -2279,7 +2394,7 @@ function renderCryptoList() {
     btn.addEventListener('click', () => {
       const symbol = btn.dataset.symbol;
       const action = btn.dataset.action;
-      const qty = parseInt(document.getElementById('qty-' + symbol).value) || 1;
+      const qty = parseInt(document.getElementById('qty-' + symbol)?.value, 10) || 1;
       tradeCrypto(symbol, action, qty);
     });
   });
@@ -2342,7 +2457,6 @@ async function tradeCrypto(symbol, action, qty) {
     return;
   }
 
-  // Для PLAYERHOM курс змінюється лише від рішень гравців (купівля = ріст, продаж = падіння)
   if (symbol === 'PLAYERHOM') {
     const cRef = ref(db, 'crypto/PLAYERHOM');
     await runTransaction(cRef, (cData) => {
@@ -2390,7 +2504,7 @@ function initRoulette() {
   buildRouletteStrip(ROULETTE_REWARDS[0]);
 }
 
-btnSpinRoulette.addEventListener('click', async () => {
+btnSpinRoulette?.addEventListener('click', async () => {
   if (!AdController) { showStatus('❌ Ad not available'); return; }
   try {
     const result = await AdController.show();
@@ -2429,10 +2543,10 @@ btnSpinRoulette.addEventListener('click', async () => {
 
         btnSpinRoulette.disabled = false;
         showStatus(`🎁 Reward: ${reward.text}`);
-        try { tg?.HapticFeedback?.notificationOccurred('success'); } catch(e) {}
+        try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
       }, 3100);
     }
-  } catch(e) {
+  } catch (e) {
     btnSpinRoulette.disabled = false;
     showStatus('❌ Ad not completed');
   }
