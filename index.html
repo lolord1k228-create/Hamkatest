@@ -1,18 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hamka Game</title>
   <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
   <script defer src="https://sad.adsgram.ai/js/sad.min.js"></script>
-  <script>
-    (function () {
-      const savedLayout = localStorage.getItem('hamka_layout_style') || 'classic';
-      const normalized = savedLayout === 'new' ? 'new' : 'classic';
-      document.documentElement.setAttribute('data-layout', normalized);
-    })();
-  </script>
   <style>
     * {
       margin: 0;
@@ -26,7 +19,6 @@
       user-select: text;
     }
 
-    /* Базові змінні: за замовчуванням СТАРИЙ стиль ("до оновлення") */
     :root {
       --bg-main: #000000;
       --bg-body: radial-gradient(circle at 50% 30%, #111 0%, #000 80%);
@@ -51,35 +43,7 @@
       --hamster-size: clamp(240px, 68vw, 340px);
       --hamster-max: 44dvh;
       --hamster-emoji-size: clamp(110px, 32vw, 160px);
-      --banner-opacity: 0.62;
-    }
-
-    /* НОВИЙ стиль (як у попередньому оновленні) */
-    html[data-layout="new"] {
-      --bg-main: #0d1117;
-      --bg-body: #0d1117;
-      --bg-card: #161b22;
-      --bg-surface: #0d1117;
-      --bg-elevated: #21262d;
-      --border-color: #21262d;
-      --border-strong: #30363d;
-      --text-main: #ffffff;
-      --text-muted: #8b949e;
-      --accent: #f5a623;
-      --accent-2: #f76b1c;
-      --gold: #f5b400;
-      --season-bg: #1d180c;
-      --season-color: #f5b400;
-      --radius-card: 12px;
-      --radius-btn: 8px;
-      --btn-pad-y: 8px;
-      --btn-pad-x: 11px;
-      --btn-font: 12px;
-      --card-pad: 12px;
-      --hamster-size: 320px;
-      --hamster-max: 76vw;
-      --hamster-emoji-size: clamp(92px, 22vw, 150px);
-      --banner-opacity: 0.62;
+      --banner-opacity: 0.65;
     }
 
     html, body {
@@ -149,10 +113,6 @@
       overflow-y: auto;
     }
 
-    html[data-layout="new"] #auth-screen {
-      background: radial-gradient(circle at top, #141a24 0%, var(--bg-main) 72%);
-    }
-
     .auth-logo-img {
       font-size: clamp(64px, 18vw, 88px);
       margin-bottom: 10px;
@@ -199,11 +159,6 @@
     .auth-tab.active {
       background: rgba(46, 204, 113, 0.12);
       color: var(--text-main);
-      border-color: var(--accent);
-    }
-
-    html[data-layout="new"] .auth-tab.active {
-      background: var(--bg-elevated);
       border-color: var(--accent);
     }
 
@@ -295,12 +250,6 @@
       box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
     }
 
-    html[data-layout="new"] .btn-green {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: #000000;
-      box-shadow: none;
-    }
-
     .btn-blue {
       background: #2aabee;
       color: #ffffff;
@@ -339,10 +288,6 @@
       display: flex;
     }
 
-    html[data-layout="new"] #game-screen {
-      max-width: 560px;
-    }
-
     .top-stats {
       display: flex;
       justify-content: space-between;
@@ -353,11 +298,6 @@
       font-weight: 600;
       border-bottom: 1px solid #222;
       flex-shrink: 0;
-    }
-
-    html[data-layout="new"] .top-stats {
-      background: var(--bg-surface);
-      border-bottom-color: var(--border-color);
     }
 
     .top-stats-group {
@@ -376,13 +316,6 @@
       border-radius: 8px;
     }
 
-    html[data-layout="new"] .stat-pill {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 999px;
-      padding: 5px 11px;
-    }
-
     .season-badge {
       background: var(--season-bg);
       color: var(--season-color);
@@ -394,10 +327,6 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
-    }
-
-    html[data-layout="new"] .season-badge {
-      border: 1px solid rgba(245, 166, 35, 0.35);
     }
 
     .admin-btn-badge {
@@ -441,15 +370,6 @@
       flex-shrink: 0;
     }
 
-    html[data-layout="new"] .main-menu {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      padding: 8px 10px;
-      background: var(--bg-surface);
-      border-bottom-color: var(--border-color);
-    }
-
     .main-menu::-webkit-scrollbar {
       display: none;
     }
@@ -466,29 +386,14 @@
       cursor: pointer;
     }
 
-    html[data-layout="new"] .menu-item {
-      min-width: 0;
-      padding: 6px 2px;
-      border-radius: 10px;
-      color: var(--text-muted);
-    }
-
     .menu-item.active {
       color: var(--text-main);
-    }
-
-    html[data-layout="new"] .menu-item.active {
-      background: var(--bg-elevated);
     }
 
     .menu-item.active .menu-icon-wrap {
       background: var(--accent);
       color: #000000;
       box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
-    }
-
-    html[data-layout="new"] .menu-item.active .menu-icon-wrap {
-      box-shadow: none;
     }
 
     .menu-icon-wrap {
@@ -501,14 +406,6 @@
       font-size: clamp(16px, 4.2vw, 19px);
       background: rgba(255, 255, 255, 0.05);
       color: #888888;
-    }
-
-    html[data-layout="new"] .menu-icon-wrap {
-      width: 30px;
-      height: 30px;
-      font-size: 15px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
     }
 
     .page {
@@ -545,10 +442,6 @@
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
 
-    html[data-layout="new"] .coin-counter {
-      margin-bottom: 18px;
-    }
-
     .hamster-wrap {
       position: relative;
       display: flex;
@@ -579,11 +472,6 @@
       background-position: center;
     }
 
-    html[data-layout="new"] .hamster {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-      background: radial-gradient(circle at 30% 30%, #242c37, #12161c);
-    }
-
     .hamster:active {
       transform: scale(0.96);
     }
@@ -596,10 +484,6 @@
       pointer-events: none;
       animation: floatUp 0.8s ease-out forwards;
       z-index: 10;
-    }
-
-    html[data-layout="new"] .tap-effect {
-      color: #ffd700;
     }
 
     @keyframes floatUp {
@@ -625,10 +509,6 @@
       scrollbar-width: none;
     }
 
-    html[data-layout="new"] .shop-tabs {
-      border-bottom-color: var(--border-color);
-    }
-
     .shop-tabs::-webkit-scrollbar {
       display: none;
     }
@@ -647,12 +527,6 @@
       white-space: nowrap;
     }
 
-    html[data-layout="new"] .shop-tab {
-      background: var(--bg-card);
-      border-color: var(--border-strong);
-      color: var(--text-muted);
-    }
-
     .shop-tab.active {
       background: var(--accent);
       color: #000000;
@@ -665,7 +539,6 @@
       padding: 10px 12px 40px;
     }
 
-    /* Картки товарів: за замовчуванням СТАРИЙ стиль (горизонтальні картки у списку) */
     .shop-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -720,17 +593,6 @@
       cursor: not-allowed;
     }
 
-    /* У новому стилі картки товарів у списку вертикальні й компактні */
-    html[data-layout="new"] .shop-card {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 10px;
-    }
-
-    html[data-layout="new"] .shop-card-info {
-      padding-right: 0;
-    }
-
     .shop-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -768,25 +630,12 @@
       background-position: center;
     }
 
-    html[data-layout="new"] .grid-preview {
-      width: 100%;
-      height: 84px;
-      border-radius: 10px;
-      background-color: var(--bg-surface);
-    }
-
     .promo-box {
       background: linear-gradient(145deg, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0.03));
       border: 1px solid rgba(46, 204, 113, 0.3);
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 12px;
-    }
-
-    html[data-layout="new"] .promo-box {
-      background: var(--bg-card);
-      border-color: var(--border-color);
-      border-radius: 12px;
     }
 
     .promo-code-display {
@@ -797,7 +646,7 @@
       border: 1px dashed #2ecc71;
       border-radius: 10px;
       padding: 10px 12px;
-      margin: 10px 0;
+      margin-top: 10px;
     }
 
     .promo-code-text {
@@ -806,36 +655,6 @@
       font-weight: 800;
       color: #2ecc71;
       word-break: break-all;
-    }
-
-    .promo-input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .promo-input {
-      flex: 1;
-      padding: 11px 12px;
-      background: #141414;
-      border: 1px solid #333;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      font-family: monospace;
-    }
-
-    .invite-friend-btn {
-      width: 100%;
-      padding: 10px 12px;
-      border: none;
-      border-radius: var(--radius-btn);
-      background: var(--accent);
-      color: #000000;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
     }
 
     /* КРИПТА / МІНІ-ІГРИ */
@@ -949,15 +768,6 @@
       margin-bottom: 14px;
     }
 
-    html[data-layout="new"] .profile-card {
-      background: var(--bg-card);
-      border-color: var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: left;
-    }
-
-    /* Світліший банер у профілі та топі */
     .profile-banner-bg {
       position: absolute;
       inset: 0;
@@ -999,10 +809,6 @@
       justify-content: center;
       gap: 8px;
       margin-top: 4px;
-    }
-
-    html[data-layout="new"] .profile-name-wrap {
-      justify-content: flex-start;
     }
 
     .profile-name {
@@ -1069,13 +875,22 @@
       text-transform: uppercase;
     }
 
-    .prestige-section {
-      background: rgba(138, 43, 226, 0.1);
-      border: 1px solid rgba(138, 43, 226, 0.3);
+    .streak-prestige-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .streak-prestige-col {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-      margin-bottom: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     /* ІНВЕНТАР */
@@ -1096,10 +911,6 @@
       gap: 8px;
     }
 
-    html[data-layout="new"] .inventory-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
     .inventory-item,
     .banner-item {
       background: rgba(255, 255, 255, 0.05);
@@ -1109,12 +920,6 @@
       cursor: pointer;
       border: 2px solid transparent;
       position: relative;
-    }
-
-    html[data-layout="new"] .inventory-item,
-    html[data-layout="new"] .banner-item {
-      background: var(--bg-card);
-      border-color: var(--border-strong);
     }
 
     .inventory-item.active,
@@ -1163,6 +968,12 @@
       position: relative;
     }
 
+    .case-item.epic {
+      background: linear-gradient(135deg, #1b2d3d, #0f1b24);
+      border: 2px solid #00bfff;
+      box-shadow: 0 0 15px rgba(0, 191, 255, 0.35);
+    }
+
     .case-item.legendary {
       background: linear-gradient(135deg, #3d2a1b, #241a0f);
       border: 2px solid #ffd700;
@@ -1184,6 +995,10 @@
       color: #da70d6;
     }
 
+    .case-item.epic .case-name {
+      color: #66d9ff;
+    }
+
     .case-item.legendary .case-name {
       color: #ffd700;
     }
@@ -1201,6 +1016,26 @@
     }
 
     /* ТОП */
+    .top-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .top-rewards-btn {
+      padding: 7px 11px;
+      border: 1px solid rgba(245, 166, 35, 0.45);
+      border-radius: 9px;
+      background: rgba(245, 166, 35, 0.14);
+      color: #ffd700;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
     .leaderboard-item {
       position: relative;
       overflow: hidden;
@@ -1212,11 +1047,6 @@
       border-radius: 12px;
       margin-bottom: 8px;
       cursor: pointer;
-    }
-
-    html[data-layout="new"] .leaderboard-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
     }
 
     .lb-avatar {
@@ -1533,10 +1363,6 @@
       flex-shrink: 0;
     }
 
-    html[data-layout="new"] .bottom-panel {
-      border-top-color: var(--border-color);
-    }
-
     .bottom-stats {
       display: flex;
       justify-content: space-between;
@@ -1608,7 +1434,7 @@
       transition: opacity 0.3s;
       pointer-events: none;
       white-space: nowrap;
-      z-index: 100;
+      z-index: 2600;
       border: 1px solid rgba(255, 255, 255, 0.12);
       max-width: 92vw;
       overflow: hidden;
@@ -1652,8 +1478,9 @@
       font-size: 32px;
       font-weight: 900;
       margin-top: 20px;
-      background: linear-gradient(90deg, #8a2be2, #da70d6);
+      background-image: linear-gradient(90deg, #8a2be2, #da70d6);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
   </style>
@@ -1677,7 +1504,7 @@
 
     <div class="auth-hint-top" data-i18n="auth_hint">🔒 Choose login method</div>
 
-    <div class="auth-form">
+    <form class="auth-form" id="auth-form">
       <div class="input-wrap">
         <span class="input-icon">👤</span>
         <input type="text" id="auth-nickname" class="auth-input" placeholder="Nickname (3-16 chars)" maxlength="16" autocomplete="username" />
@@ -1689,10 +1516,10 @@
 
       <div class="auth-error" id="auth-error"></div>
 
-      <button type="button" class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Login</button>
+      <button type="submit" class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Login</button>
       <div class="auth-divider" data-i18n="or">or</div>
       <button type="button" class="auth-btn btn-blue" id="tg-login-btn" data-i18n="btn_tg">📱 Login via Telegram</button>
-    </div>
+    </form>
   </div>
 
   <div id="game-screen">
@@ -1703,7 +1530,7 @@
         <div id="active-boost-badge" class="boost-badge">⚡ <span id="active-boost-text"></span></div>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <div class="admin-btn-badge" id="admin-btn-badge" onclick="document.getElementById('modal-admin').classList.add('show')">🛠 Admin</div>
+        <div class="admin-btn-badge" id="admin-btn-badge">🛠 Admin</div>
         <div class="season-badge" data-i18n="season">🏆 Season 1</div>
       </div>
     </div>
@@ -1808,19 +1635,30 @@
         </div>
       </div>
 
-      <div class="prestige-section">
-        <div style="font-size: 18px; font-weight: 800; color: #da70d6;" data-i18n="prestige_title">🌟 Prestige</div>
-        <div style="font-size: 12px; color: #aaa; margin-top: 4px;" id="prestige-info">Required 1,000,000 XP</div>
-      </div>
-
-      <div class="shop-card" style="flex-direction: column; align-items: stretch; gap: 8px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="shop-card-title" data-i18n="streak_title">🔥 Daily Streak</div>
-          <span class="season-badge" id="streak-days-badge">0 дн.</span>
+      <div class="streak-prestige-row">
+        <div class="streak-prestige-col">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; margin-bottom:4px;">
+              <div class="shop-card-title" style="font-size:13px; margin-bottom:0;" data-i18n="streak_title">🔥 Серія</div>
+              <span class="season-badge" id="streak-days-badge" style="padding:2px 7px; font-size:10px;">0 дн.</span>
+            </div>
+            <div class="shop-card-desc" id="streak-desc"></div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <button type="button" class="shop-card-btn" id="btn-claim-streak" style="display:none; width:100%;">🎁 Забрати</button>
+            <button type="button" class="shop-card-btn" id="btn-restore-streak" style="display:none; width:100%;"></button>
+          </div>
         </div>
-        <div class="shop-card-desc" id="streak-desc"></div>
-        <button type="button" class="shop-card-btn" id="btn-claim-streak" style="display:none;">🎁 Забрати нагороду</button>
-        <button type="button" class="shop-card-btn" id="btn-restore-streak" style="display:none;"></button>
+
+        <div class="streak-prestige-col" style="background: rgba(138, 43, 226, 0.12); border-color: rgba(138, 43, 226, 0.35);">
+          <div>
+            <div class="shop-card-title" style="font-size:13px; color:#da70d6;" data-i18n="prestige_title">🌟 Престиж</div>
+            <div class="shop-card-desc" id="prestige-info">Required 1,000,000 XP</div>
+          </div>
+          <div class="shop-card-desc" style="color:#d0b8ff;">
+            Банери за престиж: 1, 3, 5 🌟
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1852,28 +1690,15 @@
     </div>
 
     <div class="page scroll-page" id="page-top">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 12px;" data-i18n="top_title">🏆 Leaderboard</div>
+      <div class="top-header-bar">
+        <div class="inventory-title" style="font-size: 19px; margin-bottom: 0;" data-i18n="top_title">🏆 Leaderboard</div>
+        <button type="button" class="top-rewards-btn" id="btn-month-rewards" data-i18n="month_rewards_btn">🏅 Нагороди в кінці місяця</button>
+      </div>
       <div id="leaderboard-list"></div>
     </div>
 
     <div class="page scroll-page" id="page-settings">
       <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="settings_title">⚙️ Settings</div>
-
-      <div class="settings-group">
-        <label for="layout-style-select" class="settings-label" data-i18n="layout_style_label">Стиль кнопок та карток / Layout Style</label>
-        <select class="settings-select" id="layout-style-select">
-          <option value="classic" data-i18n="layout_classic">Старий стиль (як до оновлення)</option>
-          <option value="new" data-i18n="layout_new">Новий стиль</option>
-        </select>
-
-        <div class="settings-toggle-row" style="margin-top: 12px;">
-          <span class="shop-card-desc" style="font-size: 12px;" data-i18n="reload_on_style_change">Перезапускати сайт при зміні стилю (якщо потрібно)</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="reload-style-toggle" checked />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
 
       <div class="settings-group">
         <label for="language-select" class="settings-label" data-i18n="lang_label">Language / Мова / Язык</label>
@@ -1921,23 +1746,38 @@
 
   <div id="status"></div>
 
+  <div class="modal-overlay" id="modal-month-rewards">
+    <div class="modal-content" style="text-align:left;">
+      <div class="modal-title" style="text-align:center;" data-i18n="month_rewards_title">🏅 Нагороди в кінці місяця</div>
+      <div style="font-size:12px; color:#ccc; line-height:1.5; display:flex; flex-direction:column; gap:8px;">
+        <div>🥇 <b>1 місце:</b> Буст монет <b>x3</b> на <b>5 год</b> + титул «🥇 Top 1».</div>
+        <div>🥈 <b>2 місце:</b> Буст монет <b>x3</b> на <b>2 год</b> + титул «🥈 Top 2».</div>
+        <div>🥉 <b>3 місце:</b> Буст монет <b>x2</b> на <b>1 год</b> + титул «🥉 Top 3».</div>
+        <div style="color:#9aa2b1; font-size:11px;">Нагороди нараховуються автоматично при першому вході в наступному місяці.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modal-case-qty">
     <div class="modal-content">
       <div class="modal-title" id="case-modal-title" data-i18n="open_case">Open Case</div>
       <div style="font-size: 14px; color: #aaa; margin-bottom: 16px;" id="case-modal-count">Available: 0</div>
       <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <button type="button" class="modal-btn confirm" onclick="openCasesBatch(1)">1</button>
-        <button type="button" class="modal-btn confirm" onclick="openCasesBatch(5)">5</button>
-        <button type="button" class="modal-btn confirm" onclick="openCasesBatch(10)">10</button>
-        <button type="button" class="modal-btn confirm" onclick="openCasesBatch('all')" data-i18n="all">All</button>
+        <button type="button" class="modal-btn confirm" data-qty="1">1</button>
+        <button type="button" class="modal-btn confirm" data-qty="5">5</button>
+        <button type="button" class="modal-btn confirm" data-qty="10">10</button>
+        <button type="button" class="modal-btn confirm" data-qty="all" data-i18n="all">All</button>
       </div>
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" onclick="document.getElementById('modal-case-qty').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button type="button" class="modal-btn cancel" data-i18n="cancel">Cancel</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-view-profile" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-overlay" id="modal-view-profile">
     <div class="modal-content">
       <div id="view-prof-banner" class="profile-banner-bg"></div>
       <div style="position:relative; z-index:1;">
@@ -1962,7 +1802,7 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="modal-btn cancel" onclick="document.getElementById('modal-view-profile').classList.remove('show')" data-i18n="close">Close</button>
+          <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
         </div>
       </div>
     </div>
@@ -1973,7 +1813,7 @@
       <div class="modal-title" data-i18n="change_nickname">Change Nickname</div>
       <input type="text" class="admin-input" id="new-nickname-input" maxlength="16" placeholder="New nickname" />
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" onclick="document.getElementById('modal-nickname').classList.remove('show')" data-i18n="cancel">Cancel</button>
+        <button type="button" class="modal-btn cancel" data-i18n="cancel">Cancel</button>
         <button type="button" class="modal-btn confirm" id="btn-save-nickname" data-i18n="save">Save</button>
       </div>
     </div>
@@ -1994,7 +1834,7 @@
       <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCase()">Add Case</button>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" onclick="document.getElementById('modal-admin').classList.remove('show')">Close</button>
+        <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
       </div>
     </div>
   </div>
