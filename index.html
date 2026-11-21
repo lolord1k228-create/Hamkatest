@@ -2,13 +2,14 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <title>Hamka — крипто-клікер</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐭</text></svg>" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Hamka — крипто-клікер | Забери бонусні кейси" />
   <meta property="og:description" content="Тапай хом'яка, відкривай кейси, торгуй монетами та забирай сезонні нагороди. Заходь за запрошенням та отримай стартовий буст!" />
-  <meta property="og:image" content="https://lolord1k228-create.github.io/hamka-game/og-hamka.png" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/lolord1k228-create/hamka-game/main/og-hamka.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -56,7 +57,7 @@
     }
 
     html, body {
-      height: 100dvh;
+      height: var(--tg-viewport-height, 100dvh);
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg-main);
@@ -75,7 +76,6 @@
       display: none !important;
     }
 
-    /* ЗАВАНТАЖЕННЯ */
     #loading-screen {
       position: fixed;
       inset: 0;
@@ -108,7 +108,6 @@
       color: var(--text-main);
     }
 
-    /* АВТОРИЗАЦІЯ */
     #auth-screen {
       position: fixed;
       inset: 0;
@@ -283,7 +282,6 @@
       background: #222;
     }
 
-    /* ГОЛОВНИЙ ЕКРАН ГРИ */
     #game-screen {
       display: none;
       flex-direction: column;
@@ -428,7 +426,6 @@
       display: flex;
     }
 
-    /* ТАП */
     .tap-area {
       flex: 1;
       display: flex;
@@ -500,7 +497,6 @@
       100% { opacity: 0; transform: translateY(-85px) scale(1.3); }
     }
 
-    /* МАГАЗИН */
     .shop-container {
       display: flex;
       flex-direction: column;
@@ -706,7 +702,6 @@
       color: #aef2c8;
     }
 
-    /* КРИПТА / МІНІ-ІГРИ */
     .crypto-page {
       padding: 10px 12px 40px;
     }
@@ -801,7 +796,6 @@
       font-weight: 600;
     }
 
-    /* ПРОФІЛЬ */
     .scroll-page {
       padding: 10px 12px 40px;
     }
@@ -942,7 +936,6 @@
       gap: 8px;
     }
 
-    /* ІНВЕНТАР */
     .inventory-section {
       margin-bottom: 16px;
     }
@@ -1064,7 +1057,6 @@
       border-radius: 10px;
     }
 
-    /* ТОП */
     .top-header-bar {
       display: flex;
       justify-content: space-between;
@@ -1151,7 +1143,6 @@
       color: #da70d6;
     }
 
-    /* НАЛАШТУВАННЯ */
     .settings-group {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -1231,7 +1222,6 @@
       transform: translateX(24px);
     }
 
-    /* МОДАЛКИ */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -1404,7 +1394,6 @@
       margin-bottom: 8px;
     }
 
-    /* НИЖНЯ ПАНЕЛЬ */
     .bottom-panel {
       background: var(--bg-surface);
       border-top: 1px solid #222;
@@ -1536,38 +1525,38 @@
 </head>
 <body>
 
-  <div id="loading-screen">
+  <div id="loading-screen" role="status" aria-live="polite">
     <div class="loader"></div>
-    <div class="loading-text" data-i18n="loading">Loading...</div>
+    <div class="loading-text" data-i18n="loading">Завантаження...</div>
   </div>
 
   <div id="auth-screen" class="hidden">
-    <div class="auth-logo-img">🐭</div>
+    <div class="auth-logo-img" aria-hidden="true">🐭</div>
     <div class="auth-title">Hamka</div>
-    <div class="auth-subtitle" data-i18n="auth_subtitle">Crypto clicker with upgrades</div>
+    <div class="auth-subtitle" data-i18n="auth_subtitle">Крипто-клікер з апгрейдами</div>
 
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login" data-i18n="login">Login</div>
-      <div class="auth-tab" id="tab-register" data-i18n="register">Register</div>
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab active" id="tab-login" role="tab" data-i18n="login">Вхід</button>
+      <button type="button" class="auth-tab" id="tab-register" role="tab" data-i18n="register">Реєстрація</button>
     </div>
 
-    <div class="auth-hint-top" data-i18n="auth_hint">🔒 Choose login method</div>
+    <div class="auth-hint-top" data-i18n="auth_hint">🔒 Виберіть спосіб входу</div>
 
     <form class="auth-form" id="auth-form">
       <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input type="text" id="auth-nickname" class="auth-input" placeholder="Nickname (3-16 chars)" maxlength="16" autocomplete="username" />
+        <span class="input-icon" aria-hidden="true">👤</span>
+        <input type="text" id="auth-nickname" class="auth-input" placeholder="Нікнейм (3–16 символів)" maxlength="16" autocomplete="username" />
       </div>
       <div class="input-wrap">
-        <span class="input-icon">🔑</span>
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password (min. 6)" autocomplete="current-password" />
+        <span class="input-icon" aria-hidden="true">🔑</span>
+        <input type="password" id="auth-password" class="auth-input" placeholder="Пароль (мін. 6 символів)" autocomplete="current-password" />
       </div>
 
-      <div class="auth-error" id="auth-error"></div>
+      <div class="auth-error" id="auth-error" role="alert"></div>
 
-      <button type="submit" class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Login</button>
-      <div class="auth-divider" data-i18n="or">or</div>
-      <button type="button" class="auth-btn btn-blue" id="tg-login-btn" data-i18n="btn_tg">📱 Login via Telegram</button>
+      <button type="submit" class="auth-btn btn-green" id="auth-submit" data-i18n="btn_login">👉 Увійти</button>
+      <div class="auth-divider" data-i18n="or">або</div>
+      <button type="button" class="auth-btn btn-blue" id="tg-login-btn" data-i18n="btn_tg">📱 Увійти через Telegram</button>
     </form>
   </div>
 
@@ -1579,19 +1568,19 @@
         <div id="active-boost-badge" class="boost-badge">⚡ <span id="active-boost-text"></span></div>
       </div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <div class="admin-btn-badge" id="admin-btn-badge">🛠 Admin</div>
-        <div class="season-badge" data-i18n="season">🏆 Season 1</div>
+        <button type="button" class="admin-btn-badge" id="admin-btn-badge">🛠 Admin</button>
+        <div class="season-badge" data-i18n="season">🏆 Сезон 1</div>
       </div>
     </div>
 
-    <div class="main-menu">
-      <div class="menu-item active" data-page="tap"><div class="menu-icon-wrap">🐭</div><span data-i18n="menu_tap">Tap</span></div>
-      <div class="menu-item" data-page="shop"><div class="menu-icon-wrap">🛒</div><span data-i18n="menu_shop">Shop</span></div>
-      <div class="menu-item" data-page="minigames"><div class="menu-icon-wrap">🎲</div><span data-i18n="menu_games">Games</span></div>
-      <div class="menu-item" data-page="profile"><div class="menu-icon-wrap">👤</div><span data-i18n="menu_profile">Profile</span></div>
-      <div class="menu-item" data-page="inventory"><div class="menu-icon-wrap">🎒</div><span data-i18n="menu_inventory">Inventory</span></div>
-      <div class="menu-item" data-page="top"><div class="menu-icon-wrap">🏆</div><span data-i18n="menu_top">Top</span></div>
-      <div class="menu-item" data-page="settings"><div class="menu-icon-wrap">⚙️</div><span data-i18n="menu_settings">Settings</span></div>
+    <div class="main-menu" role="navigation">
+      <div class="menu-item active" data-page="tap" role="button" tabindex="0"><div class="menu-icon-wrap">🐭</div><span data-i18n="menu_tap">Гра</span></div>
+      <div class="menu-item" data-page="shop" role="button" tabindex="0"><div class="menu-icon-wrap">🛒</div><span data-i18n="menu_shop">Магазин</span></div>
+      <div class="menu-item" data-page="minigames" role="button" tabindex="0"><div class="menu-icon-wrap">🎲</div><span data-i18n="menu_games">Ігри</span></div>
+      <div class="menu-item" data-page="profile" role="button" tabindex="0"><div class="menu-icon-wrap">👤</div><span data-i18n="menu_profile">Профіль</span></div>
+      <div class="menu-item" data-page="inventory" role="button" tabindex="0"><div class="menu-icon-wrap">🎒</div><span data-i18n="menu_inventory">Інвентар</span></div>
+      <div class="menu-item" data-page="top" role="button" tabindex="0"><div class="menu-icon-wrap">🏆</div><span data-i18n="menu_top">Топ</span></div>
+      <div class="menu-item" data-page="settings" role="button" tabindex="0"><div class="menu-icon-wrap">⚙️</div><span data-i18n="menu_settings">Налаштування</span></div>
     </div>
 
     <div class="page active" id="page-tap">
@@ -1601,7 +1590,7 @@
           <span id="tap-coin-display">0</span>
         </div>
         <div class="hamster-wrap">
-          <div class="hamster" id="hamster">🐭</div>
+          <button type="button" class="hamster" id="hamster" aria-label="Тапати по хом'яку">🐭</button>
         </div>
       </div>
     </div>
@@ -1609,21 +1598,21 @@
     <div class="page" id="page-shop">
       <div class="shop-container">
         <div class="shop-tabs">
-          <div class="shop-tab active" data-shop-tab="auto" data-i18n="shop_auto">Auto</div>
-          <div class="shop-tab" data-shop-tab="upgrade" data-i18n="shop_upgrade">Upgrades</div>
-          <div class="shop-tab" data-shop-tab="cases" data-i18n="shop_cases">Cases</div>
-          <div class="shop-tab" data-shop-tab="cosmetics" data-i18n="shop_cosmetics">Cosmetics</div>
+          <div class="shop-tab active" data-shop-tab="auto" data-i18n="shop_auto">Авто</div>
+          <div class="shop-tab" data-shop-tab="upgrade" data-i18n="shop_upgrade">Прокачка</div>
+          <div class="shop-tab" data-shop-tab="cases" data-i18n="shop_cases">Кейси</div>
+          <div class="shop-tab" data-shop-tab="cosmetics" data-i18n="shop_cosmetics">Косметика</div>
         </div>
         <div class="shop-list" id="shop-list"></div>
       </div>
     </div>
 
     <div class="page crypto-page" id="page-minigames">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 14px;" data-i18n="menu_games">🎲 Mini-games</div>
+      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 14px;" data-i18n="menu_games">🎲 Ігри</div>
 
       <div class="shop-tabs" style="margin-bottom: 14px; padding: 0;">
-        <div class="shop-tab active" id="minitab-crypto">₿ Crypto</div>
-        <div class="shop-tab" id="minitab-roulette" data-i18n="roulette">🎰 Roulette</div>
+        <div class="shop-tab active" id="minitab-crypto">₿ Крипта</div>
+        <div class="shop-tab" id="minitab-roulette" data-i18n="roulette">🎰 Рулетка</div>
       </div>
 
       <div id="mini-content-crypto">
@@ -1632,15 +1621,15 @@
 
       <div id="mini-content-roulette" style="display:none; text-align: center;">
         <div class="crypto-card">
-          <div style="font-size: 18px; font-weight: 700; color: #f5a623; margin-bottom: 8px;" data-i18n="roulette_title">Roulette for Ad</div>
-          <div style="font-size: 12px; color: #aaa; margin-bottom: 14px;" data-i18n="roulette_desc">Spin and get coins, XP, Homs or exclusive items!</div>
+          <div style="font-size: 18px; font-weight: 700; color: #f5a623; margin-bottom: 8px;" data-i18n="roulette_title">Рулетка за рекламу</div>
+          <div style="font-size: 12px; color: #aaa; margin-bottom: 14px;" data-i18n="roulette_desc">Крути та отримуй монети, XP, Хоми або ексклюзиви!</div>
 
           <div class="roulette-container" style="margin-bottom: 14px;">
             <div class="roulette-pointer"></div>
             <div class="roulette-strip" id="roulette-strip"></div>
           </div>
 
-          <button type="button" class="auth-btn btn-green" id="btn-spin-roulette" style="width:100%; max-width:none;" data-i18n="spin_btn">🎬 Spin for Ad</button>
+          <button type="button" class="auth-btn btn-green" id="btn-spin-roulette" style="width:100%; max-width:none;" data-i18n="spin_btn">🎬 Крутити за рекламу</button>
         </div>
       </div>
     </div>
@@ -1655,22 +1644,22 @@
 
           <div class="profile-name-wrap">
             <div class="profile-name" id="prof-nickname">Player</div>
-            <button type="button" class="edit-name-btn" id="btn-change-nickname">✏️</button>
+            <button type="button" class="edit-name-btn" id="btn-change-nickname" aria-label="Змінити нікнейм">✏️</button>
           </div>
           <div class="profile-id" id="prof-public-id">ID: 000000</div>
 
           <div class="profile-title-badge" id="prof-title-badge">
-            <span id="prof-title">Beginner</span>
+            <span id="prof-title">Новобранець</span>
           </div>
 
           <div class="profile-stats">
             <div class="profile-stat-item">
               <div class="profile-stat-val" id="prof-coins">0</div>
-              <div class="profile-stat-lbl" data-i18n="coins">Coins</div>
+              <div class="profile-stat-lbl" data-i18n="coins">Монети</div>
             </div>
             <div class="profile-stat-item">
               <div class="profile-stat-val" id="prof-homs">0</div>
-              <div class="profile-stat-lbl" data-i18n="homs">Homs</div>
+              <div class="profile-stat-lbl" data-i18n="homs">Хоми</div>
             </div>
             <div class="profile-stat-item">
               <div class="profile-stat-val" id="prof-xp">0</div>
@@ -1678,7 +1667,7 @@
             </div>
             <div class="profile-stat-item">
               <div class="profile-stat-val" id="prof-prestige">0</div>
-              <div class="profile-stat-lbl" data-i18n="prestige">Prestige</div>
+              <div class="profile-stat-lbl" data-i18n="prestige">Престиж</div>
             </div>
           </div>
         </div>
@@ -1688,7 +1677,7 @@
         <div class="streak-prestige-col">
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; margin-bottom:4px;">
-              <div class="shop-card-title" style="font-size:13px; margin-bottom:0;" data-i18n="streak_title">🔥 Серія</div>
+              <div class="shop-card-title" style="font-size:13px; margin-bottom:0;" data-i18n="streak_title">🔥 Денна серія</div>
               <span class="season-badge" id="streak-days-badge" style="padding:2px 7px; font-size:10px;">0 дн.</span>
             </div>
             <div class="shop-card-desc" id="streak-desc"></div>
@@ -1702,7 +1691,7 @@
         <div class="streak-prestige-col" style="background: rgba(138, 43, 226, 0.12); border-color: rgba(138, 43, 226, 0.35);">
           <div>
             <div class="shop-card-title" style="font-size:13px; color:#da70d6;" data-i18n="prestige_title">🌟 Престиж</div>
-            <div class="shop-card-desc" id="prestige-info">Required 1,000,000 XP</div>
+            <div class="shop-card-desc" id="prestige-info">Потрібно 1,000,000 XP</div>
           </div>
           <div class="shop-card-desc" style="color:#d0b8ff;">
             Банери за престиж: 1, 3, 5 🌟
@@ -1713,54 +1702,54 @@
 
     <div class="page scroll-page" id="page-inventory">
       <div class="inventory-section" id="cases-section" style="display:none;">
-        <div class="inventory-title" data-i18n="cases_title">📦 Cases</div>
+        <div class="inventory-title" data-i18n="cases_title">📦 Кейси</div>
         <div class="inventory-grid" id="inv-cases"></div>
       </div>
 
       <div class="inventory-section">
-        <div class="inventory-title" data-i18n="banners_title">🖼️ Banners</div>
+        <div class="inventory-title" data-i18n="banners_title">🖼️ Банери</div>
         <div class="inventory-grid" id="inv-banners"></div>
       </div>
 
       <div class="inventory-section">
-        <div class="inventory-title" data-i18n="titles_title">Titles</div>
+        <div class="inventory-title" data-i18n="titles_title">Титули</div>
         <div class="inventory-grid" id="inv-titles"></div>
       </div>
 
       <div class="inventory-section">
-        <div class="inventory-title" data-i18n="avatars_title">Avatars</div>
+        <div class="inventory-title" data-i18n="avatars_title">Аватарки</div>
         <div class="inventory-grid" id="inv-avatars"></div>
       </div>
 
       <div class="inventory-section">
-        <div class="inventory-title" data-i18n="skins_title">Skins</div>
+        <div class="inventory-title" data-i18n="skins_title">Скіни</div>
         <div class="inventory-grid" id="inv-skins"></div>
       </div>
     </div>
 
     <div class="page scroll-page" id="page-top">
       <div class="top-header-bar">
-        <div class="inventory-title" style="font-size: 19px; margin-bottom: 0;" data-i18n="top_title">🏆 Leaderboard</div>
+        <div class="inventory-title" style="font-size: 19px; margin-bottom: 0;" data-i18n="top_title">🏆 Топ гравців</div>
         <button type="button" class="top-rewards-btn" id="btn-month-rewards" data-i18n="month_rewards_btn">🏅 Нагороди в кінці місяця</button>
       </div>
       <div id="leaderboard-list"></div>
     </div>
 
     <div class="page scroll-page" id="page-settings">
-      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="settings_title">⚙️ Settings</div>
+      <div class="inventory-title" style="text-align:center; font-size: 20px; margin-bottom: 16px;" data-i18n="settings_title">⚙️ Налаштування</div>
 
       <div class="settings-group">
-        <label for="language-select" class="settings-label" data-i18n="lang_label">Language / Мова / Язык</label>
+        <label for="language-select" class="settings-label" data-i18n="lang_label">Мова / Language / Язык</label>
         <select class="settings-select" id="language-select">
-          <option value="en">English</option>
           <option value="uk">Українська</option>
+          <option value="en">English</option>
           <option value="ru">Русский</option>
         </select>
       </div>
 
       <div class="settings-group">
         <div class="settings-toggle-row">
-          <span class="settings-label" style="margin-bottom:0;" data-i18n="hide_top_label">Hide me from Leaderboard</span>
+          <span class="settings-label" style="margin-bottom:0;" data-i18n="hide_top_label">Не показувати мене в топі</span>
           <label class="toggle-switch">
             <input type="checkbox" id="hide-top-toggle" />
             <span class="toggle-slider"></span>
@@ -1769,7 +1758,7 @@
       </div>
 
       <div class="settings-group">
-        <button type="button" class="settings-btn" id="btn-logout" style="background: #ff5252; color: #fff; font-weight: 700;" data-i18n="logout_btn">🚪 Log out</button>
+        <button type="button" class="settings-btn" id="btn-logout" style="background: #ff5252; color: #fff; font-weight: 700;" data-i18n="logout_btn">🚪 Вийти з акаунта</button>
       </div>
     </div>
 
@@ -1782,7 +1771,7 @@
       </div>
       <div class="energy-bar-wrap"><div class="energy-bar" id="energy-bar" style="width: 100%;"></div></div>
       <div class="energy-labels">
-        <span data-i18n="energy">Energy</span>
+        <span data-i18n="energy">Енергія</span>
         <span id="energy-label-bottom">200/200</span>
       </div>
       <div class="xp-row">
@@ -1793,7 +1782,7 @@
     </div>
   </div>
 
-  <div id="status"></div>
+  <div id="status" role="status" aria-live="polite"></div>
 
   <div class="modal-overlay" id="modal-month-rewards">
     <div class="modal-content" style="text-align:left;">
@@ -1802,26 +1791,26 @@
         <div>🥇 <b>1 місце:</b> Буст монет <b>x3</b> на <b>5 год</b> + титул «🥇 Top 1».</div>
         <div>🥈 <b>2 місце:</b> Буст монет <b>x3</b> на <b>2 год</b> + титул «🥈 Top 2».</div>
         <div>🥉 <b>3 місце:</b> Буст монет <b>x2</b> на <b>1 год</b> + титул «🥉 Top 3».</div>
-        <div style="color:#9aa2b1; font-size:11px;">Нагороди нараховуються автоматично при першому вході в наступному місяці.</div>
+        <div style="color:#9aa2b1; font-size:11px;">Нагороди нараховуються при першому вході в наступному місяці за зафіксований рейтинг.</div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
+        <button type="button" class="modal-btn cancel" data-i18n="close">Закрити</button>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modal-case-qty">
     <div class="modal-content">
-      <div class="modal-title" id="case-modal-title" data-i18n="open_case">Open Case</div>
-      <div style="font-size: 14px; color: #aaa; margin-bottom: 16px;" id="case-modal-count">Available: 0</div>
+      <div class="modal-title" id="case-modal-title" data-i18n="open_case">Відкрити кейс</div>
+      <div style="font-size: 14px; color: #aaa; margin-bottom: 16px;" id="case-modal-count">Доступно: 0</div>
       <div style="display:flex; gap:8px; margin-bottom:12px;">
         <button type="button" class="modal-btn confirm" data-qty="1">1</button>
         <button type="button" class="modal-btn confirm" data-qty="5">5</button>
         <button type="button" class="modal-btn confirm" data-qty="10">10</button>
-        <button type="button" class="modal-btn confirm" data-qty="all" data-i18n="all">All</button>
+        <button type="button" class="modal-btn confirm" data-qty="all" data-i18n="all">Всі</button>
       </div>
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" data-i18n="cancel">Cancel</button>
+        <button type="button" class="modal-btn cancel" data-i18n="cancel">Скасувати</button>
       </div>
     </div>
   </div>
@@ -1830,13 +1819,13 @@
     <div class="modal-content">
       <div id="view-prof-banner" class="profile-banner-bg"></div>
       <div style="position:relative; z-index:1;">
-        <div class="modal-title" data-i18n="player_profile">Player Profile</div>
+        <div class="modal-title" data-i18n="player_profile">Профіль гравця</div>
         <div class="preview-box" id="view-prof-avatar" style="font-size: 50px;">🐭</div>
         <div style="text-align:center; font-size: 20px; font-weight: 800; margin-bottom: 4px;" id="view-prof-nick">Player</div>
         <div style="text-align:center; font-size: 12px; color: #aaa; margin-bottom: 8px;" id="view-prof-id">ID: 000000</div>
 
         <div style="text-align:center; margin-bottom:12px;">
-          <span class="profile-title-badge" id="view-prof-title" style="margin-top:0;">Beginner</span>
+          <span class="profile-title-badge" id="view-prof-title" style="margin-top:0;">Новобранець</span>
         </div>
 
         <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.45); padding:10px; border-radius:10px; margin-bottom:12px;">
@@ -1846,12 +1835,12 @@
           </div>
           <div style="text-align:center;">
             <div style="font-weight:700; color:#da70d6;" id="view-prof-prestige">0</div>
-            <div style="font-size:10px; color:#aaa;" data-i18n="prestige">Prestige</div>
+            <div style="font-size:10px; color:#aaa;" data-i18n="prestige">Престиж</div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
+          <button type="button" class="modal-btn cancel" data-i18n="close">Закрити</button>
         </div>
       </div>
     </div>
@@ -1859,11 +1848,11 @@
 
   <div class="modal-overlay" id="modal-nickname">
     <div class="modal-content">
-      <div class="modal-title" data-i18n="change_nickname">Change Nickname</div>
-      <input type="text" class="admin-input" id="new-nickname-input" maxlength="16" placeholder="New nickname" />
+      <div class="modal-title" data-i18n="change_nickname">Змінити нікнейм</div>
+      <input type="text" class="admin-input" id="new-nickname-input" maxlength="16" placeholder="Новий нікнейм" />
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" data-i18n="cancel">Cancel</button>
-        <button type="button" class="modal-btn confirm" id="btn-save-nickname" data-i18n="save">Save</button>
+        <button type="button" class="modal-btn cancel" data-i18n="cancel">Скасувати</button>
+        <button type="button" class="modal-btn confirm" id="btn-save-nickname" data-i18n="save">Зберегти</button>
       </div>
     </div>
   </div>
@@ -1871,19 +1860,19 @@
   <div class="modal-overlay" id="modal-admin">
     <div class="modal-content">
       <div class="modal-title">🛠 Admin Panel</div>
-      <input type="number" class="admin-input" id="admin-coins-input" placeholder="Coins amount" />
-      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCoins()">Add Coins</button>
+      <input type="number" class="admin-input" id="admin-coins-input" placeholder="Кількість монет" />
+      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCoins()">Додати монети</button>
 
-      <input type="number" class="admin-input" id="admin-homs-input" placeholder="Homs amount" />
-      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddHoms()">Add Homs</button>
+      <input type="number" class="admin-input" id="admin-homs-input" placeholder="Кількість Хомів" />
+      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddHoms()">Додати Хоми</button>
 
-      <input type="number" class="admin-input" id="admin-xp-input" placeholder="XP amount" />
-      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddXp()">Add XP</button>
+      <input type="number" class="admin-input" id="admin-xp-input" placeholder="Кількість XP" />
+      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddXp()">Додати XP</button>
 
-      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCase()">Add Case</button>
+      <button type="button" class="modal-btn confirm" style="width:100%; margin-bottom:10px;" onclick="adminAddCase()">Додати кейс</button>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn cancel" data-i18n="close">Close</button>
+        <button type="button" class="modal-btn cancel" data-i18n="close">Закрити</button>
       </div>
     </div>
   </div>
@@ -1892,7 +1881,7 @@
     <div class="case-opening-box" id="case-opening-box">📦</div>
     <div class="case-reward-text" id="case-reward-text"></div>
     <div class="modal-actions" style="width: 100%; max-width: 300px; margin-top: 30px;">
-      <button type="button" class="modal-btn confirm" id="btn-close-case" data-i18n="take">Take</button>
+      <button type="button" class="modal-btn confirm" id="btn-close-case" data-i18n="take">Забрати</button>
     </div>
   </div>
 
