@@ -18,16 +18,25 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 
 const tg = window.Telegram?.WebApp;
-try { tg?.expand(); tg?.ready(); } catch (e) {}
+try {
+  tg?.expand();
+  tg?.ready();
+  if (tg?.viewportHeight) {
+    document.documentElement.style.setProperty('--tg-viewport-height', `${tg.viewportHeight}px`);
+  }
+  tg?.onEvent?.('viewportChanged', () => {
+    if (tg?.viewportHeight) {
+      document.documentElement.style.setProperty('--tg-viewport-height', `${tg.viewportHeight}px`);
+    }
+  });
+} catch (e) {}
 
 let AdController = null;
 const BOT_LINK = "https://t.me/hamka_game_bot";
 
-// Офлайн-фарм: максимум 3 години (10800 сек) і в 10 разів слабше (0.1)
 const OFFLINE_MAX_SECONDS = 3 * 3600;
 const OFFLINE_EARN_MULTIPLIER = 0.1;
 
-// Реферальні пороги
 const REFERRAL_MILESTONES = [
   { target: 3, id: 'ref_3', rewardLabel: 'Скін AIHamster + 1 Basic Case' },
   { target: 10, id: 'ref_10', rewardLabel: 'Банер Gradient Yellow + 1 Epic Case' },
@@ -41,6 +50,12 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function sanitizeGradientOrColor(val) {
+  const str = String(val ?? '').trim();
+  const safePattern = /^(#[0-9a-fA-F]{3,8}|rgba?\([\d\s.,%]+\)|linear-gradient\([0-9a-zA-Zdeg,\s.#%()-]+\))$/;
+  return safePattern.test(str) ? str : 'linear-gradient(90deg, #8a2be2, #da70d6)';
 }
 
 function isValidNickname(nick) {
@@ -128,6 +143,7 @@ const translations = {
     owned: "Owned",
     max: "MAX",
     open_case: "Open Case",
+    no_energy: "❌ No energy!",
     promo_title: "🎟 Referral Invite Link",
     promo_desc: "Friend gets 1 Basic Case immediately on entry! Reach milestones for skins, banners and Legendary Cases.",
     promo_share: "Share",
@@ -138,7 +154,10 @@ const translations = {
     avatar_label: "Avatar",
     skin_prefix: "Skin",
     banner_prefix: "Banner",
-    default_item: "Default"
+    default_item: "Default",
+    ad_case_title: "Case for Ad",
+    ad_case_watch: "Watch",
+    ad_case_claim: "Claim"
   },
   uk: {
     loading: "Завантаження...",
@@ -195,6 +214,7 @@ const translations = {
     owned: "Куплено",
     max: "МАКС",
     open_case: "Відкрити кейс",
+    no_energy: "❌ Недостатньо енергії!",
     promo_title: "🎟 Реферальне посилання",
     promo_desc: "Друг отримує 1 Базовий кейс одразу при вході! За пороги запрошень — скіни, банери, кейси та титул.",
     promo_share: "Поділитися",
@@ -205,7 +225,10 @@ const translations = {
     avatar_label: "Аватарка",
     skin_prefix: "Скін",
     banner_prefix: "Банер",
-    default_item: "Стандарт"
+    default_item: "Стандарт",
+    ad_case_title: "Кейс за рекламу",
+    ad_case_watch: "Дивитись",
+    ad_case_claim: "Забрати"
   },
   ru: {
     loading: "Загрузка...",
@@ -262,6 +285,7 @@ const translations = {
     owned: "Куплено",
     max: "МАКС",
     open_case: "Открыть кейс",
+    no_energy: "❌ Недостаточно энергии!",
     promo_title: "🎟 Реферальная ссылка",
     promo_desc: "Друг получает 1 Базовый кейс сразу при входе! За пороги приглашений — скины, баннеры, кейсы и титул.",
     promo_share: "Поделиться",
@@ -272,7 +296,10 @@ const translations = {
     avatar_label: "Аватарка",
     skin_prefix: "Скин",
     banner_prefix: "Баннер",
-    default_item: "Стандарт"
+    default_item: "Стандарт",
+    ad_case_title: "Кейс за рекламу",
+    ad_case_watch: "Смотреть",
+    ad_case_claim: "Забрать"
   }
 };
 
@@ -280,7 +307,7 @@ let currentLang = localStorage.getItem('hamka_lang') || 'uk';
 let isLoginMode = true;
 let state = {
   coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
-  title: 'Beginner', avatar: '🐭', nickname: '', publicId: '',
+  title: 'Новобранець', avatar: '🐭', nickname: '', publicId: '',
   activeSkin: 'default', activeBanner: 'default', holdings: {},
   purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
   cases: {}, legendaryCases: 0, adWatches: 0,
@@ -308,6 +335,7 @@ let userDataReady = false;
 let pendingStartParam = null;
 let referralProcessing = false;
 let dailyCheckDone = false;
+let prestigeInProgress = false;
 let cryptoState = {};
 
 const loadingScreen = document.getElementById('loading-screen');
@@ -483,7 +511,7 @@ let TITLES = [];
 let AVATARS = [];
 
 const CASE_TITLES = [
-  { name: 'Новобранец', color: 'linear-gradient(90deg, #43cea2, #185a9d)' },
+  { name: 'Новобранець', color: 'linear-gradient(90deg, #43cea2, #185a9d)' },
   { name: 'Амбасадор Хомів', color: 'linear-gradient(90deg, #f7971e, #ffd200)' },
   { name: 'Case Legend', color: 'linear-gradient(90deg, #ff0000, #ff8c00)' },
   { name: 'Lootbox King', color: 'linear-gradient(90deg, #00ff00, #00bfff)' },
@@ -713,7 +741,7 @@ hideTopToggle?.addEventListener('change', async (e) => {
   if (currentUid) {
     try {
       await update(ref(db, 'users/' + currentUid), { hideFromTop: val });
-      showStatus('✅ Updated settings');
+      showStatus('✅ Оновлено');
     } catch (err) {}
   }
 });
@@ -722,7 +750,7 @@ btnLogout?.addEventListener('click', async () => {
   try {
     touchLastSeen();
     await signOut(auth);
-    showStatus('Logged out');
+    showStatus('Вийшли з акаунта');
   } catch (e) {}
 });
 
@@ -754,11 +782,11 @@ async function handleAuthSubmit(e) {
   const nick = authNickname?.value.trim() || '';
   const password = authPassword?.value || '';
   if (!isValidNickname(nick)) {
-    if (authError) authError.innerText = 'Nickname: 3-16 chars (letters, numbers, _, ., -)';
+    if (authError) authError.innerText = 'Нікнейм: 3–16 символів (літери, цифри, _, ., -)';
     return;
   }
   if (password.length < 6) {
-    if (authError) authError.innerText = 'Password min 6 chars';
+    if (authError) authError.innerText = 'Пароль мінімум 6 символів';
     return;
   }
 
@@ -766,24 +794,19 @@ async function handleAuthSubmit(e) {
   if (authError) authError.innerText = '';
   try {
     if (isLoginMode) {
-      const legacyCandidates = getLegacyEmailCandidates(nick);
-      let loggedIn = false;
-      let lastErr = null;
-      for (const legacyEmail of legacyCandidates) {
-        try {
-          await signInWithEmailAndPassword(auth, legacyEmail, password);
-          loggedIn = true;
-          break;
-        } catch (err) {
-          lastErr = err;
+      try {
+        await signInWithEmailAndPassword(auth, getRegisterEmail(nick), password);
+      } catch (primaryErr) {
+        const legacyCandidates = getLegacyEmailCandidates(nick);
+        let loggedIn = false;
+        for (const legacyEmail of legacyCandidates) {
+          try {
+            await signInWithEmailAndPassword(auth, legacyEmail, password);
+            loggedIn = true;
+            break;
+          } catch (_) {}
         }
-      }
-      if (!loggedIn) {
-        try {
-          await signInWithEmailAndPassword(auth, getRegisterEmail(nick), password);
-        } catch (err) {
-          throw lastErr || err;
-        }
+        if (!loggedIn) throw primaryErr;
       }
     } else {
       await createUserWithEmailAndPassword(auth, getRegisterEmail(nick), password);
@@ -799,7 +822,7 @@ authForm?.addEventListener('submit', handleAuthSubmit);
 
 tgLoginBtn?.addEventListener('click', async () => {
   const tgUser = tg?.initDataUnsafe?.user;
-  if (!tgUser) { if (authError) authError.innerText = 'Open via Telegram bot'; return; }
+  if (!tgUser) { if (authError) authError.innerText = 'Відкрийте через бота Telegram'; return; }
   try {
     await signInWithEmailAndPassword(auth, `tg_${tgUser.id}@hamka.test`, `Tg_${tgUser.id}_SecurePass_2026!`);
   } catch (e) {
@@ -816,6 +839,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUid = user.uid;
     userDataReady = false;
     dailyCheckDone = false;
+    prestigeInProgress = false;
     if (loadingScreen) loadingScreen.style.display = 'none';
     if (authScreen) authScreen.classList.add('hidden');
     if (gameScreen) gameScreen.classList.add('visible');
@@ -835,6 +859,7 @@ onAuthStateChanged(auth, async (user) => {
     if (adminBtnBadge) adminBtnBadge.style.display = 'none';
     userDataReady = false;
     dailyCheckDone = false;
+    prestigeInProgress = false;
     if (loadingScreen) loadingScreen.style.display = 'none';
     if (authScreen) authScreen.classList.remove('hidden');
     if (gameScreen) gameScreen.classList.remove('visible');
@@ -848,7 +873,7 @@ onAuthStateChanged(auth, async (user) => {
 autoLoginTelegram();
 
 document.querySelectorAll('.menu-item[data-page]').forEach(item => {
-  item.addEventListener('click', () => {
+  const activatePage = () => {
     document.querySelectorAll('.menu-item').forEach(n => n.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     item.classList.add('active');
@@ -862,6 +887,13 @@ document.querySelectorAll('.menu-item[data-page]').forEach(item => {
       minitabRoulette?.classList.remove('active');
       if (miniContentCrypto) miniContentCrypto.style.display = 'block';
       if (miniContentRoulette) miniContentRoulette.style.display = 'none';
+    }
+  };
+  item.addEventListener('click', activatePage);
+  item.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      activatePage();
     }
   });
 });
@@ -896,7 +928,7 @@ async function loadGameData() {
       TITLES = Object.keys(titlesSnap.val()).map(id => ({ id, ...titlesSnap.val()[id] }));
     } else {
       TITLES = [
-        { id: 'beg', name: 'Beginner', price: 0, color: 'linear-gradient(90deg, #555, #777)', reqPrestige: 0 },
+        { id: 'novobranets', name: 'Новобранець', price: 0, color: 'linear-gradient(90deg, #43cea2, #185a9d)', reqPrestige: 0 },
         { id: 'brnz', name: 'Bronze Hamster', price: 0, color: 'linear-gradient(90deg, #cd7f32, #8b4513)', reqPrestige: 1 },
         { id: 'slvr', name: 'Silver Hamster', price: 0, color: 'linear-gradient(90deg, #c0c0c0, #808080)', reqPrestige: 2 },
         { id: 'gld', name: 'Gold Hamster', price: 0, color: 'linear-gradient(90deg, #ffd700, #b8860b)', reqPrestige: 3 },
@@ -953,7 +985,7 @@ async function syncPrestigeBanners(uid, prestigeLvl) {
 
 async function loadLeaderboard() {
   if (!leaderboardList) return;
-  leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Loading...</div>';
+  leaderboardList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Завантаження...</div>';
   try {
     const snap = await get(ref(db, 'users'));
     const users = snap.val() || {};
@@ -963,7 +995,7 @@ async function loadLeaderboard() {
       if (u.hideFromTop) continue;
       arr.push({
         uid, nickname: u.nickname || 'Player', avatar: u.avatar || '🐭',
-        title: u.title || 'Beginner', activeSkin: u.activeSkin || 'default',
+        title: u.title || 'Новобранець', activeSkin: u.activeSkin || 'default',
         activeBanner: u.activeBanner || 'default',
         publicId: u.publicId || '000000', xp: u.xp || 0, prestige: u.prestige || 0
       });
@@ -984,7 +1016,7 @@ async function loadLeaderboard() {
       }
 
       const titleObj = TITLES.find(t => t.name === u.title) || CASE_TITLES.find(t => t.name === u.title) || TOP_TITLES.find(t => t.name === u.title);
-      const titleColor = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
+      const titleColor = sanitizeGradientOrColor(titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)');
 
       const safeNick = escapeHtml(u.nickname);
       const safeTitle = escapeHtml(u.title);
@@ -1075,33 +1107,22 @@ async function processMonthlyTopAndStreak(uid, data) {
         const found = list.find(item => item && item.uid === uid);
         if (found) rank = Number(found.rank) || 0;
       }
-      if (!rank) {
-        const usersSnap = await get(ref(db, 'users'));
-        if (usersSnap.exists()) {
-          const allUsers = usersSnap.val() || {};
-          const sorted = Object.keys(allUsers)
-            .filter(k => !allUsers[k]?.hideFromTop)
-            .sort((a, b) => (allUsers[b]?.prestige || 0) - (allUsers[a]?.prestige || 0) || (allUsers[b]?.xp || 0) - (allUsers[a]?.xp || 0));
-          const idx = sorted.indexOf(uid);
-          if (idx >= 0 && idx < 3) rank = idx + 1;
-        }
-      }
 
       if (rank === 1) {
         boostMult = 3;
         boostExpires = nowMs + 5 * 3600 * 1000;
         monthlyRewardApplied = true;
-        rewardStatusMsg = '🏆 #1 за місяць! Буст монет x3 на 5 год!';
+        rewardStatusMsg = '🏆 #1 за минулий місяць! Буст монет x3 на 5 год!';
       } else if (rank === 2) {
         boostMult = 3;
         boostExpires = nowMs + 2 * 3600 * 1000;
         monthlyRewardApplied = true;
-        rewardStatusMsg = '🥈 #2 за місяць! Буст монет x3 на 2 год!';
+        rewardStatusMsg = '🥈 #2 за минулий місяць! Буст монет x3 на 2 год!';
       } else if (rank === 3) {
         boostMult = 2;
         boostExpires = nowMs + 1 * 3600 * 1000;
         monthlyRewardApplied = true;
-        rewardStatusMsg = '🥉 #3 за місяць! Буст монет x2 на 1 год!';
+        rewardStatusMsg = '🥉 #3 за минулий місяць! Буст монет x2 на 1 год!';
       }
     } catch (e) {}
   }
@@ -1126,7 +1147,7 @@ async function processMonthlyTopAndStreak(uid, data) {
     }
 
     if (newStreak > 0 && !rewardStatusMsg) {
-      rewardStatusMsg = `🔥 День ${newStreak}! Зайди у Профіль та натисни «Забрати»`;
+      rewardStatusMsg = `🔥 День ${newStreak}! Зайди у Профіль та натисни «Забрати нагороду»`;
     } else if (lostStreak > 0 && !rewardStatusMsg) {
       rewardStatusMsg = `⚠️ Серію збито! Можна відновити за ${getStreakRestoreCost(lostStreak)} 🐹`;
     }
@@ -1258,7 +1279,7 @@ btnRestoreStreak?.addEventListener('click', async () => {
   });
 
   if (res.committed) {
-    showStatus(`✅ Серію ${restoredNum} дн. відновлено! Тепер натисни «Забрати»`);
+    showStatus(`✅ Серію ${restoredNum} дн. відновлено! Натисни «Забрати нагороду»`);
     try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
   }
 });
@@ -1271,12 +1292,12 @@ btnChangeNickname?.addEventListener('click', () => {
 btnSaveNickname?.addEventListener('click', async () => {
   const newNick = newNicknameInput?.value.trim() || '';
   if (!isValidNickname(newNick)) {
-    showStatus('❌ 3-16 символів (літери, цифри, _, ., -)');
+    showStatus('❌ 3–16 символів (літери, цифри, _, ., -)');
     return;
   }
   await update(ref(db, 'users/' + currentUid), { nickname: newNick });
   modalNickname?.classList.remove('show');
-  showStatus('✅ Saved!');
+  showStatus('✅ Збережено!');
 });
 
 async function checkAdminStatus(uid) {
@@ -1293,19 +1314,19 @@ window.adminAddCoins = async () => {
   if (!isAdmin || !currentUid) return;
   const amount = parseInt(document.getElementById('admin-coins-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.coins = (d.coins || 0) + amount; return d; });
-  showStatus('✅ Added coins');
+  showStatus('✅ Монети додано');
 };
 window.adminAddHoms = async () => {
   if (!isAdmin || !currentUid) return;
   const amount = parseInt(document.getElementById('admin-homs-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.homs = (d.homs || 0) + amount; return d; });
-  showStatus('✅ Added Homs');
+  showStatus('✅ Хоми додано');
 };
 window.adminAddXp = async () => {
   if (!isAdmin || !currentUid) return;
   const amount = parseInt(document.getElementById('admin-xp-input')?.value, 10) || 0;
   await runTransaction(ref(db, 'users/' + currentUid), d => { if (d) d.xp = (d.xp || 0) + amount; return d; });
-  showStatus('✅ Added XP');
+  showStatus('✅ XP додано');
 };
 window.adminAddCase = async () => {
   if (!isAdmin || !currentUid) return;
@@ -1315,7 +1336,7 @@ window.adminAddCase = async () => {
     d.cases.basic = (d.cases.basic || 0) + 1;
     return d;
   });
-  showStatus('✅ Case added');
+  showStatus('✅ Кейс додано');
 };
 
 function applyReferralMilestones(target, unlockedNotes) {
@@ -1380,7 +1401,6 @@ async function applyReferralCode(rawCode) {
 
     if (!referrerUid) { referralProcessing = false; return false; }
 
-    // Миттєва нагорода другу одразу при вході по рефералу
     const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
       if (!data) return data;
       if (data.usedReferralCode) return data;
@@ -1470,7 +1490,7 @@ window.shareReferralLink = function () {
   if (tg && typeof tg.openTelegramLink === 'function') {
     try { tg.openTelegramLink(shareUrl); return; } catch (e) {}
   }
-  window.open(shareUrl, '_blank');
+  window.open(shareUrl, '_blank', 'noopener,noreferrer');
 };
 
 function initGame(uid) {
@@ -1480,31 +1500,29 @@ function initGame(uid) {
 
   syncTelegramChatId(uid);
 
-  get(userRef).then((snap) => {
-    if (!snap.exists()) {
-      const tgUser = tg?.initDataUnsafe?.user;
-      const generatedId = tgUser ? 'tg_' + tgUser.id : uid.slice(0, 8);
-      const rawNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
-      const defaultNick = isValidNickname(rawNick) ? rawNick.trim() : ('Player_' + generatedId).slice(0, 16);
+  const tgUser = tg?.initDataUnsafe?.user;
+  const generatedId = tgUser ? 'tg_' + tgUser.id : uid.slice(0, 8);
+  const rawNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
+  const defaultNick = isValidNickname(rawNick) ? rawNick.trim() : ('Player_' + generatedId).slice(0, 16);
 
-      // Стартовий набір перших 60 секунд: 3 кейси, x2 на 10 хв, титул «Новобранець»
-      set(userRef, {
-        coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
-        title: 'Новобранец', avatar: '🐭', holdings: {},
-        nickname: defaultNick, publicId: generatedId, activeSkin: 'default', activeBanner: 'default',
-        tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
-        purchasedTitles: ['Новобранец'], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
-        cases: { basic: 3 }, legendaryCases: 0, adWatches: 0,
-        usedReferralCode: false, referredBy: '', invited: 0, claimedReferralMilestones: [], hideFromTop: false,
-        language: currentLang,
-        streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
-        tap3BoostGranted: false, coinBoostMult: 2, coinBoostExpiresAt: nowStart + 10 * 60 * 1000,
-        lastRewardMonth: getMonthKey(), lastSeenAt: nowStart,
-        tgChatId: tgUser?.id ? Number(tgUser.id) : null,
-        tgUsername: tgUser?.username || '',
-        createdAt: nowStart
-      }).catch(() => {});
-    }
+  runTransaction(userRef, (existing) => {
+    if (existing && typeof existing === 'object') return existing;
+    return {
+      coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
+      title: 'Новобранець', avatar: '🐭', holdings: {},
+      nickname: defaultNick, publicId: generatedId, activeSkin: 'default', activeBanner: 'default',
+      tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
+      purchasedTitles: ['Новобранець'], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
+      cases: { basic: 3 }, legendaryCases: 0, adWatches: 0,
+      usedReferralCode: false, referredBy: '', invited: 0, claimedReferralMilestones: [], hideFromTop: false,
+      language: currentLang,
+      streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
+      tap3BoostGranted: false, coinBoostMult: 2, coinBoostExpiresAt: nowStart + 10 * 60 * 1000,
+      lastRewardMonth: getMonthKey(), lastSeenAt: nowStart,
+      tgChatId: tgUser?.id ? Number(tgUser.id) : null,
+      tgUsername: tgUser?.username || '',
+      createdAt: nowStart
+    };
   }).catch(() => {});
 
   unsubscribeUserData = onValue(userRef, async (snapshot) => {
@@ -1519,7 +1537,7 @@ function initGame(uid) {
     }
     state.maxEnergy = data.maxEnergy ?? 200;
     state.prestige = data.prestige || 0;
-    state.title = data.title || 'Beginner';
+    state.title = data.title || 'Новобранець';
     state.avatar = data.avatar || '🐭';
     state.nickname = data.nickname || 'Player';
     state.publicId = data.publicId || '000000';
@@ -1616,7 +1634,10 @@ function initGame(uid) {
       if (now - lastTapTime < 60) return;
       lastTapTime = now;
 
-      if (state.energy < 1) { showStatus("❌ No energy!"); return; }
+      if (state.energy < 1) {
+        showStatus(translations[currentLang]?.no_energy || "❌ Недостатньо енергії!");
+        return;
+      }
       const mult = getActiveCoinMultiplier(now);
       const tapPower = state.upgrades.tapPower * mult;
       const xpPerTap = state.upgrades.xpPerTap;
@@ -1631,8 +1652,10 @@ function initGame(uid) {
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
         effect.innerText = `+${formatNumber(tapPower)}`;
-        effect.style.left = (e.clientX - rect.left - 10) + 'px';
-        effect.style.top = (e.clientY - rect.top - 10) + 'px';
+        const clientX = e.clientX || (rect.left + rect.width / 2);
+        const clientY = e.clientY || (rect.top + rect.height / 2);
+        effect.style.left = (clientX - rect.left - 10) + 'px';
+        effect.style.top = (clientY - rect.top - 10) + 'px';
         tapArea.appendChild(effect);
         setTimeout(() => effect.remove(), 800);
       }
@@ -1679,33 +1702,43 @@ function getPrestigeReq(prestigeLvl) {
 }
 
 async function checkAutoPrestige() {
+  if (prestigeInProgress) return;
   const req = getPrestigeReq(state.prestige);
   if (state.xp >= req && currentUid) {
-    const userRef = ref(db, 'users/' + currentUid);
-    const nextPrestigeNum = state.prestige + 1;
+    prestigeInProgress = true;
+    try {
+      const userRef = ref(db, 'users/' + currentUid);
+      let nextPrestigeNum = state.prestige;
 
-    if (prestigeText) prestigeText.innerText = `PRESTIGE ${nextPrestigeNum}`;
-    prestigeOverlay?.classList.add('show');
-    setTimeout(() => prestigeOverlay?.classList.remove('show'), 2500);
+      await runTransaction(userRef, (data) => {
+        if (!data) return data;
+        const curReq = getPrestigeReq(data.prestige || 0);
+        if ((data.xp || 0) >= curReq) {
+          data.xp = (data.xp || 0) - curReq;
+          const p = (data.prestige || 0) + 1;
+          nextPrestigeNum = p;
+          data.prestige = p;
 
-    await runTransaction(userRef, (data) => {
-      if (!data) return data;
-      if ((data.xp || 0) >= req) {
-        data.xp = (data.xp || 0) - req;
-        const p = (data.prestige || 0) + 1;
-        data.prestige = p;
-
-        const banners = Array.isArray(data.purchasedBanners) ? [...data.purchasedBanners] : [];
-        for (const b of BANNERS) {
-          if (b.reqPrestige && p >= b.reqPrestige && !banners.includes(b.id)) {
-            banners.push(b.id);
+          const banners = Array.isArray(data.purchasedBanners) ? [...data.purchasedBanners] : [];
+          for (const b of BANNERS) {
+            if (b.reqPrestige && p >= b.reqPrestige && !banners.includes(b.id)) {
+              banners.push(b.id);
+            }
           }
+          data.purchasedBanners = banners;
         }
-        data.purchasedBanners = banners;
+        return data;
+      });
+
+      if (nextPrestigeNum > state.prestige) {
+        if (prestigeText) prestigeText.innerText = `PRESTIGE ${nextPrestigeNum}`;
+        prestigeOverlay?.classList.add('show');
+        setTimeout(() => prestigeOverlay?.classList.remove('show'), 2200);
+        try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
       }
-      return data;
-    });
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
+    } finally {
+      setTimeout(() => { prestigeInProgress = false; }, 600);
+    }
   }
 }
 
@@ -1773,13 +1806,14 @@ function renderShop() {
       const isOwned = state.purchasedTitles.includes(item.name);
       const isHoms = item.currency === 'homs';
       const canAfford = isHoms ? state.homs >= item.price : state.coins >= item.price;
+      const safeBg = sanitizeGradientOrColor(item.color);
 
       const card = document.createElement('div');
       card.className = 'shop-card';
       card.innerHTML = `
-        <div class="grid-preview" style="font-size:24px; background:${item.color};">🏆</div>
+        <div class="grid-preview" style="font-size:24px; background:${safeBg};">🏆</div>
         <div class="shop-card-info">
-          <div class="shop-card-title" style="background:${item.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(item.name)}</div>
+          <div class="shop-card-title" style="background:${safeBg}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(item.name)}</div>
           <div class="shop-card-price">${formatNumber(item.price)} ${isHoms ? '🐹' : '🪙'}</div>
         </div>
         <button class="shop-card-btn" data-title-name="${escapeHtml(item.name)}" ${isOwned || !canAfford ? 'disabled' : ''}>${isOwned ? t.owned : t.buy}</button>
@@ -1913,10 +1947,10 @@ function renderShop() {
     adCaseCard.innerHTML = `
       <div class="grid-preview" style="font-size:40px; width:64px; height:64px; margin:0 10px 0 0;">🎬</div>
       <div class="shop-card-info">
-        <div class="shop-card-title">Case for Ad</div>
-        <div class="shop-card-price">Progress: ${state.adWatches} / 5</div>
+        <div class="shop-card-title">${escapeHtml(t.ad_case_title)}</div>
+        <div class="shop-card-price">${state.adWatches} / 5</div>
       </div>
-      <button class="shop-card-btn" id="btn-buy-case-ad">${state.adWatches >= 5 ? 'Claim' : 'Watch'}</button>
+      <button class="shop-card-btn" id="btn-buy-case-ad">${escapeHtml(state.adWatches >= 5 ? t.ad_case_claim : t.ad_case_watch)}</button>
     `;
     shopListEl.appendChild(adCaseCard);
 
@@ -1929,9 +1963,9 @@ function renderShop() {
           data.cases.basic = (data.cases.basic || 0) + 1;
           return data;
         });
-        showStatus('✅ Case received!');
+        showStatus('✅ Кейс отримано!');
       } else {
-        if (!AdController) { showStatus('❌ Ad not available'); return; }
+        if (!AdController) { showStatus('❌ Реклама недоступна'); return; }
         try {
           const result = await AdController.show();
           if (result && result.done) {
@@ -1942,9 +1976,9 @@ function renderShop() {
               data.adWatches = updatedWatches;
               return data;
             });
-            showStatus(`✅ Ad credited! (${updatedWatches}/5)`);
+            showStatus(`✅ Перегляд зараховано! (${updatedWatches}/5)`);
           }
-        } catch (e) { showStatus('❌ Ad not completed'); }
+        } catch (e) { showStatus('❌ Рекламу не додивлено'); }
       }
     });
     return;
@@ -2030,7 +2064,7 @@ async function buyUpgrade(itemId) {
   if (unlockedTap3Boost) {
     showStatus('⚡ 3 рівень тапу! Активовано x2 монет на 10 хв!');
   } else {
-    showStatus('✅ Upgrade purchased!');
+    showStatus('✅ Покращення куплено!');
   }
 }
 
@@ -2046,7 +2080,7 @@ async function buySkin(item) {
     if (!data.purchasedSkins.includes(item.id)) data.purchasedSkins.push(item.id);
     return data;
   });
-  if (res.committed) { showStatus('✅ Skin bought!'); renderShop(); }
+  if (res.committed) { showStatus('✅ Скін куплено!'); renderShop(); }
 }
 
 async function buyBanner(item) {
@@ -2061,7 +2095,7 @@ async function buyBanner(item) {
     if (!data.purchasedBanners.includes(item.id)) data.purchasedBanners.push(item.id);
     return data;
   });
-  if (res.committed) { showStatus('✅ Banner bought!'); renderShop(); }
+  if (res.committed) { showStatus('✅ Банер куплено!'); renderShop(); }
 }
 
 async function buyCosmetic(item) {
@@ -2081,7 +2115,7 @@ async function buyCosmetic(item) {
     }
     return data;
   });
-  if (res.committed) { showStatus('✅ Purchased!'); renderShop(); }
+  if (res.committed) { showStatus('✅ Куплено!'); renderShop(); }
 }
 
 function renderProfile() {
@@ -2109,15 +2143,15 @@ function renderProfile() {
   const titleObj = TITLES.find(t => t.name === state.title) || CASE_TITLES.find(t => t.name === state.title) || TOP_TITLES.find(t => t.name === state.title);
   if (profTitle) profTitle.innerText = state.title;
   if (profTitleBadge) {
-    profTitleBadge.style.background = titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)';
+    profTitleBadge.style.background = sanitizeGradientOrColor(titleObj ? titleObj.color : 'linear-gradient(90deg, #8a2be2, #da70d6)');
   }
 
   const req = getPrestigeReq(state.prestige);
-  if (prestigeInfo) prestigeInfo.innerText = state.xp >= req ? 'Ready!' : `Required ${formatNumber(req)} XP`;
+  if (prestigeInfo) prestigeInfo.innerText = state.xp >= req ? 'Готово!' : `Потрібно ${formatNumber(req)} XP`;
 
   if (streakDaysBadge) streakDaysBadge.innerText = `${state.streakCount} дн.`;
   if (btnClaimStreak) {
-    btnClaimStreak.innerText = translations[currentLang]?.claim_streak_btn || '🎁 Забрати';
+    btnClaimStreak.innerText = translations[currentLang]?.claim_streak_btn || '🎁 Забрати нагороду';
     btnClaimStreak.style.display = canClaimStreakReward() ? 'block' : 'none';
   }
 
@@ -2185,7 +2219,7 @@ function renderInventory() {
     noBannerEl.innerHTML = `<div class="banner-preview"></div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
     noBannerEl.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { activeBanner: 'default' });
-      showStatus('✅ Banner reset!');
+      showStatus('✅ Банер скинуто!');
     });
     invBanners.appendChild(noBannerEl);
 
@@ -2203,7 +2237,7 @@ function renderInventory() {
       `;
       el.addEventListener('click', async () => {
         await update(ref(db, 'users/' + currentUid), { activeBanner: bObj.id });
-        showStatus('✅ Banner equipped!');
+        showStatus('✅ Банер встановлено!');
       });
       invBanners.appendChild(el);
     });
@@ -2217,12 +2251,13 @@ function renderInventory() {
     ];
     invTitles.innerHTML = '';
     availableTitles.forEach(tItem => {
+      const safeBg = sanitizeGradientOrColor(tItem.color);
       const el = document.createElement('div');
       el.className = `inventory-item ${state.title === tItem.name ? 'active' : ''}`;
-      el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${tItem.color}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(tItem.name)}</div>`;
+      el.innerHTML = `<div class="inventory-item-icon">🏆</div><div class="inventory-item-name" style="background:${safeBg}; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${escapeHtml(tItem.name)}</div>`;
       el.addEventListener('click', async () => {
         await update(ref(db, 'users/' + currentUid), { title: tItem.name });
-        showStatus('✅ Title equipped!');
+        showStatus('✅ Титул встановлено!');
       });
       invTitles.appendChild(el);
     });
@@ -2237,7 +2272,7 @@ function renderInventory() {
       el.innerHTML = `<div class="inventory-item-icon">${escapeHtml(avName)}</div>`;
       el.addEventListener('click', async () => {
         await update(ref(db, 'users/' + currentUid), { avatar: avName });
-        showStatus('✅ Avatar changed!');
+        showStatus('✅ Аватарку змінено!');
       });
       invAvatars.appendChild(el);
     });
@@ -2250,7 +2285,7 @@ function renderInventory() {
     defaultEl.innerHTML = `<div class="inventory-item-icon">🐭</div><div class="inventory-item-name">${escapeHtml(t.default_item)}</div>`;
     defaultEl.addEventListener('click', async () => {
       await update(ref(db, 'users/' + currentUid), { activeSkin: 'default' });
-      showStatus('✅ Skin changed!');
+      showStatus('✅ Скін змінено!');
     });
     invSkins.appendChild(defaultEl);
 
@@ -2262,7 +2297,7 @@ function renderInventory() {
       el.innerHTML = `<div class="inventory-item-icon" style="background-image: url('${GITHUB_RAW}${skinObj.file}'); background-size: cover; border-radius:4px;"></div><div class="inventory-item-name">${escapeHtml(skinObj.name)}</div>`;
       el.addEventListener('click', async () => {
         await update(ref(db, 'users/' + currentUid), { activeSkin: skinId });
-        showStatus('✅ Skin changed!');
+        showStatus('✅ Скін змінено!');
       });
       invSkins.appendChild(el);
     });
@@ -2271,11 +2306,11 @@ function renderInventory() {
 
 function openCaseModal(type, count) {
   selectedCaseTypeToOpen = type;
-  const titleText = type === 'legendary' ? 'Open Legendary Case' : (type === 'epic' ? 'Open Epic Case (x5)' : 'Open Case');
+  const titleText = type === 'legendary' ? 'Відкрити Legendary Case' : (type === 'epic' ? 'Відкрити Epic Case (x5)' : 'Відкрити кейс');
   const titleEl = document.getElementById('case-modal-title');
   const countEl = document.getElementById('case-modal-count');
   if (titleEl) titleEl.innerText = titleText;
-  if (countEl) countEl.innerText = `Available: ${count}`;
+  if (countEl) countEl.innerText = `Доступно: ${count}`;
   document.getElementById('modal-case-qty')?.classList.add('show');
 }
 
@@ -2359,7 +2394,7 @@ window.openCasesBatch = async function (qty) {
             summaryRewards.push(`Avatar: ${randomAvatar.name}`);
           }
         } else if (rand < 70) {
-          const poolTitles = CASE_TITLES.filter(t => t.name !== 'Новобранец' && t.name !== 'Амбасадор Хомів');
+          const poolTitles = CASE_TITLES.filter(t => t.name !== 'Новобранець' && t.name !== 'Амбасадор Хомів');
           const randomTitle = poolTitles[Math.floor(Math.random() * poolTitles.length)];
           if (data.purchasedTitles.includes(randomTitle.name)) {
             const homsBonus = 10 * multiplier;
@@ -2421,18 +2456,24 @@ async function initCryptoSystem() {
       if (symbol === 'PLAYERHOM') continue;
       updateCryptoPrice(symbol);
     }
-  }, 10000);
+  }, 30000);
 }
 
 async function updateCryptoPrice(symbol) {
   if (symbol === 'PLAYERHOM') return;
   const cRef = ref(db, 'crypto/' + symbol);
+  const basePrice = INITIAL_PRICES[symbol] || 100;
   try {
     await runTransaction(cRef, (data) => {
       if (!data) return data;
-      const currentPrice = data.price || INITIAL_PRICES[symbol];
-      const isGrowth = Math.random() < 0.45;
-      const percent = (Math.random() * 0.03) + 0.005;
+      const currentPrice = data.price || basePrice;
+      // Нейтральний дрейф (50/50) з м'яким тяжінням до базової ціни, щоб ринок не падав у нуль
+      let growthProb = 0.5;
+      if (currentPrice < basePrice * 0.4) growthProb = 0.62;
+      else if (currentPrice > basePrice * 2.5) growthProb = 0.38;
+
+      const isGrowth = Math.random() < growthProb;
+      const percent = (Math.random() * 0.025) + 0.005;
       let newPrice = isGrowth ? currentPrice * (1 + percent) : currentPrice * (1 - percent);
       newPrice = Math.max(1, newPrice);
 
@@ -2468,10 +2509,10 @@ function renderCryptoList() {
       <canvas class="crypto-chart" id="chart-${escapeHtml(symbol)}" width="300" height="60"></canvas>
       <div class="crypto-actions">
         <input type="number" min="1" value="${qty}" class="crypto-input" id="qty-${escapeHtml(symbol)}" data-symbol="${escapeHtml(symbol)}">
-        <button class="crypto-btn buy" data-symbol="${escapeHtml(symbol)}" data-action="buy">${translations[currentLang].buy || 'Buy'}</button>
-        <button class="crypto-btn sell" data-symbol="${escapeHtml(symbol)}" data-action="sell">${translations[currentLang].sell || 'Sell'}</button>
+        <button class="crypto-btn buy" data-symbol="${escapeHtml(symbol)}" data-action="buy">${translations[currentLang].buy || 'Купити'}</button>
+        <button class="crypto-btn sell" data-symbol="${escapeHtml(symbol)}" data-action="sell">${translations[currentLang].sell || 'Продати'}</button>
       </div>
-      <div class="crypto-holdings">You have: <span>${holding}</span> ${escapeHtml(symbol)}</div>
+      <div class="crypto-holdings">Баланс: <span>${holding}</span> ${escapeHtml(symbol)}</div>
     `;
     cryptoListEl.appendChild(card);
     drawChart(document.getElementById('chart-' + symbol), history, isUp);
@@ -2517,35 +2558,52 @@ function drawChart(canvas, history, isUp) {
 
 async function tradeCrypto(symbol, action, qty) {
   if (!currentUid || qty <= 0) return;
-  const info = cryptoState[symbol];
-  if (!info) return;
 
-  const price = info.price || INITIAL_PRICES[symbol];
-  const total = price * qty;
+  let executedPrice = null;
   let traded = false;
 
-  await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+  const res = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
     if (!data) return data;
     if (!data.holdings) data.holdings = {};
+    const livePrice = cryptoState[symbol]?.price || INITIAL_PRICES[symbol];
+    const total = livePrice * qty;
 
     if (action === 'buy') {
       if ((data.coins || 0) < total) return;
       data.coins -= total;
       data.holdings[symbol] = (data.holdings[symbol] || 0) + qty;
+      executedPrice = livePrice;
       traded = true;
     } else {
       const owned = data.holdings[symbol] || 0;
       if (owned < qty) return;
       data.coins = (data.coins || 0) + total;
       data.holdings[symbol] = owned - qty;
+      executedPrice = livePrice;
       traded = true;
     }
     return data;
   });
 
-  if (!traded) {
+  if (!res.committed || !traded) {
     showStatus(action === 'buy' ? '❌ Недостатньо монет' : '❌ Недостатньо монет активу');
     return;
+  }
+
+  // Перевіряємо актуальну ціну в базі й коригуємо баланс за свіжою ціною, якщо вона змінилася
+  const freshSnap = await get(ref(db, 'crypto/' + symbol));
+  const freshPrice = freshSnap.exists() ? (freshSnap.val()?.price || executedPrice) : executedPrice;
+  if (freshPrice && executedPrice && Math.abs(freshPrice - executedPrice) > 1e-6) {
+    const diffTotal = (freshPrice - executedPrice) * qty;
+    await runTransaction(ref(db, 'users/' + currentUid), (data) => {
+      if (!data) return data;
+      if (action === 'buy') {
+        data.coins = Math.max(0, (data.coins || 0) - diffTotal);
+      } else {
+        data.coins = Math.max(0, (data.coins || 0) + diffTotal);
+      }
+      return data;
+    });
   }
 
   if (symbol === 'PLAYERHOM') {
@@ -2563,7 +2621,7 @@ async function tradeCrypto(symbol, action, qty) {
     });
   }
 
-  showStatus('✅ Trade successful!');
+  showStatus('✅ Угоду виконано!');
 }
 
 const ROULETTE_REWARDS = [
@@ -2596,7 +2654,7 @@ function initRoulette() {
 }
 
 btnSpinRoulette?.addEventListener('click', async () => {
-  if (!AdController) { showStatus('❌ Ad not available'); return; }
+  if (!AdController) { showStatus('❌ Реклама недоступна'); return; }
   try {
     const result = await AdController.show();
     if (result && result.done) {
@@ -2633,13 +2691,12 @@ btnSpinRoulette?.addEventListener('click', async () => {
         });
 
         btnSpinRoulette.disabled = false;
-        showStatus(`🎁 Reward: ${reward.text}`);
+        showStatus(`🎁 Нагорода: ${reward.text}`);
         try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
       }, 3100);
     }
   } catch (e) {
     btnSpinRoulette.disabled = false;
-    showStatus('❌ Ad not completed');
+    showStatus('❌ Рекламу не додивлено');
   }
 });
-²
