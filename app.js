@@ -27,6 +27,13 @@ const BOT_LINK = "https://t.me/hamka_game_bot";
 const OFFLINE_MAX_SECONDS = 3 * 3600;
 const OFFLINE_EARN_MULTIPLIER = 0.1;
 
+// Реферальні пороги
+const REFERRAL_MILESTONES = [
+  { target: 3, id: 'ref_3', rewardLabel: 'Скін AIHamster + 1 Basic Case' },
+  { target: 10, id: 'ref_10', rewardLabel: 'Банер Gradient Yellow + 1 Epic Case' },
+  { target: 25, id: 'ref_25', rewardLabel: '1 Legendary Case + титул «Амбасадор Хомів»' }
+];
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -122,9 +129,10 @@ const translations = {
     max: "MAX",
     open_case: "Open Case",
     promo_title: "🎟 Referral Invite Link",
-    promo_desc: "Share your link! Friend gets 1 Basic Case, you get 1 Legendary Case (x10 loot)!",
+    promo_desc: "Friend gets 1 Basic Case immediately on entry! Reach milestones for skins, banners and Legendary Cases.",
     promo_share: "Share",
     invite_copied: "Invitation copied",
+    my_invites_title: "👥 My Invites & Milestones",
     streak_title: "🔥 Daily Streak",
     claim_streak_btn: "🎁 Claim Reward",
     avatar_label: "Avatar",
@@ -188,9 +196,10 @@ const translations = {
     max: "МАКС",
     open_case: "Відкрити кейс",
     promo_title: "🎟 Реферальне посилання",
-    promo_desc: "Ділися посиланням! Друг отримає 1 Базовий кейс, а ти — 1 Легендарний кейс (лут x10)!",
+    promo_desc: "Друг отримує 1 Базовий кейс одразу при вході! За пороги запрошень — скіни, банери, кейси та титул.",
     promo_share: "Поділитися",
     invite_copied: "Запрошення скопійовано",
+    my_invites_title: "👥 Мої запрошення та пороги",
     streak_title: "🔥 Денна серія",
     claim_streak_btn: "🎁 Забрати нагороду",
     avatar_label: "Аватарка",
@@ -254,9 +263,10 @@ const translations = {
     max: "МАКС",
     open_case: "Открыть кейс",
     promo_title: "🎟 Реферальная ссылка",
-    promo_desc: "Делись ссылкой! Друг получит 1 Базовый кейс, а ты — 1 Легендарный кейс (лут x10)!",
+    promo_desc: "Друг получает 1 Базовый кейс сразу при входе! За пороги приглашений — скины, баннеры, кейсы и титул.",
     promo_share: "Поделиться",
     invite_copied: "Приглашение скопировано",
+    my_invites_title: "👥 Мои приглашения и пороги",
     streak_title: "🔥 Дневная серия",
     claim_streak_btn: "🎁 Забрать награду",
     avatar_label: "Аватарка",
@@ -274,10 +284,10 @@ let state = {
   activeSkin: 'default', activeBanner: 'default', holdings: {},
   purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
   cases: {}, legendaryCases: 0, adWatches: 0,
-  usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
+  usedReferralCode: false, referredBy: '', invited: 0, claimedReferralMilestones: [], hideFromTop: false,
   streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
   tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
-  lastRewardMonth: '', lastSeenAt: 0,
+  lastRewardMonth: '', lastSeenAt: 0, tgChatId: null,
   upgrades: {
     tapLevel: 0, tapPower: 1, xpPerTap: 1,
     autoTapRate: 0, autoXpRate: 0, energyRate: 1
@@ -473,6 +483,8 @@ let TITLES = [];
 let AVATARS = [];
 
 const CASE_TITLES = [
+  { name: 'Новобранец', color: 'linear-gradient(90deg, #43cea2, #185a9d)' },
+  { name: 'Амбасадор Хомів', color: 'linear-gradient(90deg, #f7971e, #ffd200)' },
   { name: 'Case Legend', color: 'linear-gradient(90deg, #ff0000, #ff8c00)' },
   { name: 'Lootbox King', color: 'linear-gradient(90deg, #00ff00, #00bfff)' },
   { name: 'Chosen', color: 'linear-gradient(90deg, #ffffff, #ffd700)' },
@@ -1306,6 +1318,36 @@ window.adminAddCase = async () => {
   showStatus('✅ Case added');
 };
 
+function applyReferralMilestones(target, unlockedNotes) {
+  const invitedCount = Number(target.invited) || 0;
+  if (!Array.isArray(target.claimedReferralMilestones)) target.claimedReferralMilestones = [];
+  if (!Array.isArray(target.purchasedSkins)) target.purchasedSkins = [];
+  if (!Array.isArray(target.purchasedBanners)) target.purchasedBanners = [];
+  if (!Array.isArray(target.purchasedTitles)) target.purchasedTitles = [];
+  if (!target.cases || typeof target.cases !== 'object') target.cases = {};
+
+  if (invitedCount >= 3 && !target.claimedReferralMilestones.includes('ref_3')) {
+    target.claimedReferralMilestones.push('ref_3');
+    if (!target.purchasedSkins.includes('skin_ai')) target.purchasedSkins.push('skin_ai');
+    target.cases.basic = (target.cases.basic || 0) + 1;
+    unlockedNotes.push('Скін AIHamster + 1 Basic Case');
+  }
+
+  if (invitedCount >= 10 && !target.claimedReferralMilestones.includes('ref_10')) {
+    target.claimedReferralMilestones.push('ref_10');
+    if (!target.purchasedBanners.includes('banner_gradient_yellow')) target.purchasedBanners.push('banner_gradient_yellow');
+    target.cases.epic = (target.cases.epic || 0) + 1;
+    unlockedNotes.push('Банер Gradient Yellow + 1 Epic Case');
+  }
+
+  if (invitedCount >= 25 && !target.claimedReferralMilestones.includes('ref_25')) {
+    target.claimedReferralMilestones.push('ref_25');
+    target.legendaryCases = (target.legendaryCases || 0) + 1;
+    if (!target.purchasedTitles.includes('Амбасадор Хомів')) target.purchasedTitles.push('Амбасадор Хомів');
+    unlockedNotes.push('1 Legendary Case + титул «Амбасадор Хомів»');
+  }
+}
+
 async function applyReferralCode(rawCode) {
   if (!currentUid || !userDataReady) {
     const parsed = extractReferralCode(rawCode);
@@ -1338,6 +1380,7 @@ async function applyReferralCode(rawCode) {
 
     if (!referrerUid) { referralProcessing = false; return false; }
 
+    // Миттєва нагорода другу одразу при вході по рефералу
     const res1 = await runTransaction(ref(db, 'users/' + currentUid), (data) => {
       if (!data) return data;
       if (data.usedReferralCode) return data;
@@ -1353,10 +1396,12 @@ async function applyReferralCode(rawCode) {
       return false;
     }
 
+    const unlockedNotes = [];
     const res2 = await runTransaction(ref(db, 'users/' + referrerUid), (data) => {
       const target = data && typeof data === 'object' ? { ...data } : {};
-      target.legendaryCases = (Number(target.legendaryCases) || 0) + 1;
       target.invited = (Number(target.invited) || 0) + 1;
+      unlockedNotes.length = 0;
+      applyReferralMilestones(target, unlockedNotes);
       return target;
     });
 
@@ -1366,7 +1411,8 @@ async function applyReferralCode(rawCode) {
     }
 
     pendingStartParam = null;
-    showStatus(`Тебе запросив ${referrerNick} (+1 Легендарний кейс другу)`);
+    const bonusText = unlockedNotes.length ? ` (відкрито поріг: ${unlockedNotes.join(', ')})` : '';
+    showStatus(`🎁 Запросив ${referrerNick}! Отримано +1 Basic Case${bonusText}`);
     try { tg?.HapticFeedback?.notificationOccurred('success'); } catch (e) {}
     referralProcessing = false;
     return true;
@@ -1374,6 +1420,17 @@ async function applyReferralCode(rawCode) {
     referralProcessing = false;
     return false;
   }
+}
+
+async function syncTelegramChatId(uid) {
+  const tgUser = tg?.initDataUnsafe?.user;
+  if (!uid || !tgUser?.id) return;
+  try {
+    await update(ref(db, 'users/' + uid), {
+      tgChatId: Number(tgUser.id),
+      tgUsername: tgUser.username || ''
+    });
+  } catch (e) {}
 }
 
 async function copyTextWithFallback(text) {
@@ -1407,7 +1464,7 @@ function getReferralInviteLink() {
 
 window.shareReferralLink = function () {
   const inviteLink = getReferralInviteLink();
-  const shareText = `🐭 Грай у Hamka Game та забирай бонусний кейс!`;
+  const shareText = `🐭 Грай у Hamka та забирай бонусний кейс + буст x2!`;
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 
   if (tg && typeof tg.openTelegramLink === 'function') {
@@ -1419,6 +1476,9 @@ window.shareReferralLink = function () {
 function initGame(uid) {
   if (unsubscribeUserData) { unsubscribeUserData(); unsubscribeUserData = null; }
   const userRef = ref(db, 'users/' + uid);
+  const nowStart = Date.now();
+
+  syncTelegramChatId(uid);
 
   get(userRef).then((snap) => {
     if (!snap.exists()) {
@@ -1427,19 +1487,22 @@ function initGame(uid) {
       const rawNick = tgUser ? (tgUser.username || tgUser.first_name) : 'Player_' + generatedId;
       const defaultNick = isValidNickname(rawNick) ? rawNick.trim() : ('Player_' + generatedId).slice(0, 16);
 
+      // Стартовий набір перших 60 секунд: 3 кейси, x2 на 10 хв, титул «Новобранець»
       set(userRef, {
         coins: 0, homs: 0, energy: 200, maxEnergy: 200, xp: 0, prestige: 0,
-        title: 'Beginner', avatar: '🐭', holdings: {},
+        title: 'Новобранец', avatar: '🐭', holdings: {},
         nickname: defaultNick, publicId: generatedId, activeSkin: 'default', activeBanner: 'default',
         tapLevel: 0, tapPower: 1, xpPerTap: 1, autoTapRate: 0, autoXpRate: 0, energyRate: 1,
-        purchasedTitles: [], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
-        cases: { basic: 1 }, legendaryCases: 0, adWatches: 0,
-        usedReferralCode: false, referredBy: '', invited: 0, hideFromTop: false,
+        purchasedTitles: ['Новобранец'], purchasedAvatars: [], purchasedSkins: [], purchasedBanners: [],
+        cases: { basic: 3 }, legendaryCases: 0, adWatches: 0,
+        usedReferralCode: false, referredBy: '', invited: 0, claimedReferralMilestones: [], hideFromTop: false,
         language: currentLang,
         streakCount: 0, lastStreakDay: '', claimedStreakDay: '', lostStreakCount: 0,
-        tap3BoostGranted: false, coinBoostMult: 1, coinBoostExpiresAt: 0,
-        lastRewardMonth: getMonthKey(), lastSeenAt: Date.now(),
-        createdAt: Date.now()
+        tap3BoostGranted: false, coinBoostMult: 2, coinBoostExpiresAt: nowStart + 10 * 60 * 1000,
+        lastRewardMonth: getMonthKey(), lastSeenAt: nowStart,
+        tgChatId: tgUser?.id ? Number(tgUser.id) : null,
+        tgUsername: tgUser?.username || '',
+        createdAt: nowStart
       }).catch(() => {});
     }
   }).catch(() => {});
@@ -1473,6 +1536,7 @@ function initGame(uid) {
     state.usedReferralCode = data.usedReferralCode || false;
     state.referredBy = data.referredBy || '';
     state.invited = data.invited || 0;
+    state.claimedReferralMilestones = data.claimedReferralMilestones || [];
     state.hideFromTop = data.hideFromTop || false;
     state.streakCount = data.streakCount || 0;
     state.lastStreakDay = data.lastStreakDay || '';
@@ -1483,6 +1547,7 @@ function initGame(uid) {
     state.coinBoostExpiresAt = data.coinBoostExpiresAt || 0;
     state.lastRewardMonth = data.lastRewardMonth || '';
     state.lastSeenAt = data.lastSeenAt || 0;
+    state.tgChatId = data.tgChatId || null;
 
     if (data.language && data.language !== currentLang) {
       setLanguage(data.language);
@@ -1796,18 +1861,43 @@ function renderShop() {
 
   if (currentShopTab === 'cases') {
     const inviteLink = getReferralInviteLink();
+    const invitedCount = Number(state.invited) || 0;
+    const maxTarget = 25;
+    const progressPct = Math.min(100, Math.round((invitedCount / maxTarget) * 100));
+
     const promoBox = document.createElement('div');
     promoBox.className = 'promo-box';
 
+    const milestonesHtml = REFERRAL_MILESTONES.map(m => {
+      const done = invitedCount >= m.target || state.claimedReferralMilestones.includes(m.id);
+      return `
+        <div class="ref-milestone-row ${done ? 'done' : ''}">
+          <span><b>${invitedCount}/${m.target}</b> — ${escapeHtml(m.rewardLabel)}</span>
+          <span>${done ? '✅' : '⏳'}</span>
+        </div>
+      `;
+    }).join('');
+
     promoBox.innerHTML = `
-      <div class="shop-card-title" style="color:#2ecc71;">${t.promo_title}</div>
-      <div class="shop-card-desc">${t.promo_desc}</div>
+      <div class="shop-card-title" style="color:#2ecc71;">${escapeHtml(t.promo_title)}</div>
+      <div class="shop-card-desc">${escapeHtml(t.promo_desc)}</div>
       <div class="promo-code-display">
         <span class="promo-code-text" id="my-promo-code">${escapeHtml(inviteLink)}</span>
         <div style="display:flex; gap:6px; flex-shrink:0; margin-left:8px;">
           <button class="shop-card-btn" id="btn-copy-promo" style="padding:6px 10px;">📋</button>
-          <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${t.promo_share}</button>
+          <button class="shop-card-btn" id="btn-share-promo" style="padding:6px 10px; background:#2aabee; color:#fff;">${escapeHtml(t.promo_share)}</button>
         </div>
+      </div>
+
+      <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="shop-card-title" style="font-size:13px; margin-bottom:0; color:#ffd700;">${escapeHtml(t.my_invites_title)}</div>
+          <span class="season-badge" style="padding:2px 8px; font-size:10px;">${invitedCount} / ${maxTarget}</span>
+        </div>
+        <div class="ref-progress-bar">
+          <div class="ref-progress-fill" style="width:${progressPct}%;"></div>
+        </div>
+        <div class="ref-milestone-list">${milestonesHtml}</div>
       </div>
     `;
     shopListEl.appendChild(promoBox);
@@ -2269,7 +2359,8 @@ window.openCasesBatch = async function (qty) {
             summaryRewards.push(`Avatar: ${randomAvatar.name}`);
           }
         } else if (rand < 70) {
-          const randomTitle = CASE_TITLES[Math.floor(Math.random() * CASE_TITLES.length)];
+          const poolTitles = CASE_TITLES.filter(t => t.name !== 'Новобранец' && t.name !== 'Амбасадор Хомів');
+          const randomTitle = poolTitles[Math.floor(Math.random() * poolTitles.length)];
           if (data.purchasedTitles.includes(randomTitle.name)) {
             const homsBonus = 10 * multiplier;
             data.homs = (data.homs || 0) + homsBonus;
@@ -2551,3 +2642,4 @@ btnSpinRoulette?.addEventListener('click', async () => {
     showStatus('❌ Ad not completed');
   }
 });
+²
